@@ -2,11 +2,13 @@
 
 require "bundler/setup"
 require "jsonb_accessor"
+require "rspec"
+require File.expand_path("../../spec/spec_helper.rb", __FILE__)
 
-# You can add fixtures and/or initialization code here to make experimenting
-# with your gem easier. You can also use a different console, if you like.
+ActiveRecord::Base.establish_connection(
+  adapter: "postgresql",
+  database: "jsonb_accessor",
+  username: "postgres"
+)
 
-require "pry"
-require "pry-nav"
-require "pry-doc"
 Pry.start

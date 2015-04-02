@@ -1,5 +1,8 @@
 $LOAD_PATH.unshift File.expand_path("../../lib", __FILE__)
 require "jsonb_accessor"
+require "pry"
+require "pry-nav"
+require "pry-doc"
 require "database_cleaner"
 require "shoulda-matchers"
 
