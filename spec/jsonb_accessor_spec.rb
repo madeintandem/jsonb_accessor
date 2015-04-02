@@ -46,6 +46,11 @@ RSpec.describe JsonbAccessor do
         expect(subject.name).to eq(name)
         expect(subject.color).to eq(color)
       end
+
+      it "preserves nil" do
+        subject.name = nil
+        expect(subject.name).to be_nil
+      end
     end
   end
 end
