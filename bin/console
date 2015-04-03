@@ -12,4 +12,7 @@ ActiveRecord::Base.establish_connection(
   username: "postgres"
 )
 
+class Product < ActiveRecord::Base
+end
+
 Pry.start
