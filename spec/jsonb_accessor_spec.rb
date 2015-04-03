@@ -1,20 +1,22 @@
 require "spec_helper"
 
+VALUE_FIELDS = [:count, :name, :price]
+TYPED_FIELDS = {
+  title: :string,
+  name_value: :value,
+  id_value: :value,
+  external_id: :integer,
+  admin: :boolean,
+  approved_on: :date,
+  reviewed_at: :datetime,
+  precision: :decimal,
+  reset_at: :time,
+  amount_floated: :float
+}
+ALL_FIELDS = VALUE_FIELDS + TYPED_FIELDS.keys
+
 class Product < ActiveRecord::Base
-  jsonb_accessor :options,
-    :count,
-    :name,
-    :price,
-    title: :string,
-    name_value: :value,
-    id_value: :value,
-    external_id: :integer,
-    admin: :boolean,
-    approved_on: :date,
-    reviewed_at: :datetime,
-    precision: :decimal,
-    reset_at: :time,
-    amount_floated: :float
+  jsonb_accessor :options, *VALUE_FIELDS, TYPED_FIELDS
 end
 
 RSpec.describe JsonbAccessor do
@@ -254,6 +256,37 @@ RSpec.describe JsonbAccessor do
         subject.save!
         subject.reload
         expect(subject.amount_floated).to eq(amount_floated)
+      end
+    end
+  end
+
+  context "dirty tracking" do
+    subject { Product.new }
+
+    ALL_FIELDS.each do |field|
+      [:_before_type_cast, :_came_from_user?, :_change, :_changed?, :_was, :_will_change!].each do |method_extension|
+        it "implements #{field}#{method_extension}" do
+          expect(subject).to respond_to("#{field}#{method_extension}")
+        end
+      end
+    end
+
+    ALL_FIELDS.each do |field|
+      [:reset_, :restore_].each do |method_prefix|
+        method_name = "#{method_prefix}#{field}!"
+        it "implements #{method_name}" do
+          expect(subject).to respond_to(method_name)
+        end
+      end
+    end
+  end
+
+  context "predicate methods" do
+    subject { Product.new }
+
+    ALL_FIELDS.each do |field|
+      it "implements #{field}?" do
+        expect(subject).to respond_to("#{field}?")
       end
     end
   end
