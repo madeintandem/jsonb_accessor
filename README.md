@@ -2,6 +2,9 @@
 
 Adds typed jsonb backed fields as first class citizens to your ActiveRecord models. This gem is similar in spirit to [HstoreAccessor](https://github.com/devmynd/hstore_accessor), but the Json column in Postgres has a few distinct advantages, mostly around nested documents and support for collections. This gem plans to provide support for these in the future.
 
+
+**This gem is under heavy development. Please use cautiously and help us with feedback by opening issues for defects and feature requests. API Subject to change.**
+
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -81,9 +84,6 @@ end
 * `reset_field!`
 * `restore_field!`
 * `field_will_change!`
-
-Overriding methods is supported, with access to the original JsonbAccessor implementation available via `super`.
-
 
 ### Supported Types
 
