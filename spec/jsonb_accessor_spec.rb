@@ -12,7 +12,9 @@ class Product < ActiveRecord::Base
     admin: :boolean,
     approved_on: :date,
     reviewed_at: :datetime,
-    precision: :decimal
+    precision: :decimal,
+    reset_at: :time,
+    amount_floated: :float
 end
 
 RSpec.describe JsonbAccessor do
@@ -67,6 +69,8 @@ RSpec.describe JsonbAccessor do
     let(:approved_on) { Date.new(2015, 3, 25) }
     let(:reviewed_at) { DateTime.new(2015, 3, 25, 6, 45, 33) }
     let(:precision) { 5.0023 }
+    let(:reset_at) { Time.new(2015, 4, 5, 6, 7, 8) }
+    let(:amount_floated) { 52.8892 }
 
     before do
       subject.title = title
@@ -77,6 +81,8 @@ RSpec.describe JsonbAccessor do
       subject.approved_on = approved_on
       subject.reviewed_at = reviewed_at
       subject.precision = precision
+      subject.reset_at = reset_at
+      subject.amount_floated = amount_floated
     end
 
     context "string fields" do
@@ -180,6 +186,11 @@ RSpec.describe JsonbAccessor do
         expect(subject.reviewed_at).to eq(reviewed_at)
       end
 
+      it "coerces infinity" do
+        subject.reviewed_at = "infinity"
+        expect(subject.reviewed_at).to eq(::Float::INFINITY)
+      end
+
       it "preserves the value after a trip to the database" do
         subject.save!
         subject.reload
@@ -201,6 +212,48 @@ RSpec.describe JsonbAccessor do
         subject.save!
         subject.reload
         expect(subject.precision).to eq(precision)
+      end
+
+      it "uses the postgres decimal type" do
+        expect(JsonbAccessor::Macro::ClassMethods::TYPES[:decimal]).to eq(ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Decimal)
+      end
+    end
+
+    context "time fields" do
+      it "sets the value in the jsonb field" do
+        expect(Time.parse(subject.options["reset_at"]).to_s).to eq(reset_at.to_s)
+      end
+
+      it "coerces the value" do
+        subject.reset_at = reset_at.to_s
+        expect(subject.reset_at.hour).to eq(reset_at.hour)
+        expect(subject.reset_at.min).to eq(reset_at.min)
+        expect(subject.reset_at.sec).to eq(reset_at.sec)
+      end
+
+      it "preserves the value after a trip to the database" do
+        subject.save!
+        subject.reload
+        expect(subject.reset_at.hour).to eq(reset_at.hour)
+        expect(subject.reset_at.min).to eq(reset_at.min)
+        expect(subject.reset_at.sec).to eq(reset_at.sec)
+      end
+    end
+
+    context "float fields" do
+      it "sets the value in the jsonb field" do
+        expect(subject.options["amount_floated"]).to eq(amount_floated)
+      end
+
+      it "coerces the value" do
+        subject.amount_floated = amount_floated.to_s
+        expect(subject.amount_floated).to eq(amount_floated)
+      end
+
+      it "preserves the value after a trip to the database" do
+        subject.save!
+        subject.reload
+        expect(subject.amount_floated).to eq(amount_floated)
       end
     end
   end
