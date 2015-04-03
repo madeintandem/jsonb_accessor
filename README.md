@@ -22,7 +22,7 @@ First we must create a model which has a json column available to store data int
 class CreateProductsTable < ActiveRecord::Migration
   def change
     create_table :products do |t|
-      t.jsonb :options, default: {}
+      t.jsonb :options
     end
   end
 end
@@ -54,7 +54,7 @@ end
 
 JsonbAccessor accepts both untyped and typed key definitions. Untyped keys are treated as-is and no additional casting is performed. This allows the freedom of dynamic values alongside the power types, which is especially convenient when saving nested form attributes. Typed keys will be cast to their respective values using the same mechanism ActiveRecord uses to coerce standard attribute columns. It's as close to a real column as you can get and the goal is to keep it that way.
 
-All untyped keys must be defined prior to typed columns. For reference, the jsonb_accessor macro is defined thusly.
+All untyped keys must be defined prior to typed columns. You can declare a typed column with type `value` for explicit dynamic behavior. For reference, the jsonb_accessor macro is defined thusly.
 
 ```ruby
 def jsonb_accessor(jsonb_attribute, *value_fields, **typed_fields)
@@ -90,8 +90,8 @@ Overriding methods is supported, with access to the original JsonbAccessor imple
 More coming soon, including support for nested objects and arrays. Typed arrays if we get ambitious enough.
 
 ```
-:string
 :value
+:string
 :integer
 :boolean
 :date
