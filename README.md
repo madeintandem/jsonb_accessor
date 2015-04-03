@@ -1,13 +1,12 @@
-# JsonbAccessor
+# JSONb Accessor
 
-Adds typed jsonb backed fields as first class citizens to your ActiveRecord models. This gem is similar in spirit to [HstoreAccessor](https://github.com/devmynd/hstore_accessor), but the Json column in Postgres has a few distinct advantages, mostly around nested documents and support for collections. This gem plans to provide support for these in the future.
+Adds typed `jsonb` backed fields as first class citizens to your `ActiveRecord` models. This gem is similar in spirit to [HstoreAccessor](https://github.com/devmynd/hstore_accessor), but the `jsonb` column in PostgreSQL has a few distinct advantages, mostly around nested documents and support for collections. This gem plans to provide support for these in the future.
 
-
-**This gem is under heavy development. Please use cautiously and help us with feedback by opening issues for defects and feature requests. API Subject to change.**
+**This gem is under heavy development. Please use cautiously and help us with feedback by opening issues for defects and feature requests. The current API is subject to change.**
 
 ## Installation
 
-Add this line to your application's Gemfile:
+Add this line to your application's `Gemfile`:
 
 ```ruby
 gem "jsonb_accessor"
@@ -19,7 +18,7 @@ And then execute:
 
 ## Usage
 
-First we must create a model which has a json column available to store data into it.
+First we must create a model which has a `jsonb` column available to store data into it:
 
 ```ruby
 class CreateProductsTable < ActiveRecord::Migration
@@ -29,45 +28,44 @@ class CreateProductsTable < ActiveRecord::Migration
     end
   end
 end
-
 ```
 
-We can then declare the json fields we wish to expose via the accessor.
-
+We can then declare the `jsonb` fields we wish to expose via the accessor:
 
 ```ruby
 class Product < ActiveRecord::Base
-  jsonb_accessor :options,
-  :count, # value type
-  :name, # value type
-  :price, # value type
-  title: :string,
-  name_value: :value,
-  id_value: :value,
-  external_id: :integer,
-  admin: :boolean,
-  approved_on: :date,
-  reviewed_at: :datetime,
-  precision: :decimal,
-  reset_at: :time,
-  amount_floated: :float
+  jsonb_accessor(
+    :options,
+    :count, # => value type
+    :name, # => value type
+    :price, # => value type
+    title: :string,
+    name_value: :value,
+    id_value: :value,
+    external_id: :integer,
+    admin: :boolean,
+    approved_on: :date,
+    reviewed_at: :datetime,
+    precision: :decimal,
+    reset_at: :time,
+    amount_floated: :float
+  )
 end
-
 ```
 
-JsonbAccessor accepts both untyped and typed key definitions. Untyped keys are treated as-is and no additional casting is performed. This allows the freedom of dynamic values alongside the power types, which is especially convenient when saving nested form attributes. Typed keys will be cast to their respective values using the same mechanism ActiveRecord uses to coerce standard attribute columns. It's as close to a real column as you can get and the goal is to keep it that way.
+JSONb Accessor accepts both untyped and typed key definitions. Untyped keys are treated as-is and no additional casting is performed. This allows the freedom of dynamic values alongside the power types, which is especially convenient when saving nested form attributes. Typed keys will be cast to their respective values using the same mechanism ActiveRecord uses to coerce standard attribute columns. It's as close to a real column as you can get and the goal is to keep it that way.
 
-All untyped keys must be defined prior to typed columns. You can declare a typed column with type `value` for explicit dynamic behavior. For reference, the jsonb_accessor macro is defined thusly.
+All untyped keys must be defined prior to typed columns. You can declare a typed column with type `value` for explicit dynamic behavior. For reference, the `jsonb_accessor` macro is defined thusly.
 
 ```ruby
 def jsonb_accessor(jsonb_attribute, *value_fields, **typed_fields)
-   ...
+  ...
 end
 ```
 
 There's quite a bit more to do do and document but we're excited to get this out there while we work on it some more.
 
-## ActiveRecord methods generated for fields
+## ActiveRecord Methods Generated for Fields
 
 ```ruby
 class Product < ActiveRecord::Base
@@ -87,7 +85,7 @@ end
 
 ### Supported Types
 
-More coming soon, including support for nested objects and arrays. Typed arrays if we get ambitious enough.
+There's more coming soon, including support for nested objects and arrays. Typed arrays if we get ambitious enough.
 
 ```
 :value
@@ -100,25 +98,25 @@ More coming soon, including support for nested objects and arrays. Typed arrays 
 :time
 :float
 ```
-## Single-table Inheritance
+
+## Single-Table Inheritance
 
 You can use it for STI in the same spirit as [hstore_accessor, which documented here.](https://github.com/devmynd/hstore_accessor#single-table-inheritance).
 
 ## Scopes
 
-Coming soon
+Coming soon...
 
 ## Migrations
 
-Coming soon
+Coming soon...
 
-Jsonb supports GIN, GIST, btree and hash indexes over json column. We have plans to add migrations helpers for generating these indexes for you.
+`jsonb` supports `GIN`, `GIST`, `btree` and `hash` indexes over `json` column. We have plans to add migrations helpers for generating these indexes for you.
 
 ## Dependencies
 
 - ActiveRecord 4.2
 - Postgres 9.4 (in order to use the [jsonb column type](http://www.postgresql.org/docs/9.4/static/datatype-json.html)).
-
 
 ## Development
 
