@@ -11,7 +11,16 @@ TYPED_FIELDS = {
   reviewed_at: :datetime,
   precision: :decimal,
   reset_at: :time,
-  amount_floated: :float
+  amount_floated: :float,
+  sequential_data: :array,
+  nicknames: :string_array,
+  rankings: :integer_array,
+  favorited_history: :boolean_array,
+  login_days: :date_array,
+  favorites_at: :datetime_array,
+  prices: :decimal_array,
+  login_times: :time_array,
+  amounts_floated: :float_array
 }
 ALL_FIELDS = VALUE_FIELDS + TYPED_FIELDS.keys
 
@@ -73,6 +82,15 @@ RSpec.describe JsonbAccessor do
     let(:precision) { 5.0023 }
     let(:reset_at) { Time.new(2015, 4, 5, 6, 7, 8) }
     let(:amount_floated) { 52.8892 }
+    let(:sequential_data) { [5, "foo", 52.8892] }
+    let(:nicknames) { %w(T-Bone Crushinator) }
+    let(:rankings) { [1, 4, 2, 5] }
+    let(:favorited_history) { [true, false, false, true] }
+    let(:login_days) { [approved_on, Date.new(2013, 2, 25)] }
+    let(:favorites_at) { [reviewed_at, DateTime.new(2055, 3, 5, 6, 5, 22)] }
+    let(:prices) { [precision, 123.098753] }
+    let(:login_times) { [reset_at, Time.new(2005, 4, 7, 6, 1, 3)] }
+    let(:amounts_floated) { [22.34, amount_floated] }
 
     before do
       subject.title = title
@@ -85,6 +103,15 @@ RSpec.describe JsonbAccessor do
       subject.precision = precision
       subject.reset_at = reset_at
       subject.amount_floated = amount_floated
+      subject.sequential_data = sequential_data
+      subject.nicknames = nicknames
+      subject.rankings = rankings
+      subject.favorited_history = favorited_history
+      subject.login_days = login_days
+      subject.favorites_at = favorites_at
+      subject.prices = prices
+      subject.login_times = login_times
+      subject.amounts_floated = amounts_floated
     end
 
     context "string fields" do
@@ -217,7 +244,7 @@ RSpec.describe JsonbAccessor do
       end
 
       it "uses the postgres decimal type" do
-        expect(JsonbAccessor::Macro::ClassMethods::TYPES[:decimal]).to eq(ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Decimal)
+        expect(JsonbAccessor::Macro::ClassMethods::TYPES[:decimal].call).to be_a(ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Decimal)
       end
     end
 
@@ -256,6 +283,193 @@ RSpec.describe JsonbAccessor do
         subject.save!
         subject.reload
         expect(subject.amount_floated).to eq(amount_floated)
+      end
+    end
+
+    context "array fields" do
+      context "untyped array fields" do
+        it "sets the value in the jsonb field" do
+          expect(subject.options["sequential_data"]).to eq(sequential_data)
+        end
+
+        it "preserves the value after a trip to the database" do
+          subject.save!
+          subject.reload
+          expect(subject.sequential_data).to eq(sequential_data)
+        end
+      end
+
+      context "typed array fields" do
+        context "string typed" do
+          it "sets the value in the jsonb field" do
+            expect(subject.options["nicknames"]).to eq(nicknames)
+          end
+
+          it "coerces the value" do
+            subject.nicknames = [5]
+            expect(subject.nicknames).to eq(["5"])
+          end
+
+          it "preserves the value after a trip to the database" do
+            subject.save!
+            subject.reload
+            expect(subject.nicknames).to eq(nicknames)
+          end
+        end
+
+        context "integer typed" do
+          it "sets the value in the jsonb field" do
+            expect(subject.options["rankings"]).to eq(rankings)
+          end
+
+          it "coerces the value" do
+            subject.rankings = %w(5)
+            expect(subject.rankings).to eq([5])
+          end
+
+          it "preserves the value after a trip to the database" do
+            subject.save!
+            subject.reload
+            expect(subject.rankings).to eq(rankings)
+          end
+        end
+
+        context "boolean typed" do
+          it "sets the value in the jsonb field" do
+            expect(subject.options["favorited_history"]).to eq(favorited_history)
+          end
+
+          ActiveRecord::ConnectionAdapters::Column::FALSE_VALUES.each do |value|
+            it "coerces the value to false when the value is '#{value}'" do
+              subject.favorited_history = [value]
+              expect(subject.favorited_history).to eq([false])
+            end
+          end
+
+          ActiveRecord::ConnectionAdapters::Column::TRUE_VALUES.each do |value|
+            it "coerces the value to true when the value is '#{value}'" do
+              subject.favorited_history = [value]
+              expect(subject.favorited_history).to eq([true])
+            end
+          end
+
+          it "preserves the value after a trip to the database" do
+            subject.save!
+            subject.reload
+            expect(subject.favorited_history).to eq(favorited_history)
+          end
+        end
+
+        context "date typed" do
+          it "sets the value in the jsonb field" do
+            expect(subject.options["login_days"]).to eq(login_days.map(&:to_s))
+          end
+
+          it "coerces the value" do
+            subject.login_days = login_days.map(&:to_s)
+            expect(subject.login_days).to eq(login_days)
+          end
+
+          it "preserves the value after a trip to the database" do
+            subject.save!
+            subject.reload
+            expect(subject.login_days).to eq(login_days)
+          end
+        end
+
+        context "datetime typed" do
+          it "sets the value in the jsonb field" do
+            jsonb_field_value = subject.options["favorites_at"].map do |value|
+              DateTime.parse(value).to_s
+            end
+            expect(jsonb_field_value).to eq(favorites_at.map(&:to_s))
+          end
+
+          it "coerces the value" do
+            subject.favorites_at = favorites_at.map(&:to_s)
+            expect(subject.favorites_at).to eq(favorites_at)
+          end
+
+          it "coerces infinity" do
+            subject.favorites_at = ["infinity"]
+            expect(subject.favorites_at).to eq([::Float::INFINITY])
+          end
+
+          it "preserves the value after a trip to the database" do
+            subject.save!
+            subject.reload
+            expect(subject.favorites_at).to eq(favorites_at)
+          end
+        end
+
+        context "decimal typed" do
+          it "sets the value in the jsonb field" do
+            expect(subject.options["prices"]).to eq(prices.map(&:to_s))
+          end
+
+          it "coerces the value" do
+            subject.prices = prices.map(&:to_s)
+            expect(subject.prices).to eq(prices)
+          end
+
+          it "preserves the value after a trip to the database" do
+            subject.save!
+            subject.reload
+            expect(subject.prices).to eq(prices)
+          end
+
+          it "uses the postgres decimal type" do
+            subtype = JsonbAccessor::Macro::ClassMethods::TYPES[:decimal_array].call.subtype
+            expect(subtype).to be_a(ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Decimal)
+          end
+        end
+
+        context "time typed" do
+          it "sets the value in the jsonb field" do
+            jsonb_field_value = subject.options["login_times"].map do |value|
+              Time.parse(value).to_s
+            end
+            expect(jsonb_field_value).to eq(login_times.map(&:to_s))
+          end
+
+          it "coerces the value" do
+            subject.login_times = login_times.map(&:to_s)
+            expect(subject.login_times).to be_present
+            subject.login_times.each_with_index do |time, i|
+              expect(time.hour).to eq(login_times[i].hour)
+              expect(time.min).to eq(login_times[i].min)
+              expect(time.sec).to eq(login_times[i].sec)
+            end
+          end
+
+          it "preserves the value after a trip to the database" do
+            subject.save!
+            subject.reload
+            expect(subject.login_times).to be_present
+            subject.login_times.each_with_index do |time, i|
+              expect(time.hour).to eq(login_times[i].hour)
+              expect(time.min).to eq(login_times[i].min)
+              expect(time.sec).to eq(login_times[i].sec)
+            end
+          end
+        end
+
+        context "float typed" do
+          it "sets the value in the jsonb field" do
+            expect(subject.options["amounts_floated"]).to eq(amounts_floated)
+          end
+
+          it "coerces the value" do
+            subject.amounts_floated = amounts_floated.map(&:to_s)
+            expect(subject.amounts_floated).to eq(amounts_floated)
+          end
+
+          it "preserves the value after a trip to the database" do
+            subject.save!
+            subject.reload
+            expect(subject.amounts_floated).to eq(amounts_floated)
+          end
+        end
       end
     end
   end

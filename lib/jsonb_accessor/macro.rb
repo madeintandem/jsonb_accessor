@@ -2,15 +2,24 @@ module JsonbAccessor
   module Macro
     module ClassMethods
       TYPES = {
-        value: ActiveRecord::Type::Value,
-        string: ActiveRecord::Type::String,
-        integer: ActiveRecord::Type::Integer,
-        boolean: ActiveRecord::Type::Boolean,
-        date: ActiveRecord::Type::Date,
-        datetime: ActiveRecord::ConnectionAdapters::PostgreSQL::OID::DateTime,
-        decimal: ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Decimal,
-        time: ActiveRecord::Type::Time,
-        float: ActiveRecord::Type::Float
+        value: -> { ActiveRecord::Type::Value.new },
+        string: -> { ActiveRecord::Type::String.new },
+        integer: -> { ActiveRecord::Type::Integer.new },
+        boolean: -> { ActiveRecord::Type::Boolean.new },
+        date: -> { ActiveRecord::Type::Date.new },
+        datetime: -> { ActiveRecord::ConnectionAdapters::PostgreSQL::OID::DateTime.new },
+        decimal: -> { ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Decimal.new },
+        time: -> { ActiveRecord::Type::Time.new },
+        float: -> { ActiveRecord::Type::Float.new },
+        array: -> { ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Array.new(ActiveRecord::Type::Value.new) },
+        string_array: -> { ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Array.new(ActiveRecord::Type::String.new) },
+        integer_array: -> { ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Array.new(ActiveRecord::Type::Integer.new) },
+        boolean_array: -> { ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Array.new(ActiveRecord::Type::Boolean.new) },
+        date_array: -> { ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Array.new(ActiveRecord::Type::Date.new) },
+        datetime_array: -> { ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Array.new(ActiveRecord::ConnectionAdapters::PostgreSQL::OID::DateTime.new) },
+        decimal_array: -> { ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Array.new(ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Decimal.new) },
+        time_array: -> { ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Array.new(ActiveRecord::Type::Time.new) },
+        float_array: -> { ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Array.new(ActiveRecord::Type::Float.new) }
       }
 
       def jsonb_accessor(jsonb_attribute, *value_fields, **typed_fields)
@@ -30,7 +39,7 @@ module JsonbAccessor
         after_initialize :initialize_jsonb_attrs
 
         all_fields.each do |field, type|
-          attribute(field.to_s, TYPES[type].new)
+          attribute(field.to_s, TYPES[type].call)
 
           define_method("#{field}=") do |value, *args, &block|
             super(value, *args, &block)
