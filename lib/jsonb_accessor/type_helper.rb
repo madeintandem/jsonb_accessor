@@ -1,6 +1,33 @@
 module JsonbAccessor
   module TypeHelper
+    TYPES = [
+      :array,
+      :boolean,
+      :boolean_array,
+      :date,
+      :date_array,
+      :datetime,
+      :datetime_array,
+      :decimal,
+      :decimal_array,
+      :float,
+      :float_array,
+      :integer,
+      :integer_array,
+      :string,
+      :string_array,
+      :time,
+      :time_array,
+      :value
+    ]
+
     class << self
+      def fetch(type)
+        TYPES.include?(type) ? send(type) : value
+      end
+
+      private
+
       def value
         ActiveRecord::Type::Value.new
       end
@@ -72,8 +99,6 @@ module JsonbAccessor
       def float_array
         new_array(float)
       end
-
-      private
 
       def new_array(subtype)
         ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Array.new(subtype)

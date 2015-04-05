@@ -20,7 +20,7 @@ module JsonbAccessor
         jsonb_setters = Module.new
 
         all_fields.each do |field, type|
-          attribute(field.to_s, TypeHelper.send(type))
+          attribute(field.to_s, TypeHelper.fetch(type))
 
           jsonb_setters.instance_eval do
             define_method("#{field}=") do |value, *args, &block|
