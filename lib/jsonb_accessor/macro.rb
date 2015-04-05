@@ -17,15 +17,21 @@ module JsonbAccessor
 
         after_initialize :initialize_jsonb_attrs
 
+        jsonb_setters = Module.new
+
         all_fields.each do |field, type|
           attribute(field.to_s, TypeHelper.send(type))
 
-          define_method("#{field}=") do |value, *args, &block|
-            super(value, *args, &block)
-            new_jsonb_value = (send(jsonb_attribute) || {}).merge(field => attributes[field.to_s])
-            send("#{jsonb_attribute}=", new_jsonb_value)
+          jsonb_setters.instance_eval do
+            define_method("#{field}=") do |value, *args, &block|
+              super(value, *args, &block)
+              new_jsonb_value = (send(jsonb_attribute) || {}).merge(field => attributes[field.to_s])
+              send("#{jsonb_attribute}=", new_jsonb_value)
+            end
           end
         end
+
+        include jsonb_setters
       end
     end
   end

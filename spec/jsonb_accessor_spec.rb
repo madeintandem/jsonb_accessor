@@ -504,4 +504,44 @@ RSpec.describe JsonbAccessor do
       end
     end
   end
+
+  context "overriding getters and setters" do
+    subject { Product.new }
+
+    before do
+      class Product
+        alias_method :set_title, :title=
+        alias_method :get_title, :title
+
+        def title=(value)
+          super(value.try(:upcase))
+        end
+
+        def title
+          super.try(:downcase)
+        end
+      end
+    end
+
+    after do
+      class Product
+        alias_method :title=, :set_title
+        alias_method :title, :get_title
+      end
+    end
+
+    context "setters" do
+      it "can be wrapped" do
+        subject.title = "Duke"
+        expect(subject.options["title"]).to eq("DUKE")
+      end
+    end
+
+    context "getters" do
+      it "can be wrapped" do
+        subject.title = "COUNT"
+        expect(subject.title).to eq("count")
+      end
+    end
+  end
 end
