@@ -244,7 +244,7 @@ RSpec.describe JsonbAccessor do
       end
 
       it "uses the postgres decimal type" do
-        expect(JsonbAccessor::Macro::ClassMethods::TYPES[:decimal].call).to be_a(ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Decimal)
+        expect(JsonbAccessor::TypeHelper.decimal).to be_a(ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Decimal)
       end
     end
 
@@ -419,7 +419,7 @@ RSpec.describe JsonbAccessor do
           end
 
           it "uses the postgres decimal type" do
-            subtype = JsonbAccessor::Macro::ClassMethods::TYPES[:decimal_array].call.subtype
+            subtype = JsonbAccessor::TypeHelper.decimal_array.subtype
             expect(subtype).to be_a(ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Decimal)
           end
         end
