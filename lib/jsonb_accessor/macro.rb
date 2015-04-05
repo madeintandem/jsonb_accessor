@@ -22,7 +22,8 @@ module JsonbAccessor
 
           define_method("#{field}=") do |value, *args, &block|
             super(value, *args, &block)
-            send("#{jsonb_attribute}=", (send(jsonb_attribute) || {}).merge(field => attributes[field.to_s]))
+            new_jsonb_value = (send(jsonb_attribute) || {}).merge(field => attributes[field.to_s])
+            send("#{jsonb_attribute}=", new_jsonb_value)
           end
         end
       end
