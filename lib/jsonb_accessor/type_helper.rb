@@ -38,39 +38,45 @@ module JsonbAccessor
       end
 
       def array
-        ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Array.new(ActiveRecord::Type::Value.new)
+        new_array(value)
       end
 
       def string_array
-        ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Array.new(ActiveRecord::Type::String.new)
+        new_array(string)
       end
 
       def integer_array
-        ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Array.new(ActiveRecord::Type::Integer.new)
+        new_array(integer)
       end
 
       def boolean_array
-        ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Array.new(ActiveRecord::Type::Boolean.new)
+        new_array(boolean)
       end
 
       def date_array
-        ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Array.new(ActiveRecord::Type::Date.new)
+        new_array(date)
       end
 
       def datetime_array
-        ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Array.new(ActiveRecord::ConnectionAdapters::PostgreSQL::OID::DateTime.new)
+        new_array(datetime)
       end
 
       def decimal_array
-        ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Array.new(ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Decimal.new)
+        new_array(decimal)
       end
 
       def time_array
-        ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Array.new(ActiveRecord::Type::Time.new)
+        new_array(time)
       end
 
       def float_array
-        ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Array.new(ActiveRecord::Type::Float.new)
+        new_array(float)
+      end
+
+      private
+
+      def new_array(subtype)
+        ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Array.new(subtype)
       end
     end
   end
