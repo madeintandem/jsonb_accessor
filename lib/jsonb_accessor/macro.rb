@@ -77,7 +77,7 @@ module JsonbAccessor
               end
 
               instance.parent = self
-              new_jsonb_value = (send(jsonb_attribute) || {}).merge(field => instance.attributes)
+              new_jsonb_value = (send(jsonb_attribute) || {}).merge(field.to_s => instance.attributes)
               send("#{jsonb_attribute}=", new_jsonb_value)
               super(instance)
             end
