@@ -1,6 +1,6 @@
 # JSONb Accessor
 
-Adds typed `jsonb` backed fields as first class citizens to your `ActiveRecord` models. This gem is similar in spirit to [HstoreAccessor](https://github.com/devmynd/hstore_accessor), but the `jsonb` column in PostgreSQL has a few distinct advantages, mostly around nested documents and support for collections. This gem plans to provide support for these in the future.
+Adds typed `jsonb` backed fields as first class citizens to your `ActiveRecord` models. This gem is similar in spirit to [HstoreAccessor](https://github.com/devmynd/hstore_accessor), but the `jsonb` column in PostgreSQL has a few distinct advantages, mostly around nested documents and support for collections.
 
 **This gem is under heavy development. Please use cautiously and help us with feedback by opening issues for defects and feature requests. The current API is subject to change.**
 
@@ -114,6 +114,10 @@ p = Product.new
 p.nested_object.key = "10"
 puts p.nested_object.key #=> 10
 ```
+
+## Validations
+
+Because this gem promotes attributes nested into the JSON column to first level attributes, most validations should just work. We still have to add some testing and support around this feature but feel free to try and leave us feedback if they're not working as expected.
 
 ## Single-Table Inheritance
 
