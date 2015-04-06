@@ -31,6 +31,31 @@ RSpec.describe JsonbAccessor::ClassBuilder do
     end
   end
 
+  describe "#generate_nested_classes" do
+    before do
+      stub_const("SomeNamespace", Module.new)
+    end
+
+    let!(:mapping) do
+      subject.generate_nested_classes(SomeNamespace, foo: { bar: { baz: :string } }, oof: { rab: { zab: :string } })
+    end
+
+    it "creates a class for each key in the given namespace" do
+      expect(defined?(SomeNamespace::Foo)).to eq("constant")
+      expect(defined?(SomeNamespace::Oof)).to eq("constant")
+    end
+
+    it "is a mapping of names to classes" do
+      expect(mapping[:foo]).to eq(SomeNamespace::Foo)
+      expect(mapping[:oof]).to eq(SomeNamespace::Oof)
+    end
+
+    it "is recursive" do
+      expect(defined?(SomeNamespace::Foo::Bar)).to eq("constant")
+      expect(defined?(SomeNamespace::Oof::Rab)).to eq("constant")
+    end
+  end
+
   context "generated classes" do
     let(:dummy_class) { SomeNamespace::SomeClass }
     let(:dummy) { dummy_class.new }
@@ -65,7 +90,21 @@ RSpec.describe JsonbAccessor::ClassBuilder do
         expect(dummy.bar).to eq(6)
       end
 
+      it "updates its parent" do
+        expect(dummy).to receive(:update_parent)
+        dummy.foo = 5
+      end
+
       context "setting nested attributes" do
+        it "assigns itself as the nested attribute object's parent" do
+          expect(dummy.baz.parent).to eq(dummy)
+        end
+
+        it "updates its parent" do
+          expect(dummy).to receive(:update_parent)
+          dummy.baz = { foo: :bar }
+        end
+
         context "a hash" do
           before { dummy.baz = { foo: :bar }.with_indifferent_access }
 
@@ -120,6 +159,12 @@ RSpec.describe JsonbAccessor::ClassBuilder do
           foo: ActiveRecord::Type::String.new,
           bar: ActiveRecord::Type::Integer.new
         )
+      end
+    end
+
+    describe ".attribute_on_parent_name" do
+      it "is the non camelized name of the class" do
+        expect(dummy_class.attribute_on_parent_name).to eq(:some_class)
       end
     end
 

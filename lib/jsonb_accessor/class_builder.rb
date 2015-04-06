@@ -12,6 +12,7 @@ module JsonbAccessor
 
         klass.class_eval do
           singleton_class.send(:define_method, :nested_classes) { nested_classes }
+          singleton_class.send(:define_method, :attribute_on_parent_name) { new_class_name }
 
           define_method(:attributes_and_data_types) do
             @attributes_and_data_types ||= grouped_attributes[:typed].each_with_object({}) do |(name, type), attrs_and_data_types|
@@ -25,6 +26,7 @@ module JsonbAccessor
             define_method("#{attribute_name}=") do |value|
               cast_value = attributes_and_data_types[attribute_name].type_cast_from_user(value)
               attributes[attribute_name] = cast_value
+              update_parent
             end
           end
 
@@ -45,21 +47,23 @@ module JsonbAccessor
                 raise UnknownValue, "unable to set value '#{value}' is not a hash, `nil`, or an instance of #{instance_class} in #{__method__}"
               end
 
+              instance.parent = self
               instance_variable_set("@#{attribute_name}", instance)
               attributes[attribute_name] = instance.attributes
+              update_parent
             end
           end
         end
         klass
       end
 
-      private
-
       def generate_nested_classes(klass, nested_attributes)
         nested_attributes.each_with_object({}) do |(attribute_name, nested_attrs), nested_classes|
           nested_classes[attribute_name] = generate_class(klass, attribute_name, nested_attrs)
         end
       end
+
+      private
 
       def group_attributes(attributes)
         attributes.each_with_object(nested: {}, typed: {}) do |(name, type_or_nested), grouped_attributes|

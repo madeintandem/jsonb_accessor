@@ -37,6 +37,8 @@ Style/RescueModifier:
   Enabled: false
 Style/SignalException:
   Enabled: false
+Style/SingleLineMethods:
+  Enabled: false
 Style/SpaceAroundEqualsInParameterDefault:
   Enabled: false
 Style/StringLiterals:

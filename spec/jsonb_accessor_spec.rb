@@ -20,12 +20,32 @@ TYPED_FIELDS = {
   favorites_at: :datetime_array,
   prices: :decimal_array,
   login_times: :time_array,
-  amounts_floated: :float_array
+  amounts_floated: :float_array,
+  document: {
+    nested: {
+      values: :array,
+      are: :string
+    },
+    here: :string
+  }
 }
 ALL_FIELDS = VALUE_FIELDS + TYPED_FIELDS.keys
 
 class Product < ActiveRecord::Base
   jsonb_accessor :options, *VALUE_FIELDS, TYPED_FIELDS
+end
+
+class OtherProduct < ActiveRecord::Base
+  self.table_name = "products"
+  jsonb_accessor :options, title: :string
+
+  def title=(value)
+    super(value.try(:upcase))
+  end
+
+  def title
+    super.try(:downcase)
+  end
 end
 
 RSpec.describe JsonbAccessor do
@@ -474,6 +494,115 @@ RSpec.describe JsonbAccessor do
     end
   end
 
+  context "nested fields" do
+    it "creates a namespace named for the class, jsonb attribute, and nested attributes" do
+      expect(defined?(JsonbAccessor::Product)).to eq("constant")
+      expect(defined?(JsonbAccessor::Product::Options)).to eq("constant")
+      expect(defined?(JsonbAccessor::Product::Options::Document)).to eq("constant")
+      expect(defined?(JsonbAccessor::Product::Options::Document::Nested)).to eq("constant")
+    end
+
+    context "getters" do
+      subject { Product.new }
+
+      before do
+        subject.save!
+        subject.reload
+      end
+
+      it "exists" do
+        expect { subject.document.nested.are }.to_not raise_error
+      end
+    end
+
+    context "setters" do
+      let(:document_class) { JsonbAccessor::Product::Options::Document }
+      subject { Product.new }
+
+      it "sets itself a the object's parent" do
+        expect(subject.document.parent).to eq(subject)
+      end
+
+      context "a hash" do
+        before do
+          subject.document = { nested: { are: "here" } }.with_indifferent_access
+        end
+
+        it "creates an instance of the correct dynamic class" do
+          expect(subject.document).to be_a(document_class)
+        end
+
+        it "puts the dynamic class instance's attributes into the jsonb field" do
+          expect(subject.options["document"]).to eq(subject.document.attributes)
+        end
+      end
+
+      context "a dynamic class" do
+        let(:document) { document_class.new(nested: nil) }
+        before { subject.document = document }
+
+        it "sets the instance" do
+          expect(subject.document).to eq(document)
+        end
+
+        it "puts the dynamic class instance's attributes in the jsonb field" do
+          expect(subject.options["document"]).to eq(document.attributes)
+        end
+      end
+
+      context "nil" do
+        before do
+          subject.options["document"] = { not: :empty }
+          subject.document = nil
+        end
+
+        it "sets the attribute to an empty instance of the dynamic class" do
+          expect(subject.document.attributes).to eq("nested" => {})
+        end
+
+        it "clears the associated attributes in the jsonb field" do
+          expect(subject.options["document"]).to eq("nested" => {})
+        end
+      end
+
+      context "anything else" do
+        it "raises an error" do
+          expect { subject.document = 5 }.to raise_error(JsonbAccessor::UnknownValue)
+        end
+      end
+    end
+  end
+
+  context "deeply nested setters" do
+    let(:value) { "some value" }
+    subject { Product.new }
+
+    before do
+      subject.document.nested.are = value
+    end
+
+    it "changes the jsonb field" do
+      expect(subject.options["document"]["nested"]["are"]).to eq(value)
+    end
+
+    it "persists after a trip to the database" do
+      subject.save!
+      subject.reload
+      expect(subject.document.nested.are).to eq(value)
+    end
+  end
+
+  describe ".<field_name>_classes" do
+    it "is a mapping of attribute names to dynamically created classes" do
+      expect(Product.options_classes).to eq(document: JsonbAccessor::Product::Options::Document)
+    end
+
+    context "delegation" do
+      subject { Product.new }
+      it { is_expected.to delegate_method(:options_classes).to(:class) }
+    end
+  end
+
   context "dirty tracking" do
     subject { Product.new }
 
@@ -506,29 +635,7 @@ RSpec.describe JsonbAccessor do
   end
 
   context "overriding getters and setters" do
-    subject { Product.new }
-
-    before do
-      class Product
-        alias_method :set_title, :title=
-        alias_method :get_title, :title
-
-        def title=(value)
-          super(value.try(:upcase))
-        end
-
-        def title
-          super.try(:downcase)
-        end
-      end
-    end
-
-    after do
-      class Product
-        alias_method :title=, :set_title
-        alias_method :title, :get_title
-      end
-    end
+    subject { OtherProduct.new }
 
     context "setters" do
       it "can be wrapped" do
