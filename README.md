@@ -37,18 +37,10 @@ class Product < ActiveRecord::Base
   jsonb_accessor(
     :options,
     :count, # => value type
-    :name, # => value type
-    :price, # => value type
     title: :string,
-    name_value: :value,
     id_value: :value,
     external_id: :integer,
-    admin: :boolean,
-    approved_on: :date,
-    reviewed_at: :datetime,
-    precision: :decimal,
-    reset_at: :time,
-    amount_floated: :float
+    reviewed_at: :datetime
   )
 end
 ```
@@ -85,18 +77,42 @@ end
 
 ### Supported Types
 
-There's more coming soon, including support for nested objects and arrays. Typed arrays if we get ambitious enough.
+The following types are supported, including typed collections:
 
 ```
+:array,
+:boolean,
+:boolean_array,
+:date,
+:date_array,
+:datetime,
+:datetime_array,
+:decimal,
+:decimal_array,
+:float,
+:float_array,
+:integer,
+:integer_array,
+:string,
+:string_array,
+:time,
+:time_array,
 :value
-:string
-:integer
-:boolean
-:date
-:datetime
-:decimal
-:time
-:float
+```
+
+Support for nested types is also available but experimental at this point. If you must, you may try something like this for nested objects.
+
+```ruby
+class Product < ActiveRecord::Base
+  jsonb_accessor(
+    :options,
+    nested_object: { key: :integer }
+  )
+end
+
+p = Product.new
+p.nested_object.key = "10"
+puts p.nested_object.key #=> 10
 ```
 
 ## Single-Table Inheritance
