@@ -122,7 +122,7 @@ RSpec.describe JsonbAccessor::ClassBuilder do
           before { dummy.baz = baz }
 
           it "sets the instance" do
-            expect(dummy.baz).to eq(baz)
+            expect(dummy.baz.attributes).to eq(baz.attributes)
           end
 
           it "puts the dynamic class instance's attributes in attributes" do

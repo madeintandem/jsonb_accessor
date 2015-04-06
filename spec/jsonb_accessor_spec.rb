@@ -542,7 +542,7 @@ RSpec.describe JsonbAccessor do
         before { subject.document = document }
 
         it "sets the instance" do
-          expect(subject.document).to eq(document)
+          expect(subject.document.attributes).to eq(document.attributes)
         end
 
         it "puts the dynamic class instance's attributes in the jsonb field" do
@@ -575,7 +575,9 @@ RSpec.describe JsonbAccessor do
 
   context "deeply nested setters" do
     let(:value) { "some value" }
-    subject { Product.new }
+    subject do
+      Product.create!
+    end
 
     before do
       subject.document.nested.are = value
@@ -586,9 +588,10 @@ RSpec.describe JsonbAccessor do
     end
 
     it "persists after a trip to the database" do
+      expect(subject.options["document"]["nested"]["are"]).to eq(value)
       subject.save!
-      subject.reload
-      expect(subject.document.nested.are).to eq(value)
+      expect(subject.reload.options["document"]["nested"]["are"]).to eq(value)
+      expect(subject.reload.document.nested.are).to eq(value)
     end
   end
 

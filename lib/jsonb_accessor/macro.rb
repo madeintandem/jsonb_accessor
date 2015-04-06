@@ -67,7 +67,7 @@ module JsonbAccessor
 
               case value
               when instance_class
-                instance = value
+                instance = instance_class.new(value.attributes)
               when Hash
                 instance = instance_class.new(value)
               when nil
