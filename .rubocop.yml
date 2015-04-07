@@ -1,8 +1,9 @@
 AllCops:
   Include:
-    - Rakefile
+    - "**/Rakefile"
   Exclude:
     - db/**/*
+    - vendor/**/*
 Lint/SpaceBeforeFirstArg:
   Enabled: false
 Lint/UnusedBlockArgument:
