@@ -123,7 +123,7 @@ Because this gem promotes attributes nested into the JSON column to first level 
 
 ## Single-Table Inheritance
 
-You can use it for STI in the same spirit as [hstore_accessor, which documented here.](https://github.com/devmynd/hstore_accessor#single-table-inheritance).
+You can use it for STI in the same spirit as [hstore_accessor, which is documented here.](https://github.com/devmynd/hstore_accessor#single-table-inheritance).
 
 ## Scopes
 
