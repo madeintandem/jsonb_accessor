@@ -1,6 +1,8 @@
 AllCops:
   Include:
     - Rakefile
+  Exclude:
+    - db/**/*
 Lint/SpaceBeforeFirstArg:
   Enabled: false
 Lint/UnusedBlockArgument:

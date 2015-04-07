@@ -1,0 +1,10 @@
+default: &default
+  adapter: postgresql
+  database: jsonb_accessor
+  username: postgres
+
+development:
+  <<: *default
+
+test:
+  <<: *default
