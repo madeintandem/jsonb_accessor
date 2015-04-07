@@ -5,3 +5,7 @@ rvm:
   - rbx-2
 addons:
   postgresql: '9.4'
+before_install:
+  - gem update --system
+  - gem --version
+  - gem install bundler
