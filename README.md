@@ -1,5 +1,7 @@
 # JSONb Accessor
 
+[![Build Status](https://travis-ci.org/devmynd/jsonb_accessor.svg)](https://travis-ci.org/devmynd/jsonb_accessor)
+
 Adds typed `jsonb` backed fields as first class citizens to your `ActiveRecord` models. This gem is similar in spirit to [HstoreAccessor](https://github.com/devmynd/hstore_accessor), but the `jsonb` column in PostgreSQL has a few distinct advantages, mostly around nested documents and support for collections.
 
 **This gem is under heavy development. Please use cautiously and help us with feedback by opening issues for defects and feature requests. The current API is subject to change.**
