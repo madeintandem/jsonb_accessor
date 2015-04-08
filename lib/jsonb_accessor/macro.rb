@@ -22,9 +22,14 @@ module JsonbAccessor
         all_fields = Macro.group_attributes(value_fields, typed_fields)
         nested_fields, typed_fields = all_fields.values_at(:nested, :typed)
 
-        class_namespace = Module.new
+        if JsonbAccessor.constants.any? { |c| c.to_s == name }
+          class_namespace = JsonbAccessor.const_get(name)
+        else
+          class_namespace = Module.new
+          JsonbAccessor.const_set(name, class_namespace)
+        end
+
         attribute_namespace = Module.new
-        JsonbAccessor.const_set(name, class_namespace)
         class_namespace.const_set(jsonb_attribute.to_s.camelize, attribute_namespace)
 
         nested_classes = ClassBuilder.generate_nested_classes(attribute_namespace, nested_fields)

@@ -66,6 +66,25 @@ RSpec.describe JsonbAccessor do
     expect(ActiveRecord::Base).to respond_to(:jsonb_accessor)
   end
 
+  describe "#jsonb_accessor" do
+    let!(:dummy_class) do
+      klass = Class.new(ActiveRecord::Base) do
+        self.table_name = "products"
+      end
+      stub_const("Foo", klass)
+      klass.class_eval { jsonb_accessor :data, :foo }
+      klass
+    end
+
+    after { JsonbAccessor }
+
+    it "can be called twice in a class without issue" do
+      expect do
+        dummy_class.class_eval { jsonb_accessor :options, :bar }
+      end.to_not change { JsonbAccessor::Foo }
+    end
+  end
+
   context "value setters" do
     subject { Product.new }
     let(:name) { "Marty McFly" }
