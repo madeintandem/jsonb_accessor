@@ -37,7 +37,7 @@ end
 
 class OtherProduct < ActiveRecord::Base
   self.table_name = "products"
-  jsonb_accessor :options, title: :string
+  jsonb_accessor :options, title: :string, document: { nested: { are: :string } }
 
   def title=(value)
     super(value.try(:upcase))
@@ -45,6 +45,11 @@ class OtherProduct < ActiveRecord::Base
 
   def title
     super.try(:downcase)
+  end
+
+  def reload
+    super
+    :wrapped
   end
 end
 
@@ -651,6 +656,44 @@ RSpec.describe JsonbAccessor do
       it "can be wrapped" do
         subject.title = "COUNT"
         expect(subject.title).to eq("count")
+      end
+    end
+  end
+
+  describe "#reload" do
+    let(:value) { "value" }
+
+    before do
+      subject.save!
+      subject.reload
+      subject.document.nested.are = value
+      subject.save!
+    end
+
+    context do
+      subject { Product.new }
+
+      it "works with nested attributes" do
+        subject.reload
+        expect(subject.document.nested.are).to eq(value)
+      end
+
+      it "is itself" do
+        expect(subject.reload).to eq(subject)
+      end
+    end
+
+    context "overriding" do
+      subject do
+        OtherProduct.new.tap do |other_product|
+          other_product.save!
+          other_product.reload
+        end
+      end
+
+      it "can be wrapped" do
+        expect(subject.reload).to eq(:wrapped)
+        expect(subject.document.nested.are).to eq(value)
       end
     end
   end

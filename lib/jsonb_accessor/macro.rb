@@ -44,12 +44,21 @@ module JsonbAccessor
 
         after_initialize :initialize_jsonb_attrs
 
-        jsonb_setters = Module.new
+        jsonb_accessor_methods = Module.new do
+          define_method(:reload) do |*args, &block|
+            super(*args, &block)
+            jsonb_value = send(jsonb_attribute) || {}
+            nested_fields.keys.each do |field|
+              send("#{field}=", jsonb_value[field.to_s])
+            end
+            self
+          end
+        end
 
         typed_fields.each do |field, type|
           attribute(field.to_s, TypeHelper.fetch(type))
 
-          jsonb_setters.instance_eval do
+          jsonb_accessor_methods.instance_eval do
             define_method("#{field}=") do |value, *args, &block|
               super(value, *args, &block)
               new_jsonb_value = (send(jsonb_attribute) || {}).merge(field => attributes[field.to_s])
@@ -61,7 +70,7 @@ module JsonbAccessor
         nested_fields.each do |field, nested_attributes|
           attribute(field.to_s, TypeHelper.fetch(:value))
 
-          jsonb_setters.instance_eval do
+          jsonb_accessor_methods.instance_eval do
             define_method("#{field}=") do |value|
               instance_class = nested_classes[field]
 
@@ -84,7 +93,7 @@ module JsonbAccessor
           end
         end
 
-        include jsonb_setters
+        include jsonb_accessor_methods
       end
     end
   end
