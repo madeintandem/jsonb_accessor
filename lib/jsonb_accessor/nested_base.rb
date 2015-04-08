@@ -25,5 +25,9 @@ module JsonbAccessor
     def []=(key, value)
       send("#{key}=", value)
     end
+
+    def ==(suspect)
+      self.class == suspect.class && attributes == suspect.attributes
+    end
   end
 end

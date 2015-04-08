@@ -5,6 +5,7 @@ require "pry-nav"
 require "pry-doc"
 require "database_cleaner"
 require "shoulda-matchers"
+require "yaml"
 
 RSpec::Matchers.define :alias_the_method do |method_name|
   match do |actual|

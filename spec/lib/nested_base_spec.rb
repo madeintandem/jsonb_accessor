@@ -112,4 +112,51 @@ RSpec.describe JsonbAccessor::NestedBase do
       subject[:foo] = 5
     end
   end
+
+  describe "#==" do
+    let!(:attributes) { { foo: "bar", baz: 5 } }
+    let(:dummy_class) do
+      Class.new(JsonbAccessor::NestedBase) do
+        def self.nested_classes; {}; end
+        def foo=(value)
+          attributes[:foo] = value
+        end
+
+        def baz=(value)
+          attributes[:baz] = value
+        end
+      end
+    end
+    subject { dummy_class.new(attributes) }
+
+    context "nil" do
+      it "is false" do
+        expect(subject == nil).to eq(false)
+      end
+    end
+
+    context "same class, same attributes" do
+      let(:suspect) { dummy_class.new(attributes) }
+
+      it "is true" do
+        expect(subject == suspect).to eq(true)
+      end
+    end
+
+    context "same class, different attributes" do
+      let!(:suspect) { dummy_class.new(foo: "bar") }
+
+      it "is false" do
+        expect(subject == suspect).to eq(false)
+      end
+    end
+
+    context "different class, same attributes" do
+      let!(:suspect) { Class.new(dummy_class).new(attributes) }
+
+      it "is false" do
+        expect(subject == suspect).to eq(false)
+      end
+    end
+  end
 end

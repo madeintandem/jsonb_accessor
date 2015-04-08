@@ -36,6 +36,10 @@ Style/GuardClause:
   Enabled: false
 Style/IndentHash:
   Enabled: false
+Style/NilComparison:
+  Enabled: false
+Style/OpMethod:
+  Enabled: false
 Style/RescueModifier:
   Enabled: false
 Style/SignalException:
