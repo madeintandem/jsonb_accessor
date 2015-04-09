@@ -13,6 +13,10 @@ TYPED_FIELDS = {
   reset_at: :time,
   amount_floated: :float,
   sequential_data: :array,
+  things: :json,
+  stuff: :jsonb,
+  a_lot_of_things: :json_array,
+  a_lot_of_stuff: :jsonb_array,
   nicknames: :string_array,
   rankings: :integer_array,
   favorited_history: :boolean_array,
@@ -135,6 +139,10 @@ RSpec.describe JsonbAccessor do
     let(:prices) { [precision, 123.098753] }
     let(:login_times) { [reset_at, Time.new(2005, 4, 7, 6, 1, 3)] }
     let(:amounts_floated) { [22.34, amount_floated] }
+    let(:things) { { "foo" => "bar" } }
+    let(:stuff) { { "bar" => "foo" } }
+    let(:a_lot_of_things) { [things, stuff] }
+    let(:a_lot_of_stuff) { [stuff, things] }
 
     before do
       subject.title = title
@@ -156,6 +164,10 @@ RSpec.describe JsonbAccessor do
       subject.prices = prices
       subject.login_times = login_times
       subject.amounts_floated = amounts_floated
+      subject.things = things
+      subject.stuff = stuff
+      subject.a_lot_of_things = a_lot_of_things
+      subject.a_lot_of_stuff = a_lot_of_stuff
     end
 
     context "string fields" do
@@ -514,6 +526,74 @@ RSpec.describe JsonbAccessor do
             expect(subject.amounts_floated).to eq(amounts_floated)
           end
         end
+
+        context "json typed" do
+          it "sets the value in the jsonb field" do
+            expect(subject.options["a_lot_of_things"]).to eq(a_lot_of_things)
+          end
+
+          it "coerces the value" do
+            subject.a_lot_of_things = a_lot_of_things.map(&:to_json)
+            expect(subject.a_lot_of_things).to eq(a_lot_of_things)
+          end
+
+          it "preserves the value after a trip to the database" do
+            subject.save!
+            subject.reload
+            expect(subject.a_lot_of_things).to eq(a_lot_of_things)
+          end
+        end
+
+        context "jsonb typed" do
+          it "sets the value in the jsonb field" do
+            expect(subject.options["a_lot_of_stuff"]).to eq(a_lot_of_stuff)
+          end
+
+          it "coerces the value" do
+            subject.a_lot_of_stuff = a_lot_of_stuff.map(&:to_json)
+            expect(subject.a_lot_of_stuff).to eq(a_lot_of_stuff)
+          end
+
+          it "preserves the value after a trip to the database" do
+            subject.save!
+            subject.reload
+            expect(subject.a_lot_of_stuff).to eq(a_lot_of_stuff)
+          end
+        end
+      end
+    end
+
+    context "json fields" do
+      it "sets the value in the jsonb field" do
+        expect(subject.options["things"]).to eq(things)
+      end
+
+      it "coerces the value" do
+        subject.things = things.to_json
+        expect(subject.things).to eq(things)
+      end
+
+      it "preserves the value after a trip to the database" do
+        subject.save!
+        subject.reload
+        expect(subject.things).to eq(things)
+      end
+    end
+
+    context "jsonb fields" do
+      it "sets the value in the jsonb field" do
+        expect(subject.options["stuff"]).to eq(stuff)
+      end
+
+      it "coerces the value" do
+        subject.stuff = stuff.to_json
+        expect(subject.stuff).to eq(stuff)
+      end
+
+      it "preserves the value after a trip to the database" do
+        subject.save!
+        subject.reload
+        expect(subject.stuff).to eq(stuff)
       end
     end
   end
