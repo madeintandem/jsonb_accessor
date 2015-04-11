@@ -1,98 +1,53 @@
 module JsonbAccessor
   module TypeHelper
+    ARRAY_MATCHER = /_array\z/
+    CONSTANT_SEPARATOR = "::"
+    UnknownType = Class.new(StandardError)
+
     class << self
       def fetch(type)
-        send(type) rescue value
+        case type
+        when :array
+          new_array(value)
+        when ARRAY_MATCHER
+          fetch_active_record_array_type(type)
+        when :value
+          value
+        else
+          fetch_active_record_type(type)
+        end
       end
 
       private
 
+      def fetch_active_record_array_type(type)
+        subtype = type.to_s.sub(ARRAY_MATCHER, "")
+        new_array(fetch_active_record_type(subtype))
+      end
+
+      def fetch_active_record_type(type)
+        class_name = type.to_s.camelize
+        klass = value_descendants.find do |ar_type|
+          ar_type.to_s.split(CONSTANT_SEPARATOR).last == class_name
+        end
+
+        if klass
+          klass.new
+        else
+          raise JsonbAccessor::TypeHelper::UnknownType
+        end
+      end
+
+      def value_descendants
+        grouped_types = ActiveRecord::Type::Value.descendants.group_by do |ar_type|
+          !!ar_type.to_s.match(ActiveRecord::ConnectionAdapters::PostgreSQL::OID.to_s)
+        end
+
+        grouped_types[true] + grouped_types[false]
+      end
+
       def value
         ActiveRecord::Type::Value.new
-      end
-
-      def string
-        ActiveRecord::Type::String.new
-      end
-
-      def integer
-        ActiveRecord::Type::Integer.new
-      end
-
-      def boolean
-        ActiveRecord::Type::Boolean.new
-      end
-
-      def date
-        ActiveRecord::Type::Date.new
-      end
-
-      def datetime
-        ActiveRecord::ConnectionAdapters::PostgreSQL::OID::DateTime.new
-      end
-
-      def decimal
-        ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Decimal.new
-      end
-
-      def time
-        ActiveRecord::Type::Time.new
-      end
-
-      def float
-        ActiveRecord::Type::Float.new
-      end
-
-      def json
-        ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Json.new
-      end
-
-      def jsonb
-        ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Jsonb.new
-      end
-
-      def array
-        new_array(value)
-      end
-
-      def string_array
-        new_array(string)
-      end
-
-      def integer_array
-        new_array(integer)
-      end
-
-      def boolean_array
-        new_array(boolean)
-      end
-
-      def date_array
-        new_array(date)
-      end
-
-      def datetime_array
-        new_array(datetime)
-      end
-
-      def decimal_array
-        new_array(decimal)
-      end
-
-      def time_array
-        new_array(time)
-      end
-
-      def float_array
-        new_array(float)
-      end
-
-      def json_array
-        new_array(json)
-      end
-
-      def jsonb_array
-        new_array(jsonb)
       end
 
       def new_array(subtype)

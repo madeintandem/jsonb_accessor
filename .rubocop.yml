@@ -30,6 +30,8 @@ Style/ClassVars:
   Enabled: false
 Style/Documentation:
   Enabled: false
+Style/DoubleNegation:
+  Enabled: false
 Style/FileName:
   Enabled: false
 Style/GuardClause:

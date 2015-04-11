@@ -157,7 +157,7 @@ RSpec.describe JsonbAccessor::ClassBuilder do
       it "is a hash of attribute names and their data types" do
         expect(dummy.attributes_and_data_types).to eq(
           foo: ActiveRecord::Type::String.new,
-          bar: ActiveRecord::Type::Integer.new
+          bar: ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Integer.new
         )
       end
     end

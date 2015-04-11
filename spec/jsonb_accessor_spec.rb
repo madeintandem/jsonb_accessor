@@ -8,7 +8,7 @@ TYPED_FIELDS = {
   external_id: :integer,
   admin: :boolean,
   approved_on: :date,
-  reviewed_at: :datetime,
+  reviewed_at: :date_time,
   precision: :decimal,
   reset_at: :time,
   amount_floated: :float,
@@ -21,7 +21,7 @@ TYPED_FIELDS = {
   rankings: :integer_array,
   favorited_history: :boolean_array,
   login_days: :date_array,
-  favorites_at: :datetime_array,
+  favorites_at: :date_time_array,
   prices: :decimal_array,
   login_times: :time_array,
   amounts_floated: :float_array,
@@ -261,7 +261,7 @@ RSpec.describe JsonbAccessor do
       end
     end
 
-    context "datetime fields" do
+    context "date_time fields" do
       it "sets the value in the jsonb field" do
         expect(DateTime.parse(subject.options["reviewed_at"]).to_s).to eq(reviewed_at.to_s)
       end
@@ -433,7 +433,7 @@ RSpec.describe JsonbAccessor do
           end
         end
 
-        context "datetime typed" do
+        context "date_time typed" do
           it "sets the value in the jsonb field" do
             jsonb_field_value = subject.options["favorites_at"].map do |value|
               DateTime.parse(value).to_s
