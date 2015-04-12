@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# rubocop:disable Lint/UselessAssignment
 
 require "bundler/setup"
 require "jsonb_accessor"
@@ -13,9 +14,9 @@ ActiveRecord::Base.establish_connection(
 )
 
 class Product < ActiveRecord::Base
-  jsonb_accessor :options, foo: { bar: { baz: :string } }
+  jsonb_accessor :options, title: :string, foo: { bar: { baz: :string } }
 end
 
-# x = Product.new
+x = Product.new
 
 Pry.start
