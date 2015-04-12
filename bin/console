@@ -4,7 +4,6 @@
 require "bundler/setup"
 require "jsonb_accessor"
 require "rspec"
-require "awesome_print"
 require File.expand_path("../../spec/spec_helper.rb", __FILE__)
 
 ActiveRecord::Base.establish_connection(
