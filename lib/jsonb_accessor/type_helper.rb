@@ -1,7 +1,7 @@
 module JsonbAccessor
+  CONSTANT_SEPARATOR = "::"
   module TypeHelper
     ARRAY_MATCHER = /_array\z/
-    CONSTANT_SEPARATOR = "::"
     UnknownType = Class.new(StandardError)
 
     class << self

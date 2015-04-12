@@ -15,6 +15,17 @@ module JsonbAccessor
           hash_for_value_fields[value_field] = :value
         end
       end
+
+      def build_class_namespace(class_name)
+        class_name = class_name.gsub(CONSTANT_SEPARATOR, "")
+        if JsonbAccessor.constants.any? { |c| c.to_s == class_name }
+          class_namespace = JsonbAccessor.const_get(class_name)
+        else
+          class_namespace = Module.new
+          JsonbAccessor.const_set(class_name, class_namespace)
+        end
+        class_namespace
+      end
     end
 
     module ClassMethods
@@ -22,13 +33,7 @@ module JsonbAccessor
         all_fields = Macro.group_attributes(value_fields, typed_fields)
         nested_fields, typed_fields = all_fields.values_at(:nested, :typed)
 
-        if JsonbAccessor.constants.any? { |c| c.to_s == name }
-          class_namespace = JsonbAccessor.const_get(name)
-        else
-          class_namespace = Module.new
-          JsonbAccessor.const_set(name, class_namespace)
-        end
-
+        class_namespace = Macro.build_class_namespace(name)
         attribute_namespace = Module.new
         class_namespace.const_set(jsonb_attribute.to_s.camelize, attribute_namespace)
 

@@ -71,21 +71,48 @@ RSpec.describe JsonbAccessor do
   end
 
   describe "#jsonb_accessor" do
-    let!(:dummy_class) do
-      klass = Class.new(ActiveRecord::Base) do
-        self.table_name = "products"
+    context "multiple calls" do
+      let!(:dummy_class) do
+        klass = Class.new(ActiveRecord::Base) do
+          self.table_name = "products"
+        end
+        stub_const("Foo", klass)
+        klass.class_eval { jsonb_accessor :data, :foo }
+        klass
       end
-      stub_const("Foo", klass)
-      klass.class_eval { jsonb_accessor :data, :foo }
-      klass
+
+      after { JsonbAccessor.send(:remove_const, "Foo") }
+
+      it "can be called twice in a class without issue" do
+        expect do
+          dummy_class.class_eval { jsonb_accessor :options, :bar }
+        end.to_not change { JsonbAccessor::Foo }
+      end
     end
 
-    after { JsonbAccessor }
+    context "namespaced classes" do
+      let(:dummy_class) do
+        klass = Class.new(ActiveRecord::Base) do
+          self.table_name = "products"
+        end
+        stub_const("Foo", Module.new)
+        stub_const("Foo::Bar", klass)
+        klass
+      end
 
-    it "can be called twice in a class without issue" do
-      expect do
-        dummy_class.class_eval { jsonb_accessor :options, :bar }
-      end.to_not change { JsonbAccessor::Foo }
+      it "can be called in a namespaced class" do
+        expect do
+          dummy_class.class_eval { jsonb_accessor :data, :foo }
+        end.to_not raise_error
+      end
+
+      context "multiple calls" do
+        it "can be called twice in a namespaced class without issue" do
+          expect do
+            dummy_class.class_eval { jsonb_accessor :options, :bar }
+          end.to_not change { JsonbAccessor::FooBar }
+        end
+      end
     end
   end
 
