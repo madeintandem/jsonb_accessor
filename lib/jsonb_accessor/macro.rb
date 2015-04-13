@@ -45,14 +45,14 @@ module JsonbAccessor
 
         delegate "#{jsonb_attribute}_classes", to: :class
 
-        define_method(:initialize_jsonb_attrs) do
+        define_method("initialize_jsonb_attrs_for_#{jsonb_attribute}") do
           jsonb_attribute_hash = send(jsonb_attribute) || {}
           (typed_fields.keys + nested_fields.keys).each do |field|
             send("#{field}=", jsonb_attribute_hash[field.to_s])
           end
         end
 
-        after_initialize :initialize_jsonb_attrs
+        after_initialize "initialize_jsonb_attrs_for_#{jsonb_attribute}"
 
         jsonb_accessor_methods = Module.new do
           define_method(:reload) do |*args, &block|

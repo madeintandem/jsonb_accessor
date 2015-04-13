@@ -88,6 +88,15 @@ RSpec.describe JsonbAccessor do
           dummy_class.class_eval { jsonb_accessor :options, :bar }
         end.to_not change { JsonbAccessor::Foo }
       end
+
+      it "initializes attributes properly" do
+        dummy_class.class_eval { jsonb_accessor :options, :bar }
+        dummy = dummy_class.new
+        dummy.foo = 5
+        dummy.save!
+        dummy.reload
+        expect(dummy.foo).to eq(5)
+      end
     end
 
     context "namespaced classes" do
