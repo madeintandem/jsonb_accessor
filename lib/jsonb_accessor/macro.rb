@@ -71,7 +71,7 @@ module JsonbAccessor
             define_method("#{field}=") do |value, *args, &block|
               super(value, *args, &block)
               new_jsonb_value = (send(jsonb_attribute) || {}).merge(field => attributes[field.to_s])
-              send("#{jsonb_attribute}=", new_jsonb_value)
+              write_attribute(jsonb_attribute, new_jsonb_value)
             end
           end
         end
@@ -96,7 +96,7 @@ module JsonbAccessor
 
               instance.parent = self
               new_jsonb_value = (send(jsonb_attribute) || {}).merge(field.to_s => instance.attributes)
-              send("#{jsonb_attribute}=", new_jsonb_value)
+              write_attribute(jsonb_attribute, new_jsonb_value)
               super(instance)
             end
           end
