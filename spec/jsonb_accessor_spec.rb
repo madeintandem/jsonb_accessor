@@ -746,33 +746,12 @@ RSpec.describe JsonbAccessor do
     end
   end
 
-  context "dirty tracking" do
+  describe "attributes" do
     subject { Product.new }
 
-    ALL_FIELDS.each do |field|
-      [:_before_type_cast, :_came_from_user?, :_change, :_changed?, :_was, :_will_change!].each do |method_extension|
-        it "implements #{field}#{method_extension}" do
-          expect(subject).to respond_to("#{field}#{method_extension}")
-        end
-      end
-    end
-
-    ALL_FIELDS.each do |field|
-      [:reset_, :restore_].each do |method_prefix|
-        method_name = "#{method_prefix}#{field}!"
-        it "implements #{method_name}" do
-          expect(subject).to respond_to(method_name)
-        end
-      end
-    end
-  end
-
-  context "predicate methods" do
-    subject { Product.new }
-
-    ALL_FIELDS.each do |field|
-      it "implements #{field}?" do
-        expect(subject).to respond_to("#{field}?")
+    it "defines jsonb accessor fields as attributes" do
+      ALL_FIELDS.each do |field|
+        expect(subject.attribute_names).to include(field.to_s)
       end
     end
   end
