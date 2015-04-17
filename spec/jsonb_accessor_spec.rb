@@ -43,6 +43,11 @@ class OtherProduct < ActiveRecord::Base
   self.table_name = "products"
   jsonb_accessor :options, title: :string, document: { nested: { are: :string } }
 
+  def options=(value)
+    value["title"] = "new title"
+    super
+  end
+
   def title=(value)
     super(value.try(:upcase))
   end
@@ -808,6 +813,38 @@ RSpec.describe JsonbAccessor do
       it "can be wrapped" do
         expect(subject.reload).to eq(:wrapped)
         expect(subject.document.nested.are).to eq(value)
+      end
+    end
+  end
+
+  describe "#<jsonb_attribute>=" do
+    subject { Product.new }
+    let(:title) { "new title" }
+
+    before do
+      subject.title = "old title"
+      subject.options = { title: title }
+    end
+
+    it "updates the jsonb attribute" do
+      expect(subject.options["title"]).to eq(title)
+    end
+
+    it "updates the declared jsonb field attributes" do
+      expect(subject.title).to eq(title)
+    end
+
+    it "clears attributes that are not in the assigned hash" do
+      subject.options = {}
+      expect(subject.title).to be_nil
+    end
+
+    context "wrapping the setter" do
+      subject { OtherProduct.new }
+
+      it "can be overriden" do
+        subject.options = {}
+        expect(subject.title).to eq(title)
       end
     end
   end

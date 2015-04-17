@@ -57,6 +57,11 @@ module JsonbAccessor
         after_initialize(jsonb_attribute_initialization_method_name)
 
         jsonb_accessor_methods = Module.new do
+          define_method("#{jsonb_attribute}=") do |value|
+            write_attribute(jsonb_attribute, value)
+            send(jsonb_attribute_initialization_method_name)
+          end
+
           define_method(:reload) do |*args, &block|
             super(*args, &block)
             send(jsonb_attribute_initialization_method_name)
