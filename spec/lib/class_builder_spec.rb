@@ -9,25 +9,25 @@ RSpec.describe JsonbAccessor::ClassBuilder do
     it "creates a class in the given namespace" do
       subject.generate_class(SomeNamespace, :some_attribute, foo: :string)
 
-      expect(defined?(SomeNamespace::SomeAttribute)).to eq("constant")
-      expect(SomeNamespace::SomeAttribute).to be_a(Class)
-      expect(SomeNamespace::SomeAttribute.ancestors).to include(JsonbAccessor::NestedBase)
+      expect(defined?(SomeNamespace::JASomeAttribute)).to eq("constant")
+      expect(SomeNamespace::JASomeAttribute).to be_a(Class)
+      expect(SomeNamespace::JASomeAttribute.ancestors).to include(JsonbAccessor::NestedBase)
     end
 
     it "defines classes in the given namespace recursively" do
       subject.generate_class(SomeNamespace, :some_attribute, nested: { things: { in_here: { man: :string } } })
 
-      expect(defined?(SomeNamespace::SomeAttribute::Nested)).to eq("constant")
-      expect(SomeNamespace::SomeAttribute::Nested).to be_a(Class)
-      expect(SomeNamespace::SomeAttribute::Nested.ancestors).to include(JsonbAccessor::NestedBase)
+      expect(defined?(SomeNamespace::JASomeAttribute::JANested)).to eq("constant")
+      expect(SomeNamespace::JASomeAttribute::JANested).to be_a(Class)
+      expect(SomeNamespace::JASomeAttribute::JANested.ancestors).to include(JsonbAccessor::NestedBase)
 
-      expect(defined?(SomeNamespace::SomeAttribute::Nested::Things)).to eq("constant")
-      expect(SomeNamespace::SomeAttribute::Nested::Things).to be_a(Class)
-      expect(SomeNamespace::SomeAttribute::Nested::Things.ancestors).to include(JsonbAccessor::NestedBase)
+      expect(defined?(SomeNamespace::JASomeAttribute::JANested::JAThings)).to eq("constant")
+      expect(SomeNamespace::JASomeAttribute::JANested::JAThings).to be_a(Class)
+      expect(SomeNamespace::JASomeAttribute::JANested::JAThings.ancestors).to include(JsonbAccessor::NestedBase)
 
-      expect(defined?(SomeNamespace::SomeAttribute::Nested::Things::InHere)).to eq("constant")
-      expect(SomeNamespace::SomeAttribute::Nested::Things::InHere).to be_a(Class)
-      expect(SomeNamespace::SomeAttribute::Nested::Things::InHere.ancestors).to include(JsonbAccessor::NestedBase)
+      expect(defined?(SomeNamespace::JASomeAttribute::JANested::JAThings::JAInHere)).to eq("constant")
+      expect(SomeNamespace::JASomeAttribute::JANested::JAThings::JAInHere).to be_a(Class)
+      expect(SomeNamespace::JASomeAttribute::JANested::JAThings::JAInHere.ancestors).to include(JsonbAccessor::NestedBase)
     end
   end
 
@@ -41,23 +41,23 @@ RSpec.describe JsonbAccessor::ClassBuilder do
     end
 
     it "creates a class for each key in the given namespace" do
-      expect(defined?(SomeNamespace::Foo)).to eq("constant")
-      expect(defined?(SomeNamespace::Oof)).to eq("constant")
+      expect(defined?(SomeNamespace::JAFoo)).to eq("constant")
+      expect(defined?(SomeNamespace::JAOof)).to eq("constant")
     end
 
     it "is a mapping of names to classes" do
-      expect(mapping[:foo]).to eq(SomeNamespace::Foo)
-      expect(mapping[:oof]).to eq(SomeNamespace::Oof)
+      expect(mapping[:foo]).to eq(SomeNamespace::JAFoo)
+      expect(mapping[:oof]).to eq(SomeNamespace::JAOof)
     end
 
     it "is recursive" do
-      expect(defined?(SomeNamespace::Foo::Bar)).to eq("constant")
-      expect(defined?(SomeNamespace::Oof::Rab)).to eq("constant")
+      expect(defined?(SomeNamespace::JAFoo::JABar)).to eq("constant")
+      expect(defined?(SomeNamespace::JAOof::JARab)).to eq("constant")
     end
   end
 
   context "generated classes" do
-    let(:dummy_class) { SomeNamespace::SomeClass }
+    let(:dummy_class) { SomeNamespace::JASomeClass }
     let(:dummy) { dummy_class.new }
 
     before do
@@ -109,7 +109,7 @@ RSpec.describe JsonbAccessor::ClassBuilder do
           before { dummy.baz = { foo: :bar }.with_indifferent_access }
 
           it "creates an instance of the correct dynamic class" do
-            expect(dummy.baz).to be_a(dummy_class::Baz)
+            expect(dummy.baz).to be_a(dummy_class::JABaz)
           end
 
           it "puts the dynamic class instance's attributes into attributes" do
@@ -118,7 +118,7 @@ RSpec.describe JsonbAccessor::ClassBuilder do
         end
 
         context "a dynamic class" do
-          let(:baz) { dummy_class::Baz.new(foo: "bar") }
+          let(:baz) { dummy_class::JABaz.new(foo: "bar") }
           before { dummy.baz = baz }
 
           it "sets the instance" do
@@ -170,7 +170,7 @@ RSpec.describe JsonbAccessor::ClassBuilder do
 
     describe ".nested_classes" do
       it "is a hash of attribute names and classes" do
-        expect(dummy_class.nested_classes).to eq(baz: dummy_class::Baz)
+        expect(dummy_class.nested_classes).to eq(baz: dummy_class::JABaz)
       end
     end
   end

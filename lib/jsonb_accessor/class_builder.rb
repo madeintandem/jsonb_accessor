@@ -1,5 +1,6 @@
 module JsonbAccessor
   UnknownValue = Class.new(StandardError)
+  CLASS_PREFIX = "JA"
 
   module ClassBuilder
     class << self
@@ -7,7 +8,8 @@ module JsonbAccessor
         grouped_attributes = group_attributes(attribute_definitions)
 
         klass = Class.new(NestedBase)
-        namespace.const_set(new_class_name.to_s.camelize, klass)
+        new_class_name_camelized = "#{CLASS_PREFIX}#{new_class_name.to_s.camelize}"
+        namespace.const_set(new_class_name_camelized, klass)
         nested_classes = generate_nested_classes(klass, grouped_attributes[:nested])
 
         klass.class_eval do

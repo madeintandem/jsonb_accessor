@@ -17,7 +17,7 @@ module JsonbAccessor
       end
 
       def build_class_namespace(class_name)
-        class_name = class_name.gsub(CONSTANT_SEPARATOR, "")
+        class_name = CLASS_PREFIX + class_name.gsub(CONSTANT_SEPARATOR, "")
         if JsonbAccessor.constants.any? { |c| c.to_s == class_name }
           class_namespace = JsonbAccessor.const_get(class_name)
         else
@@ -35,7 +35,7 @@ module JsonbAccessor
 
         class_namespace = Macro.build_class_namespace(name)
         attribute_namespace = Module.new
-        class_namespace.const_set(jsonb_attribute.to_s.camelize, attribute_namespace)
+        class_namespace.const_set("#{CLASS_PREFIX}#{jsonb_attribute.to_s.camelize}", attribute_namespace)
 
         nested_classes = ClassBuilder.generate_nested_classes(attribute_namespace, nested_fields)
 

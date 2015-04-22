@@ -86,12 +86,12 @@ RSpec.describe JsonbAccessor do
         klass
       end
 
-      after { JsonbAccessor.send(:remove_const, "Foo") }
+      after { JsonbAccessor.send(:remove_const, "JAFoo") }
 
       it "can be called twice in a class without issue" do
         expect do
           dummy_class.class_eval { jsonb_accessor :options, :bar }
-        end.to_not change { JsonbAccessor::Foo }
+        end.to_not change { JsonbAccessor::JAFoo }
       end
 
       it "initializes attributes properly" do
@@ -124,7 +124,7 @@ RSpec.describe JsonbAccessor do
         it "can be called twice in a namespaced class without issue" do
           expect do
             dummy_class.class_eval { jsonb_accessor :options, :bar }
-          end.to_not change { JsonbAccessor::FooBar }
+          end.to_not change { JsonbAccessor::JAFooBar }
         end
       end
     end
@@ -641,10 +641,10 @@ RSpec.describe JsonbAccessor do
 
   context "nested fields" do
     it "creates a namespace named for the class, jsonb attribute, and nested attributes" do
-      expect(defined?(JsonbAccessor::Product)).to eq("constant")
-      expect(defined?(JsonbAccessor::Product::Options)).to eq("constant")
-      expect(defined?(JsonbAccessor::Product::Options::Document)).to eq("constant")
-      expect(defined?(JsonbAccessor::Product::Options::Document::Nested)).to eq("constant")
+      expect(defined?(JsonbAccessor::JAProduct)).to eq("constant")
+      expect(defined?(JsonbAccessor::JAProduct::JAOptions)).to eq("constant")
+      expect(defined?(JsonbAccessor::JAProduct::JAOptions::JADocument)).to eq("constant")
+      expect(defined?(JsonbAccessor::JAProduct::JAOptions::JADocument::JANested)).to eq("constant")
     end
 
     context "getters" do
@@ -661,7 +661,7 @@ RSpec.describe JsonbAccessor do
     end
 
     context "setters" do
-      let(:document_class) { JsonbAccessor::Product::Options::Document }
+      let(:document_class) { JsonbAccessor::JAProduct::JAOptions::JADocument }
       subject { Product.new }
 
       it "sets itself a the object's parent" do
@@ -742,7 +742,7 @@ RSpec.describe JsonbAccessor do
 
   describe ".<field_name>_classes" do
     it "is a mapping of attribute names to dynamically created classes" do
-      expect(Product.options_classes).to eq(document: JsonbAccessor::Product::Options::Document)
+      expect(Product.options_classes).to eq(document: JsonbAccessor::JAProduct::JAOptions::JADocument)
     end
 
     context "delegation" do
