@@ -81,17 +81,17 @@ end
 
 The following types are supported:
 
-* biginteger
+* big_integer
 * binary
 * bit
-* bitvarying
+* bit_varying
 * boolean
 * bytea
 * cidr
 * date
-* datetime
+* date_time
 * decimal
-* decimalwithoutscale
+* decimal_without_scale
 * enum
 * float
 * hstore
@@ -102,11 +102,11 @@ The following types are supported:
 * money
 * point
 * range
-* specializedstring
+* specialized_string
 * string
 * text
 * time
-* unsignedinteger
+* unsigned_integer
 * uuid
 * value
 * vector
