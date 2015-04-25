@@ -79,28 +79,40 @@ end
 
 ### Supported Types
 
-The following types are supported, including typed collections:
+The following types are supported:
 
-```
-:array,
-:boolean,
-:boolean_array,
-:date,
-:date_array,
-:datetime,
-:datetime_array,
-:decimal,
-:decimal_array,
-:float,
-:float_array,
-:integer,
-:integer_array,
-:string,
-:string_array,
-:time,
-:time_array,
-:value
-```
+* biginteger
+* binary
+* bit
+* bitvarying
+* boolean
+* bytea
+* cidr
+* date
+* datetime
+* decimal
+* decimalwithoutscale
+* enum
+* float
+* hstore
+* inet
+* integer
+* json
+* jsonb
+* money
+* point
+* range
+* specializedstring
+* string
+* text
+* time
+* unsignedinteger
+* uuid
+* value
+* vector
+* xml
+
+Typed arrays are also supported by specifying `:type_array` (i.e. `:float_array`). `:array` is interpreted as an array of `value` types.
 
 Support for nested types is also available but experimental at this point. If you must, you may try something like this for nested objects.
 
