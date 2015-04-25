@@ -12,10 +12,6 @@ ActiveRecord::Base.establish_connection(
   username: "postgres"
 )
 
-class Product < ActiveRecord::Base
-  jsonb_accessor :options, title: :string, foo: { bar: { baz: :string } }
-end
-
 x = Product.new
 
 Pry.start
