@@ -32,6 +32,7 @@ module JsonbAccessor
       def jsonb_accessor(jsonb_attribute, *value_fields, **typed_fields)
         all_fields = Macro.group_attributes(value_fields, typed_fields)
         nested_fields, typed_fields = all_fields.values_at(:nested, :typed)
+        all_field_names = nested_fields.keys + typed_fields.keys
 
         class_namespace = Macro.build_class_namespace(name)
         attribute_namespace = Module.new
@@ -49,7 +50,7 @@ module JsonbAccessor
 
         define_method(jsonb_attribute_initialization_method_name) do
           jsonb_attribute_hash = send(jsonb_attribute) || {}
-          (typed_fields.keys + nested_fields.keys).each do |field|
+          all_field_names.each do |field|
             send("#{field}=", jsonb_attribute_hash[field.to_s])
           end
         end
@@ -63,7 +64,12 @@ module JsonbAccessor
           query_json = TypeHelper.type_cast_as_jsonb(query_options)
           where("#{table_name}.#{jsonb_attribute} @> ?", query_json)
         end
-        scope "#{jsonb_attribute}_contains", attribute_scope
+        jsonb_attribute_scope_name = "#{jsonb_attribute}_contains"
+        scope jsonb_attribute_scope_name, attribute_scope
+
+        all_field_names.each do |field|
+          scope "with_#{field}", -> (value) { send(jsonb_attribute_scope_name, field => value) }
+        end
 
         jsonb_accessor_methods = Module.new do
           define_method("#{jsonb_attribute}=") do |value|

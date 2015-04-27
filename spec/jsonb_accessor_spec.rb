@@ -788,12 +788,12 @@ RSpec.describe JsonbAccessor do
   end
 
   context "scopes" do
-    describe "#<jsonb_attribute_name>_contains" do
-      let(:title) { "foo" }
-      let!(:ignored_product) { Product.create!(title: "bar") }
-      let!(:matching_product) { Product.create!(title: title, external_id: 3) }
-      let!(:other_matching_product) { Product.create!(title: title, document: { nested: { are: "0" } }) }
+    let(:title) { "foo" }
+    let!(:ignored_product) { Product.create!(title: "bar") }
+    let!(:matching_product) { Product.create!(title: title, external_id: 3) }
+    let!(:other_matching_product) { Product.create!(title: title, document: { nested: { are: "0" } }) }
 
+    describe "#<jsonb_attribute_name>_contains" do
       it "is a collection of records that match the query" do
         query = Product.options_contains(title: title)
         expect(query).to exist
@@ -829,6 +829,13 @@ RSpec.describe JsonbAccessor do
         it "types casts nested attributes" do
           expect(Product.options_contains(document: { nested: { are: 0 } })).to eq([other_matching_product])
         end
+      end
+    end
+
+    describe "#with_<field name>" do
+      it "is all records associated with the given field" do
+        expect(Product).to receive(:options_contains).and_call_original
+        expect(Product.with_title(title)).to match_array([matching_product, other_matching_product])
       end
     end
   end
