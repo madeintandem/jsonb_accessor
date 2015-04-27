@@ -70,4 +70,15 @@ RSpec.describe JsonbAccessor::TypeHelper do
       end
     end
   end
+
+  describe "#type_cast_as_jsonb" do
+    let(:hash) { { foo: :bar } }
+    subject do
+      JsonbAccessor::TypeHelper.type_cast_as_jsonb(hash)
+    end
+
+    it "converts the hash to a json string" do
+      expect(subject).to eq(%({"foo":"bar"}))
+    end
+  end
 end

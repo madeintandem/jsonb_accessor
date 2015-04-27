@@ -18,7 +18,16 @@ module JsonbAccessor
         end
       end
 
+      def type_cast_as_jsonb(suspect)
+        type_cast_hash = jsonb.type_cast_from_user(suspect)
+        jsonb.type_cast_for_database(type_cast_hash)
+      end
+
       private
+
+      def jsonb
+        @jsonb ||= fetch(:jsonb)
+      end
 
       def fetch_active_record_array_type(type)
         subtype = type.to_s.sub(ARRAY_MATCHER, "")

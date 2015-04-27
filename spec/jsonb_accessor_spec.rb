@@ -786,4 +786,50 @@ RSpec.describe JsonbAccessor do
       end
     end
   end
+
+  context "scopes" do
+    describe "#<jsonb_attribute_name>_contains" do
+      let(:title) { "foo" }
+      let!(:ignored_product) { Product.create!(title: "bar") }
+      let!(:matching_product) { Product.create!(title: title, external_id: 3) }
+      let!(:other_matching_product) { Product.create!(title: title, document: { nested: { are: "0" } }) }
+
+      it "is a collection of records that match the query" do
+        query = Product.options_contains(title: title)
+        expect(query).to exist
+        expect(query).to match_array([matching_product, other_matching_product])
+      end
+
+      it "escapes sql" do
+        expect do
+          Product.options_contains(title: "foo\"};delete from products where id = #{matching_product.id}").to_a
+        end.to_not raise_error
+      end
+
+      context "table names" do
+        let!(:product_category) { ProductCategory.create!(title: "category") }
+
+        before do
+          product_category.products << matching_product
+          product_category.products << other_matching_product
+        end
+
+        it "is not ambigious which table is being referenced" do
+          expect do
+            Product.joins(:product_category).merge(ProductCategory.options_contains(title: "category")).to_a
+          end.to_not raise_error
+        end
+      end
+
+      context "type casting" do
+        it "type casts values properly" do
+          expect(Product.options_contains(external_id: "3")).to eq([matching_product])
+        end
+
+        it "types casts nested attributes" do
+          expect(Product.options_contains(document: { nested: { are: 0 } })).to eq([other_matching_product])
+        end
+      end
+    end
+  end
 end

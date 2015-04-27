@@ -45,6 +45,7 @@ ALL_FIELDS = VALUE_FIELDS + TYPED_FIELDS.keys
 
 class Product < ActiveRecord::Base
   jsonb_accessor :options, *VALUE_FIELDS, TYPED_FIELDS
+  belongs_to :product_category
 end
 
 class OtherProduct < ActiveRecord::Base
@@ -68,6 +69,11 @@ class OtherProduct < ActiveRecord::Base
     super
     :wrapped
   end
+end
+
+class ProductCategory < ActiveRecord::Base
+  jsonb_accessor :options, title: :string
+  has_many :products
 end
 
 RSpec::Matchers.define :alias_the_method do |method_name|

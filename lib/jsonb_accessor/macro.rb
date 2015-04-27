@@ -56,6 +56,15 @@ module JsonbAccessor
 
         after_initialize(jsonb_attribute_initialization_method_name)
 
+        attribute_scope = lambda do |attributes|
+          query_options = new(attributes).send(jsonb_attribute)
+          fields = attributes.keys.map(&:to_s)
+          query_options.delete_if { |key, value| fields.exclude?(key) }
+          query_json = TypeHelper.type_cast_as_jsonb(query_options)
+          where("#{table_name}.#{jsonb_attribute} @> ?", query_json)
+        end
+        scope "#{jsonb_attribute}_contains", attribute_scope
+
         jsonb_accessor_methods = Module.new do
           define_method("#{jsonb_attribute}=") do |value|
             write_attribute(jsonb_attribute, value)
