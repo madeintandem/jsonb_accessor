@@ -42,7 +42,7 @@ class Product < ActiveRecord::Base
     title: :string,
     id_value: :value,
     external_id: :integer,
-    reviewed_at: :datetime
+    reviewed_at: :date_time
   )
 end
 ```
