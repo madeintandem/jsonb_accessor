@@ -848,5 +848,41 @@ RSpec.describe JsonbAccessor do
         expect(Product.not_admin).to eq([other_matching_product])
       end
     end
+
+    context "float, decimal, integer" do
+      let!(:largest_product) { Product.create!(external_id: 100) }
+      let!(:middle_product) { matching_product }
+      let!(:smallest_product) { Product.create!(external_id: -20) }
+
+      describe "#<field>_lt" do
+        it "is products that are less than the argument" do
+          expect(Product.external_id_lt(3)).to eq([smallest_product])
+        end
+
+        it "type casts its argument"
+        it "escapes sql"
+        it "supports floats"
+        it "supports decimals"
+        it "supports 'big' numeric types"
+      end
+
+      describe "#<field>_lte" do
+        it "is products that are less than or equal to the argument" do
+          expect(Product.external_id_lte(3)).to match_array([smallest_product, middle_product])
+        end
+      end
+
+      describe "#<field>_gte" do
+        it "is products that are greater than or equal to the argument" do
+          expect(Product.external_id_gte(3)).to match_array([largest_product, middle_product])
+        end
+      end
+
+      describe "#<field>_gt" do
+        it "is products that are greater than to the argument" do
+          expect(Product.external_id_gt(3)).to match_array([largest_product])
+        end
+      end
+    end
   end
 end
