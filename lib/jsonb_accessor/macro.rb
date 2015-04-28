@@ -71,6 +71,14 @@ module JsonbAccessor
           scope "with_#{field}", -> (value) { send(jsonb_attribute_scope_name, field => value) }
         end
 
+        typed_fields.each do |field, type|
+          case type
+          when :boolean
+            scope "is_#{field}", -> { send("with_#{field}", true) }
+            scope "not_#{field}", -> { send("with_#{field}", false) }
+          end
+        end
+
         jsonb_accessor_methods = Module.new do
           define_method("#{jsonb_attribute}=") do |value|
             write_attribute(jsonb_attribute, value)
