@@ -850,19 +850,35 @@ RSpec.describe JsonbAccessor do
     end
 
     context "float, decimal, integer" do
-      let!(:largest_product) { Product.create!(external_id: 100) }
+      let!(:largest_product) { Product.create!(external_id: 100, precision: 100.0, amount_floated: 100.0) }
       let!(:middle_product) { matching_product }
-      let!(:smallest_product) { Product.create!(external_id: -20) }
+      let!(:smallest_product) { Product.create!(external_id: -20, precision: -20.0, amount_floated: -20.0) }
 
       describe "#<field>_lt" do
         it "is products that are less than the argument" do
           expect(Product.external_id_lt(3)).to eq([smallest_product])
         end
 
-        it "type casts its argument"
-        it "escapes sql"
-        it "supports floats"
-        it "supports decimals"
+        it "type casts its argument" do
+          expect(Product.external_id_lt("3")).to eq([smallest_product])
+        end
+
+        it "escapes sql" do
+          expect do
+            Product.external_id_lt("22\"};delete from products where id = #{matching_product.id}")
+          end.to_not raise_error
+        end
+
+        it "supports floats" do
+          expect(Product.amount_floated_lt(-19.9999999)).to eq([smallest_product])
+          expect(Product.amount_floated_lt(-20)).to be_empty
+        end
+
+        it "supports decimals" do
+          expect(Product.precision_lt(-19.9999999)).to eq([smallest_product])
+          expect(Product.precision_lt(-20)).to be_empty
+        end
+
         it "supports 'big' numeric types"
       end
 
@@ -870,18 +886,84 @@ RSpec.describe JsonbAccessor do
         it "is products that are less than or equal to the argument" do
           expect(Product.external_id_lte(3)).to match_array([smallest_product, middle_product])
         end
+
+        it "type casts its argument" do
+          expect(Product.external_id_lte("2")).to eq([smallest_product])
+        end
+
+        it "escapes sql" do
+          expect do
+            Product.external_id_lte("22\"};delete from products where id = #{matching_product.id}")
+          end.to_not raise_error
+        end
+
+        it "supports floats" do
+          expect(Product.amount_floated_lte(-20.0)).to eq([smallest_product])
+          expect(Product.amount_floated_lte(-20.000000001)).to be_empty
+        end
+
+        it "supports decimals" do
+          expect(Product.precision_lte(-20.0)).to eq([smallest_product])
+          expect(Product.precision_lte(-20.000000001)).to be_empty
+        end
+
+        it "supports 'big' numeric types"
       end
 
       describe "#<field>_gte" do
         it "is products that are greater than or equal to the argument" do
           expect(Product.external_id_gte(3)).to match_array([largest_product, middle_product])
         end
+
+        it "type casts its argument" do
+          expect(Product.external_id_gte("4")).to eq([largest_product])
+        end
+
+        it "escapes sql" do
+          expect do
+            Product.external_id_gte("22\"};delete from products where id = #{matching_product.id}")
+          end.to_not raise_error
+        end
+
+        it "supports floats" do
+          expect(Product.amount_floated_gte(100)).to eq([largest_product])
+          expect(Product.amount_floated_gte(100.000001)).to be_empty
+        end
+
+        it "supports decimals" do
+          expect(Product.precision_gte(100)).to eq([largest_product])
+          expect(Product.precision_gte(100.0000001)).to be_empty
+        end
+
+        it "supports 'big' numeric types"
       end
 
       describe "#<field>_gt" do
         it "is products that are greater than to the argument" do
           expect(Product.external_id_gt(3)).to match_array([largest_product])
         end
+
+        it "type casts its argument" do
+          expect(Product.external_id_gt("3")).to eq([largest_product])
+        end
+
+        it "escapes sql" do
+          expect do
+            Product.external_id_gt("22\"};delete from products where id = #{matching_product.id}")
+          end.to_not raise_error
+        end
+
+        it "supports floats" do
+          expect(Product.amount_floated_gt(99.9999999)).to eq([largest_product])
+          expect(Product.amount_floated_gt(100.0)).to be_empty
+        end
+
+        it "supports decimals" do
+          expect(Product.precision_gt(99.9999999)).to eq([largest_product])
+          expect(Product.precision_gt(100.0)).to be_empty
+        end
+
+        it "supports 'big' numeric types"
       end
     end
   end

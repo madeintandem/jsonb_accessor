@@ -76,7 +76,7 @@ module JsonbAccessor
           when :boolean
             scope "is_#{field}", -> { send("with_#{field}", true) }
             scope "not_#{field}", -> { send("with_#{field}", false) }
-          when :integer
+          when :integer, :float, :decimal
             scope "__numeric_#{field}_comparator", -> (value, operator) { where("((#{table_name}.#{jsonb_attribute}) ->> ?)::#{type} #{operator} ?", field, value) }
             scope "#{field}_lt", -> (value) { send("__numeric_#{field}_comparator", value, "<") }
             scope "#{field}_lte", -> (value) { send("__numeric_#{field}_comparator", value, "<=") }
