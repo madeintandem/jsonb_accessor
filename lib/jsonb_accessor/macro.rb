@@ -5,9 +5,7 @@ module JsonbAccessor
         fields_map = JsonbAccessor::FieldsMap.new(value_fields, typed_fields)
 
         class_namespace = ClassBuilder.generate_class_namespace(name)
-        attribute_namespace = Module.new
-        class_namespace.const_set("#{CLASS_PREFIX}#{jsonb_attribute.to_s.camelize}", attribute_namespace)
-
+        attribute_namespace = ClassBuilder.generate_attribute_namespace(jsonb_attribute, class_namespace)
         nested_classes = ClassBuilder.generate_nested_classes(attribute_namespace, fields_map.nested_fields)
 
         singleton_class.send(:define_method, "#{jsonb_attribute}_classes") do

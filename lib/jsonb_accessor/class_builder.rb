@@ -76,6 +76,11 @@ module JsonbAccessor
         class_namespace
       end
 
+      def generate_attribute_namespace(attribute_name, class_namespace)
+        attribute_namespace = Module.new
+        class_namespace.const_set("#{CLASS_PREFIX}#{attribute_name.to_s.camelize}", attribute_namespace)
+      end
+
       private
 
       def group_attributes(attributes)

@@ -89,6 +89,17 @@ RSpec.describe JsonbAccessor::ClassBuilder do
     end
   end
 
+  describe "#generate_attribute_namespace" do
+    before { stub_const("SomeNamespace", Module.new) }
+
+    it "is a namespace in the given class namespace" do
+      result = subject.generate_attribute_namespace(:some_jsonb_attribute, SomeNamespace)
+      expect(defined?(SomeNamespace::JASomeJsonbAttribute)).to eq("constant")
+      expect(result).to be_a(Module)
+      expect(result).to equal(SomeNamespace::JASomeJsonbAttribute)
+    end
+  end
+
   context "generated classes" do
     let(:dummy_class) { SomeNamespace::JASomeClass }
     let(:dummy) { dummy_class.new }
