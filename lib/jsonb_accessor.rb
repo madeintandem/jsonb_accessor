@@ -3,6 +3,7 @@ require "active_record"
 require "active_record/connection_adapters/postgresql_adapter"
 
 require "jsonb_accessor/version"
+require "jsonb_accessor/fields_map"
 require "jsonb_accessor/type_helper"
 require "jsonb_accessor/nested_base"
 require "jsonb_accessor/class_builder"

@@ -1,21 +1,6 @@
 module JsonbAccessor
   module Macro
     class << self
-      def group_attributes(value_fields, typed_fields)
-        value_fields_hash = process_value_fields(value_fields)
-
-        typed_fields.each_with_object(nested: {}, typed: value_fields_hash) do |(attribute_name, type_or_nested), grouped_attributes|
-          group = type_or_nested.is_a?(Hash) ? grouped_attributes[:nested] : grouped_attributes[:typed]
-          group[attribute_name] = type_or_nested
-        end
-      end
-
-      def process_value_fields(value_fields)
-        value_fields.each_with_object({}) do |value_field, hash_for_value_fields|
-          hash_for_value_fields[value_field] = :value
-        end
-      end
-
       def build_class_namespace(class_name)
         class_name = CLASS_PREFIX + class_name.gsub(CONSTANT_SEPARATOR, "")
         if JsonbAccessor.constants.any? { |c| c.to_s == class_name }
@@ -30,15 +15,13 @@ module JsonbAccessor
 
     module ClassMethods
       def jsonb_accessor(jsonb_attribute, *value_fields, **typed_fields)
-        all_fields = Macro.group_attributes(value_fields, typed_fields)
-        nested_fields, typed_fields = all_fields.values_at(:nested, :typed)
-        all_field_names = nested_fields.keys + typed_fields.keys
+        fields_map = JsonbAccessor::FieldsMap.new(value_fields, typed_fields)
 
         class_namespace = Macro.build_class_namespace(name)
         attribute_namespace = Module.new
         class_namespace.const_set("#{CLASS_PREFIX}#{jsonb_attribute.to_s.camelize}", attribute_namespace)
 
-        nested_classes = ClassBuilder.generate_nested_classes(attribute_namespace, nested_fields)
+        nested_classes = ClassBuilder.generate_nested_classes(attribute_namespace, fields_map.nested_fields)
 
         singleton_class.send(:define_method, "#{jsonb_attribute}_classes") do
           nested_classes
@@ -50,7 +33,7 @@ module JsonbAccessor
 
         define_method(jsonb_attribute_initialization_method_name) do
           jsonb_attribute_hash = send(jsonb_attribute) || {}
-          all_field_names.each do |field|
+          fields_map.names.each do |field|
             send("#{field}=", jsonb_attribute_hash[field.to_s])
           end
         end
@@ -67,7 +50,7 @@ module JsonbAccessor
         jsonb_attribute_scope_name = "#{jsonb_attribute}_contains"
         scope jsonb_attribute_scope_name, attribute_scope
 
-        all_field_names.each do |field|
+        fields_map.names.each do |field|
           scope "with_#{field}", -> (value) { send(jsonb_attribute_scope_name, field => value) }
         end
 
@@ -92,7 +75,7 @@ module JsonbAccessor
           end
         end
 
-        typed_fields.each do |field, type|
+        fields_map.typed_fields.each do |field, type|
           attribute(field.to_s, TypeHelper.fetch(type))
 
           jsonb_accessor_methods.instance_eval do
@@ -104,7 +87,7 @@ module JsonbAccessor
           end
         end
 
-        nested_fields.each do |field, nested_attributes|
+        fields_map.nested_fields.each do |field, nested_attributes|
           attribute(field.to_s, TypeHelper.fetch(:value))
 
           jsonb_accessor_methods.instance_eval do
