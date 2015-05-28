@@ -1,23 +1,10 @@
 module JsonbAccessor
   module Macro
-    class << self
-      def build_class_namespace(class_name)
-        class_name = CLASS_PREFIX + class_name.gsub(CONSTANT_SEPARATOR, "")
-        if JsonbAccessor.constants.any? { |c| c.to_s == class_name }
-          class_namespace = JsonbAccessor.const_get(class_name)
-        else
-          class_namespace = Module.new
-          JsonbAccessor.const_set(class_name, class_namespace)
-        end
-        class_namespace
-      end
-    end
-
     module ClassMethods
       def jsonb_accessor(jsonb_attribute, *value_fields, **typed_fields)
         fields_map = JsonbAccessor::FieldsMap.new(value_fields, typed_fields)
 
-        class_namespace = Macro.build_class_namespace(name)
+        class_namespace = ClassBuilder.generate_class_namespace(name)
         attribute_namespace = Module.new
         class_namespace.const_set("#{CLASS_PREFIX}#{jsonb_attribute.to_s.camelize}", attribute_namespace)
 

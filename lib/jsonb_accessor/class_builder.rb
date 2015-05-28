@@ -65,6 +65,17 @@ module JsonbAccessor
         end
       end
 
+      def generate_class_namespace(name)
+        class_name = CLASS_PREFIX + name.gsub(CONSTANT_SEPARATOR, "")
+        if JsonbAccessor.constants.any? { |c| c.to_s == class_name }
+          class_namespace = JsonbAccessor.const_get(class_name)
+        else
+          class_namespace = Module.new
+          JsonbAccessor.const_set(class_name, class_namespace)
+        end
+        class_namespace
+      end
+
       private
 
       def group_attributes(attributes)
