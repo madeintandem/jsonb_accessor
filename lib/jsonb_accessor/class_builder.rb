@@ -37,19 +37,8 @@ module JsonbAccessor
 
             define_method("#{attribute_name}=") do |value|
               instance_class = nested_classes[attribute_name]
+              instance = cast_nested_field_value(value, instance_class, __method__)
 
-              case value
-              when instance_class
-                instance = instance_class.new(value.attributes)
-              when Hash
-                instance = instance_class.new(value)
-              when nil
-                instance = instance_class.new
-              else
-                raise UnknownValue, "unable to set value '#{value}' is not a hash, `nil`, or an instance of #{instance_class} in #{__method__}"
-              end
-
-              instance.parent = self
               instance_variable_set("@#{attribute_name}", instance)
               attributes[attribute_name] = instance.attributes
               update_parent
