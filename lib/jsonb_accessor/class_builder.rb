@@ -5,24 +5,24 @@ module JsonbAccessor
   module ClassBuilder
     class << self
       def generate_class(namespace, new_class_name, attribute_definitions)
-        grouped_attributes = group_attributes(attribute_definitions)
+        fields_map = JsonbAccessor::FieldsMap.new([], attribute_definitions)
 
         klass = Class.new(NestedBase)
         new_class_name_camelized = "#{CLASS_PREFIX}#{new_class_name.to_s.camelize}"
         namespace.const_set(new_class_name_camelized, klass)
-        nested_classes = generate_nested_classes(klass, grouped_attributes[:nested])
+        nested_classes = generate_nested_classes(klass, fields_map.nested_fields)
 
         klass.class_eval do
           singleton_class.send(:define_method, :nested_classes) { nested_classes }
           singleton_class.send(:define_method, :attribute_on_parent_name) { new_class_name }
 
           define_method(:attributes_and_data_types) do
-            @attributes_and_data_types ||= grouped_attributes[:typed].each_with_object({}) do |(name, type), attrs_and_data_types|
+            @attributes_and_data_types ||= fields_map.typed_fields.each_with_object({}) do |(name, type), attrs_and_data_types|
               attrs_and_data_types[name] = TypeHelper.fetch(type)
             end
           end
 
-          grouped_attributes[:typed].keys.each do |attribute_name|
+          fields_map.typed_fields.keys.each do |attribute_name|
             define_method(attribute_name) { attributes[attribute_name] }
 
             define_method("#{attribute_name}=") do |value|
@@ -32,7 +32,7 @@ module JsonbAccessor
             end
           end
 
-          grouped_attributes[:nested].keys.each do |attribute_name|
+          fields_map.nested_fields.keys.each do |attribute_name|
             attr_reader attribute_name
 
             define_method("#{attribute_name}=") do |value|
@@ -79,15 +79,6 @@ module JsonbAccessor
       def generate_attribute_namespace(attribute_name, class_namespace)
         attribute_namespace = Module.new
         class_namespace.const_set("#{CLASS_PREFIX}#{attribute_name.to_s.camelize}", attribute_namespace)
-      end
-
-      private
-
-      def group_attributes(attributes)
-        attributes.each_with_object(nested: {}, typed: {}) do |(name, type_or_nested), grouped_attributes|
-          group = type_or_nested.is_a?(Hash) ? grouped_attributes[:nested] : grouped_attributes[:typed]
-          group[name] = type_or_nested
-        end
       end
     end
   end
