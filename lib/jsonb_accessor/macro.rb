@@ -58,16 +58,24 @@ module JsonbAccessor
         fields_map.typed_fields.each do |field, type|
           case type
           when :boolean
-            scope "is_#{field}", -> { send("with_#{field}", true) }
-            scope "not_#{field}", -> { send("with_#{field}", false) }
+            ___create_jsonb_boolean_scopes(field)
           when :integer, :float, :decimal
-            scope "__numeric_#{field}_comparator", -> (value, operator) { where("((#{table_name}.#{jsonb_attribute}) ->> ?)::#{type} #{operator} ?", field, value) }
-            scope "#{field}_lt", -> (value) { send("__numeric_#{field}_comparator", value, "<") }
-            scope "#{field}_lte", -> (value) { send("__numeric_#{field}_comparator", value, "<=") }
-            scope "#{field}_gte", -> (value) { send("__numeric_#{field}_comparator", value, ">=") }
-            scope "#{field}_gt", -> (value) { send("__numeric_#{field}_comparator", value, ">") }
+            ___create_jsonb_numeric_scopes(field, type, jsonb_attribute)
           end
         end
+      end
+
+      def ___create_jsonb_boolean_scopes(field)
+        scope "is_#{field}", -> { send("with_#{field}", true) }
+        scope "not_#{field}", -> { send("with_#{field}", false) }
+      end
+
+      def ___create_jsonb_numeric_scopes(field, type, jsonb_attribute)
+        scope "__numeric_#{field}_comparator", -> (value, operator) { where("((#{table_name}.#{jsonb_attribute}) ->> ?)::#{type} #{operator} ?", field, value) }
+        scope "#{field}_lt", -> (value) { send("__numeric_#{field}_comparator", value, "<") }
+        scope "#{field}_lte", -> (value) { send("__numeric_#{field}_comparator", value, "<=") }
+        scope "#{field}_gte", -> (value) { send("__numeric_#{field}_comparator", value, ">=") }
+        scope "#{field}_gt", -> (value) { send("__numeric_#{field}_comparator", value, ">") }
       end
 
       def _create_jsonb_accessor_methods(jsonb_attribute, jsonb_attribute_initialization_method_name, fields_map)
