@@ -17,7 +17,7 @@ module JsonbAccessor
 
         _initialize_jsonb_attrs(jsonb_attribute, fields_map, jsonb_attribute_initialization_method_name)
         _create_jsonb_attribute_scope_name(jsonb_attribute, jsonb_attribute_scope_name)
-        _create_jsonb_scopes(fields_map, jsonb_attribute_scope_name)
+        _create_jsonb_scopes(jsonb_attribute, fields_map, jsonb_attribute_scope_name)
         _create_jsonb_accessor_methods(jsonb_attribute, jsonb_attribute_initialization_method_name, fields_map)
       end
 
@@ -43,9 +43,9 @@ module JsonbAccessor
                                            end)
       end
 
-      def _create_jsonb_scopes(fields_map, jsonb_attribute_scope_name)
+      def _create_jsonb_scopes(jsonb_attribute, fields_map, jsonb_attribute_scope_name)
         __create_jsonb_standard_scopes(fields_map, jsonb_attribute_scope_name)
-        __create_jsonb_boolean_scopes(fields_map)
+        __create_jsonb_typed_scopes(jsonb_attribute, fields_map)
       end
 
       def __create_jsonb_standard_scopes(fields_map, jsonb_attribute_scope_name)
@@ -54,7 +54,7 @@ module JsonbAccessor
         end
       end
 
-      def __create_jsonb_boolean_scopes(fields_map)
+      def __create_jsonb_typed_scopes(jsonb_attribute, fields_map)
         fields_map.typed_fields.each do |field, type|
           case type
           when :boolean
