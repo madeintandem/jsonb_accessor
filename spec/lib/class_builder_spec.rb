@@ -56,6 +56,50 @@ RSpec.describe JsonbAccessor::ClassBuilder do
     end
   end
 
+  describe "#generate_class_namespace" do
+    context "class namespace has not been generated" do
+      it "is the class namespace" do
+        result = subject.generate_class_namespace("Foo")
+        expect(defined?(JsonbAccessor::JAFoo)).to eq("constant")
+        expect(result).to be_a(Module)
+        expect(result).to eq(JsonbAccessor::JAFoo)
+        JsonbAccessor.send(:remove_const, "JAFoo")
+      end
+
+      it "is the class namespace despite module nesting" do
+        result = subject.generate_class_namespace("Foo::Bar")
+        expect(defined?(JsonbAccessor::JAFooBar)).to eq("constant")
+        expect(result).to be_a(Module)
+        expect(result).to eq(JsonbAccessor::JAFooBar)
+        JsonbAccessor.send(:remove_const, "JAFooBar")
+      end
+    end
+
+    context "class namespace was already generated" do
+      it "is the class namespace" do
+        original = subject.generate_class_namespace("Foo")
+        result = nil
+
+        expect do
+          result = subject.generate_class_namespace("Foo")
+        end.to_not raise_error
+
+        expect(result).to equal(original)
+      end
+    end
+  end
+
+  describe "#generate_attribute_namespace" do
+    before { stub_const("SomeNamespace", Module.new) }
+
+    it "is a namespace in the given class namespace" do
+      result = subject.generate_attribute_namespace(:some_jsonb_attribute, SomeNamespace)
+      expect(defined?(SomeNamespace::JASomeJsonbAttribute)).to eq("constant")
+      expect(result).to be_a(Module)
+      expect(result).to equal(SomeNamespace::JASomeJsonbAttribute)
+    end
+  end
+
   context "generated classes" do
     let(:dummy_class) { SomeNamespace::JASomeClass }
     let(:dummy) { dummy_class.new }

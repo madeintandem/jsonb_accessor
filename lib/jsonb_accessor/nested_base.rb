@@ -1,5 +1,7 @@
 module JsonbAccessor
   class NestedBase
+    include Helpers
+
     attr_accessor :attributes, :parent
     alias_method :to_h, :attributes
 
