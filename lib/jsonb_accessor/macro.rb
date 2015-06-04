@@ -26,7 +26,7 @@ module JsonbAccessor
       private
 
       def _register_jsonb_classes_for_cleanup
-        if defined?(ActionDispatch)
+        if defined?(ActionDispatch) && ENV["RACK_ENV"] == "development"
           class_name = CLASS_PREFIX + name
           ActionDispatch::Reloader.to_cleanup do
             if JsonbAccessor.constants.any? { |c| c.to_s == class_name }

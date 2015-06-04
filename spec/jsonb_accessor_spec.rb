@@ -981,8 +981,14 @@ RSpec.describe JsonbAccessor do
   end
 
   context "ActionDispatch clean up" do
-    context "ActionDispatch defined" do
-      before { stub_const("ActionDispatch", ActionDispatchAlias) }
+    context "ActionDispatch defined and in development" do
+      before do
+        stub_const("ActionDispatch", ActionDispatchAlias)
+        ENV["RACK_ENV"] = "development"
+      end
+
+      after { ENV["RACK_ENV"] = "test" }
+
       let!(:dummy_class) do
         klass = Class.new(ActiveRecord::Base) do
           self.table_name = "products"
@@ -996,6 +1002,25 @@ RSpec.describe JsonbAccessor do
         ActionDispatch::Reloader.cleanup!
         expect(defined?(JsonbAccessor::JAFooBaz)).to be_nil
         expect { ActionDispatch::Reloader.cleanup! }.to_not raise_error
+      end
+    end
+
+    context "ActionDispatch defined but not in development" do
+      before do
+        stub_const("ActionDispatch", ActionDispatchAlias)
+      end
+
+      let(:dummy_class) do
+        klass = Class.new(ActiveRecord::Base) do
+          self.table_name = "products"
+        end
+        stub_const("BazBar", klass)
+        klass.class_eval { jsonb_accessor :options, foo: { bar: :integer } }
+      end
+
+      it "does nothing" do
+        expect(ActionDispatch::Reloader).to_not receive(:to_cleanup)
+        dummy_class
       end
     end
 
