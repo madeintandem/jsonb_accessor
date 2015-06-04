@@ -1,5 +1,6 @@
 $LOAD_PATH.unshift File.expand_path("../../lib", __FILE__)
 require "jsonb_accessor"
+require "action_dispatch/middleware/reloader"
 require "pry"
 require "pry-nav"
 require "pry-doc"
@@ -7,6 +8,9 @@ require "awesome_print"
 require "database_cleaner"
 require "shoulda-matchers"
 require "yaml"
+
+ActionDispatchAlias = ActionDispatch
+Object.send(:remove_const, :ActionDispatch)
 
 VALUE_FIELDS = [:count, :name, :price]
 TYPED_FIELDS = {

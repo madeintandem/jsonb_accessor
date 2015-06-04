@@ -19,9 +19,22 @@ module JsonbAccessor
         _create_jsonb_attribute_scope_name(jsonb_attribute, jsonb_attribute_scope_name)
         _create_jsonb_scopes(jsonb_attribute, fields_map, jsonb_attribute_scope_name)
         _create_jsonb_accessor_methods(jsonb_attribute, jsonb_attribute_initialization_method_name, fields_map)
+
+        _register_jsonb_classes_for_cleanup
       end
 
       private
+
+      def _register_jsonb_classes_for_cleanup
+        if defined?(ActionDispatch)
+          class_name = CLASS_PREFIX + name
+          ActionDispatch::Reloader.to_cleanup do
+            if JsonbAccessor.constants.any? { |c| c.to_s == class_name }
+              JsonbAccessor.send(:remove_const, class_name)
+            end
+          end
+        end
+      end
 
       def _initialize_jsonb_attrs(jsonb_attribute, fields_map, jsonb_attribute_initialization_method_name)
         define_method(jsonb_attribute_initialization_method_name) do
