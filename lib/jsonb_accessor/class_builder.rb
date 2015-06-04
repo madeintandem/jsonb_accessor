@@ -6,45 +6,14 @@ module JsonbAccessor
     class << self
       def generate_class(namespace, new_class_name, attribute_definitions)
         fields_map = JsonbAccessor::FieldsMap.new([], attribute_definitions)
-
-        klass = Class.new(NestedBase)
-        new_class_name_camelized = "#{CLASS_PREFIX}#{new_class_name.to_s.camelize}"
-        namespace.const_set(new_class_name_camelized, klass)
+        klass = generate_new_class(new_class_name, fields_map, namespace)
         nested_classes = generate_nested_classes(klass, fields_map.nested_fields)
 
-        klass.class_eval do
-          singleton_class.send(:define_method, :nested_classes) { nested_classes }
-          singleton_class.send(:define_method, :attribute_on_parent_name) { new_class_name }
+        define_class_methods(klass, nested_classes, new_class_name)
+        define_attributes_and_data_types(klass, fields_map)
+        define_typed_accessors(klass, fields_map)
+        define_nested_accessors(klass, fields_map)
 
-          define_method(:attributes_and_data_types) do
-            @attributes_and_data_types ||= fields_map.typed_fields.each_with_object({}) do |(name, type), attrs_and_data_types|
-              attrs_and_data_types[name] = TypeHelper.fetch(type)
-            end
-          end
-
-          fields_map.typed_fields.keys.each do |attribute_name|
-            define_method(attribute_name) { attributes[attribute_name] }
-
-            define_method("#{attribute_name}=") do |value|
-              cast_value = attributes_and_data_types[attribute_name].type_cast_from_user(value)
-              attributes[attribute_name] = cast_value
-              update_parent
-            end
-          end
-
-          fields_map.nested_fields.keys.each do |attribute_name|
-            attr_reader attribute_name
-
-            define_method("#{attribute_name}=") do |value|
-              instance_class = nested_classes[attribute_name]
-              instance = cast_nested_field_value(value, instance_class, __method__)
-
-              instance_variable_set("@#{attribute_name}", instance)
-              attributes[attribute_name] = instance.attributes
-              update_parent
-            end
-          end
-        end
         klass
       end
 
@@ -67,7 +36,64 @@ module JsonbAccessor
 
       def generate_attribute_namespace(attribute_name, class_namespace)
         attribute_namespace = Module.new
-        class_namespace.const_set("#{CLASS_PREFIX}#{attribute_name.to_s.camelize}", attribute_namespace)
+        name = generate_constant_name(attribute_name)
+        class_namespace.const_set(name, attribute_namespace)
+      end
+
+      private
+
+      def define_nested_accessors(klass, fields_map)
+        klass.class_eval do
+          fields_map.nested_fields.keys.each do |attribute_name|
+            attr_reader attribute_name
+
+            define_method("#{attribute_name}=") do |value|
+              instance_class = nested_classes[attribute_name]
+              instance = cast_nested_field_value(value, instance_class, __method__)
+
+              instance_variable_set("@#{attribute_name}", instance)
+              attributes[attribute_name] = instance.attributes
+              update_parent
+            end
+          end
+        end
+      end
+
+      def define_typed_accessors(klass, fields_map)
+        klass.class_eval do
+          fields_map.typed_fields.keys.each do |attribute_name|
+            define_method(attribute_name) { attributes[attribute_name] }
+
+            define_method("#{attribute_name}=") do |value|
+              cast_value = attributes_and_data_types[attribute_name].type_cast_from_user(value)
+              attributes[attribute_name] = cast_value
+              update_parent
+            end
+          end
+        end
+      end
+
+      def define_attributes_and_data_types(klass, fields_map)
+        klass.send(:define_method, :attributes_and_data_types) do
+          @attributes_and_data_types ||= fields_map.typed_fields.each_with_object({}) do |(name, type), attrs_and_data_types|
+            attrs_and_data_types[name] = TypeHelper.fetch(type)
+          end
+        end
+      end
+
+      def define_class_methods(klass, nested_classes, attribute_name)
+        klass.singleton_class.send(:define_method, :nested_classes) { nested_classes }
+        klass.singleton_class.send(:define_method, :attribute_on_parent_name) { attribute_name }
+      end
+
+      def generate_new_class(new_class_name, fields_map, namespace)
+        klass = Class.new(NestedBase)
+        new_class_name_camelized = generate_constant_name(new_class_name)
+        namespace.const_set(new_class_name_camelized, klass)
+      end
+
+      def generate_constant_name(attribute_name)
+        "#{CLASS_PREFIX}#{attribute_name.to_s.camelize}"
       end
     end
   end
