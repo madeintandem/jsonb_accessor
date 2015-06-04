@@ -33,6 +33,7 @@ TYPED_FIELDS = {
   prices: :decimal_array,
   login_times: :time_array,
   amounts_floated: :float_array,
+  a_big_number: :big_integer,
   document: {
     nested: {
       values: :array,

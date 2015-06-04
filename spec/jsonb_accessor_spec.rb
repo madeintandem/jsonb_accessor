@@ -790,7 +790,7 @@ RSpec.describe JsonbAccessor do
   context "scopes" do
     let(:title) { "foo" }
     let!(:ignored_product) { Product.create!(title: "bar") }
-    let!(:matching_product) { Product.create!(title: title, external_id: 3, admin: true) }
+    let!(:matching_product) { Product.create!(title: title, external_id: 3, admin: true, a_big_number: 23) }
     let!(:other_matching_product) { Product.create!(title: title, admin: false, document: { nested: { are: "0" } }) }
 
     describe "#<jsonb_attribute_name>_contains" do
@@ -849,10 +849,10 @@ RSpec.describe JsonbAccessor do
       end
     end
 
-    context "float, decimal, integer" do
-      let!(:largest_product) { Product.create!(external_id: 100, precision: 100.0, amount_floated: 100.0) }
+    context "float, decimal, integer, big integer" do
+      let!(:largest_product) { Product.create!(external_id: 100, precision: 100.0, amount_floated: 100.0, a_big_number: 1_000_000) }
       let!(:middle_product) { matching_product }
-      let!(:smallest_product) { Product.create!(external_id: -20, precision: -20.0, amount_floated: -20.0) }
+      let!(:smallest_product) { Product.create!(external_id: -20, precision: -20.0, amount_floated: -20.0, a_big_number: -1_000_000) }
 
       describe "#<field>_lt" do
         it "is products that are less than the argument" do
@@ -879,7 +879,10 @@ RSpec.describe JsonbAccessor do
           expect(Product.precision_lt(-20)).to be_empty
         end
 
-        it "supports 'big' numeric types"
+        it "supports big integers" do
+          expect(Product.a_big_number_lt(-999_999)).to eq([smallest_product])
+          expect(Product.a_big_number_lt(-1_000_000)).to be_empty
+        end
       end
 
       describe "#<field>_lte" do
@@ -907,7 +910,10 @@ RSpec.describe JsonbAccessor do
           expect(Product.precision_lte(-20.000000001)).to be_empty
         end
 
-        it "supports 'big' numeric types"
+        it "supports big integers" do
+          expect(Product.a_big_number_lte(-1_000_000)).to eq([smallest_product])
+          expect(Product.a_big_number_lte(-1_000_001)).to be_empty
+        end
       end
 
       describe "#<field>_gte" do
@@ -935,7 +941,10 @@ RSpec.describe JsonbAccessor do
           expect(Product.precision_gte(100.0000001)).to be_empty
         end
 
-        it "supports 'big' numeric types"
+        it "supports big integers" do
+          expect(Product.a_big_number_gte(1_000_000)).to eq([largest_product])
+          expect(Product.a_big_number_gte(1_000_001)).to be_empty
+        end
       end
 
       describe "#<field>_gt" do
@@ -963,7 +972,10 @@ RSpec.describe JsonbAccessor do
           expect(Product.precision_gt(100.0)).to be_empty
         end
 
-        it "supports 'big' numeric types"
+        it "supports big integers" do
+          expect(Product.a_big_number_gt(999_999)).to eq([largest_product])
+          expect(Product.a_big_number_gt(1_000_000)).to be_empty
+        end
       end
     end
   end

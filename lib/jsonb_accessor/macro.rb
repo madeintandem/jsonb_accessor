@@ -59,7 +59,7 @@ module JsonbAccessor
           case type
           when :boolean
             ___create_jsonb_boolean_scopes(field)
-          when :integer, :float, :decimal
+          when :integer, :float, :decimal, :big_integer
             ___create_jsonb_numeric_scopes(field, type, jsonb_attribute)
           end
         end
@@ -71,7 +71,8 @@ module JsonbAccessor
       end
 
       def ___create_jsonb_numeric_scopes(field, type, jsonb_attribute)
-        scope "__numeric_#{field}_comparator", -> (value, operator) { where("((#{table_name}.#{jsonb_attribute}) ->> ?)::#{type} #{operator} ?", field, value) }
+        safe_type = type.to_s.gsub("big_", "")
+        scope "__numeric_#{field}_comparator", -> (value, operator) { where("((#{table_name}.#{jsonb_attribute}) ->> ?)::#{safe_type} #{operator} ?", field, value) }
         scope "#{field}_lt", -> (value) { send("__numeric_#{field}_comparator", value, "<") }
         scope "#{field}_lte", -> (value) { send("__numeric_#{field}_comparator", value, "<=") }
         scope "#{field}_gte", -> (value) { send("__numeric_#{field}_comparator", value, ">=") }
