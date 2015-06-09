@@ -789,8 +789,9 @@ RSpec.describe JsonbAccessor do
 
   context "scopes" do
     let(:title) { "foo" }
+    let(:right_now) { Time.now }
     let!(:ignored_product) { Product.create!(title: "bar") }
-    let!(:matching_product) { Product.create!(title: title, external_id: 3, admin: true, a_big_number: 23) }
+    let!(:matching_product) { Product.create!(title: title, external_id: 3, admin: true, a_big_number: 23, reviewed_at: right_now, reset_at: right_now, approved_on: right_now) }
     let!(:other_matching_product) { Product.create!(title: title, admin: false, document: { nested: { are: "0" } }) }
 
     describe "#<jsonb_attribute_name>_contains" do
@@ -850,9 +851,9 @@ RSpec.describe JsonbAccessor do
     end
 
     context "float, decimal, integer, big integer" do
-      let!(:largest_product) { Product.create!(external_id: 100, precision: 100.0, amount_floated: 100.0, a_big_number: 1_000_000) }
+      let!(:largest_product) { Product.create!(external_id: 100, precision: 100.0, amount_floated: 100.0, a_big_number: 1_000_000, reviewed_at: right_now + 10.days) }
       let!(:middle_product) { matching_product }
-      let!(:smallest_product) { Product.create!(external_id: -20, precision: -20.0, amount_floated: -20.0, a_big_number: -1_000_000) }
+      let!(:smallest_product) { Product.create!(external_id: -20, precision: -20.0, amount_floated: -20.0, a_big_number: -1_000_000, reviewed_at: right_now - 10.days) }
 
       describe "#<field>_lt" do
         it "is products that are less than the argument" do
@@ -975,6 +976,34 @@ RSpec.describe JsonbAccessor do
         it "supports big integers" do
           expect(Product.a_big_number_gt(999_999)).to eq([largest_product])
           expect(Product.a_big_number_gt(1_000_000)).to be_empty
+        end
+      end
+    end
+
+    context "date, date time, time" do
+      let(:a_second_ago) { right_now - 1.second }
+      let(:fifty_hours_from_now) { right_now + 50.hours }
+      let(:fifty_hours_ago) { right_now - 50.hours }
+
+      let!(:largest_product) { Product.create!(reviewed_at: fifty_hours_from_now, reset_at: fifty_hours_from_now, approved_on: fifty_hours_from_now) }
+      let!(:middle_product) { matching_product }
+      let!(:smallest_product) { Product.create!(reviewed_at: fifty_hours_ago, reset_at: fifty_hours_ago, approved_on: fifty_hours_ago) }
+
+      describe "#<field>_before" do
+        it "is products before the given time" do
+          expect(Product.reviewed_at_before(a_second_ago)).to eq([smallest_product])
+        end
+
+        it "supports json string dates" do
+          expect(Product.reviewed_at_before(a_second_ago.to_json)).to eq([smallest_product])
+        end
+
+        xit "supports date fields" do
+          expect(Product.approved_on_before(a_second_ago)).to eq([smallest_product])
+        end
+
+        xit "supports time fields" do
+          expect(Product.reset_at_before(a_second_ago)).to eq([smallest_product])
         end
       end
     end

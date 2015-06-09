@@ -74,6 +74,8 @@ module JsonbAccessor
             ___create_jsonb_boolean_scopes(field)
           when :integer, :float, :decimal, :big_integer
             ___create_jsonb_numeric_scopes(field, type, jsonb_attribute)
+          when :date_time, :date, :time
+            ___create_jsonb_date_time_scopes(field, jsonb_attribute, type)
           end
         end
       end
@@ -90,6 +92,10 @@ module JsonbAccessor
         scope "#{field}_lte", -> (value) { send("__numeric_#{field}_comparator", value, "<=") }
         scope "#{field}_gte", -> (value) { send("__numeric_#{field}_comparator", value, ">=") }
         scope "#{field}_gt", -> (value) { send("__numeric_#{field}_comparator", value, ">") }
+      end
+
+      def ___create_jsonb_date_time_scopes(field, jsonb_attribute, type)
+        scope "#{field}_before", -> (value) { where("((#{table_name}.#{jsonb_attribute}) ->> ?)::timestamp < ?::timestamp", field, value.to_json) }
       end
 
       def _create_jsonb_accessor_methods(jsonb_attribute, jsonb_attribute_initialization_method_name, fields_map)
