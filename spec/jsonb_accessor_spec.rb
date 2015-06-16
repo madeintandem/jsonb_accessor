@@ -790,9 +790,28 @@ RSpec.describe JsonbAccessor do
   context "scopes" do
     let(:title) { "foo" }
     let(:right_now) { Time.now }
-    let!(:ignored_product) { Product.create!(title: "bar") }
-    let!(:matching_product) { Product.create!(title: title, external_id: 3, admin: true, a_big_number: 23, reviewed_at: right_now, reset_at: right_now, approved_on: right_now) }
-    let!(:other_matching_product) { Product.create!(title: title, admin: false, document: { nested: { are: "0" } }) }
+    let!(:ignored_product) { Product.create!(title: "bar", rankings: [2]) }
+    let!(:matching_product) do
+      Product.create!(
+        title: title,
+        external_id: 3,
+        admin: true,
+        a_big_number: 23,
+        reviewed_at: right_now,
+        reset_at: right_now,
+        approved_on: right_now,
+        rankings: [1, 3]
+      )
+    end
+
+    let!(:other_matching_product) do
+      Product.create!(
+        title: title,
+        admin: false,
+        rankings: [3],
+        document: { nested: { are: "0" } }
+      )
+    end
 
     describe "#<jsonb_attribute_name>_contains" do
       it "is a collection of records that match the query" do
@@ -1005,6 +1024,13 @@ RSpec.describe JsonbAccessor do
         xit "supports time fields" do
           expect(Product.reset_at_before(a_second_ago)).to eq([smallest_product])
         end
+      end
+    end
+
+    describe "#<array_field>_contains" do
+      it "is all records that contain the argument" do
+        expect(Product.rankings_contains(3)).to match_array([matching_product, other_matching_product])
+        expect(Product.rankings_contains(1)).to match_array([matching_product])
       end
     end
   end
