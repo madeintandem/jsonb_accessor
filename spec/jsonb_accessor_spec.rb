@@ -999,7 +999,7 @@ RSpec.describe JsonbAccessor do
       end
     end
 
-    context "date, date time, time" do
+    context "date time" do
       let(:a_second_ago) { right_now - 1.second }
       let(:fifty_hours_from_now) { right_now + 50.hours }
       let(:fifty_hours_ago) { right_now - 50.hours }
@@ -1009,21 +1009,37 @@ RSpec.describe JsonbAccessor do
       let!(:smallest_product) { Product.create!(reviewed_at: fifty_hours_ago, reset_at: fifty_hours_ago, approved_on: fifty_hours_ago) }
 
       describe "#<field>_before" do
-        it "is products before the given time" do
+        it "is products before the given date time" do
           expect(Product.reviewed_at_before(a_second_ago)).to eq([smallest_product])
         end
 
-        it "supports json string dates" do
+        it "supports json string date times" do
           expect(Product.reviewed_at_before(a_second_ago.to_json)).to eq([smallest_product])
         end
+      end
 
-        xit "supports date fields" do
-          expect(Product.approved_on_before(a_second_ago)).to eq([smallest_product])
-        end
+      describe "#<field>_after" do
+        it "is products after the given date time"
+      end
+    end
 
-        xit "supports time fields" do
-          expect(Product.reset_at_before(a_second_ago)).to eq([smallest_product])
-        end
+    context "time" do
+      describe "#<field>_before" do
+        it "is products before the given time"
+      end
+
+      describe "#<field>_after" do
+        it "is products after the given time"
+      end
+    end
+
+    context "date" do
+      describe "#<field>_before" do
+        it "is products before the given date"
+      end
+
+      describe "#<field>_after" do
+        it "is products after the given date"
       end
     end
 

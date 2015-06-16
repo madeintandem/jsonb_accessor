@@ -89,7 +89,7 @@ module JsonbAccessor
 
       def ___create_jsonb_numeric_scopes(field, jsonb_attribute, type)
         safe_type = type.to_s.gsub("big_", "")
-        scope "__numeric_#{field}_comparator", -> (value, operator) { where("((#{table_name}.#{jsonb_attribute}) -  >> ?)::#{safe_type} #{operator} ?", field, value) }
+        scope "__numeric_#{field}_comparator", -> (value, operator) { where("((#{table_name}.#{jsonb_attribute}) ->> ?)::#{safe_type} #{operator} ?", field, value) }
         scope "#{field}_lt", -> (value) { send("__numeric_#{field}_comparator", value, "<") }
         scope "#{field}_lte", -> (value) { send("__numeric_#{field}_comparator", value, "<=") }
         scope "#{field}_gte", -> (value) { send("__numeric_#{field}_comparator", value, ">=") }
