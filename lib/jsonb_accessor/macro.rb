@@ -74,7 +74,7 @@ module JsonbAccessor
             ___create_jsonb_boolean_scopes(field)
           when :integer, :float, :decimal, :big_integer
             ___create_jsonb_numeric_scopes(field, jsonb_attribute, type)
-          when :date_time, :date, :time
+          when :date_time, :date
             ___create_jsonb_date_time_scopes(field, jsonb_attribute, type)
           when /array/
             ___create_jsonb_array_scopes(field)

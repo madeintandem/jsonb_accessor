@@ -1043,12 +1043,35 @@ RSpec.describe JsonbAccessor do
     end
 
     context "date" do
+      let(:todays_date) { right_now.to_date }
+      let(:a_day_ago) { todays_date - 1.day }
+      let(:a_day_from_now) { todays_date + 1.day }
+      let(:fifty_days_from_now) { todays_date + 50.days }
+      let(:fifty_days_ago) { todays_date - 50.days }
+      let!(:largest_product) { Product.create!(approved_on: fifty_days_from_now) }
+      let!(:middle_product) { matching_product }
+      let!(:smallest_product) { Product.create!(approved_on: fifty_days_ago) }
+
       describe "#<field>_before" do
-        it "is products before the given date"
+        it "is products before the given date" do
+          expect(Product.approved_on_before(a_day_ago)).to eq([smallest_product])
+          expect(Product.approved_on_before(a_day_from_now)).to match_array([smallest_product, middle_product])
+        end
+
+        it "supports json strings" do
+          expect(Product.approved_on_before(a_day_ago.to_json)).to eq([smallest_product])
+        end
       end
 
       describe "#<field>_after" do
-        it "is products after the given date"
+        it "is products after the given date" do
+          expect(Product.approved_on_after(a_day_from_now)).to eq([largest_product])
+          expect(Product.approved_on_after(a_day_ago)).to match_array([largest_product, middle_product])
+        end
+
+        it "supports json strings" do
+          expect(Product.approved_on_after(a_day_from_now.to_json)).to eq([largest_product])
+        end
       end
     end
 
