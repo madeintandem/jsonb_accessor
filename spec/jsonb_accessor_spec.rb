@@ -1032,16 +1032,6 @@ RSpec.describe JsonbAccessor do
       end
     end
 
-    context "time" do
-      describe "#<field>_before" do
-        it "is products before the given time"
-      end
-
-      describe "#<field>_after" do
-        it "is products after the given time"
-      end
-    end
-
     context "date" do
       let(:todays_date) { right_now.to_date }
       let(:a_day_ago) { todays_date - 1.day }
