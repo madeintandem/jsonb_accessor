@@ -789,7 +789,7 @@ RSpec.describe JsonbAccessor do
 
   context "scopes" do
     let(:title) { "foo" }
-    let(:right_now) { Time.now }
+    let(:right_now) { Time.now.utc }
     let!(:ignored_product) { Product.create!(title: "bar", rankings: [2]) }
     let!(:matching_product) do
       Product.create!(
@@ -1001,6 +1001,7 @@ RSpec.describe JsonbAccessor do
 
     context "date time" do
       let(:a_second_ago) { right_now - 1.second }
+      let(:a_second_from_now) { right_now + 1.seconds }
       let(:fifty_hours_from_now) { right_now + 50.hours }
       let(:fifty_hours_ago) { right_now - 50.hours }
 
@@ -1011,6 +1012,7 @@ RSpec.describe JsonbAccessor do
       describe "#<field>_before" do
         it "is products before the given date time" do
           expect(Product.reviewed_at_before(a_second_ago)).to eq([smallest_product])
+          expect(Product.reviewed_at_before(a_second_from_now)).to match_array([smallest_product, middle_product])
         end
 
         it "supports json string date times" do
@@ -1019,7 +1021,14 @@ RSpec.describe JsonbAccessor do
       end
 
       describe "#<field>_after" do
-        it "is products after the given date time"
+        it "is products after the given date time" do
+          expect(Product.reviewed_at_after(a_second_from_now)).to eq([largest_product])
+          expect(Product.reviewed_at_after(a_second_ago)).to match_array([largest_product, middle_product])
+        end
+
+        it "supports json string date times" do
+          expect(Product.reviewed_at_after(a_second_from_now.utc.to_json)).to eq([largest_product])
+        end
       end
     end
 

@@ -97,7 +97,9 @@ module JsonbAccessor
       end
 
       def ___create_jsonb_date_time_scopes(field, jsonb_attribute, type)
-        scope "#{field}_before", -> (value) { where("((#{table_name}.#{jsonb_attribute}) ->> ?)::timestamp < ?::timestamp", field, value.to_json) }
+        scope "__date_time_#{field}_comparator", -> (value, operator) { where("((#{table_name}.#{jsonb_attribute}) ->> ?)::timestamp #{operator} ?::timestamp", field, value.to_json) }
+        scope "#{field}_before", -> (value) { send("__date_time_#{field}_comparator", value, "<") }
+        scope "#{field}_after", -> (value) { send("__date_time_#{field}_comparator", value, ">") }
       end
 
       def ___create_jsonb_array_scopes(field)
