@@ -126,7 +126,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  actionpack (= 4.2.2)
+  actionpack (~> 4.2.1)
   activerecord (= 4.2.2)
   appraisal
   awesome_print
