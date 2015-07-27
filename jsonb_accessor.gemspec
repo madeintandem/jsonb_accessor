@@ -13,7 +13,7 @@ Gem::Specification.new do |spec|
   spec.description           = %q{Adds typed jsonb backed fields to your ActiveRecord models.}
   spec.homepage              = "https://github.com/devmynd/jsonb_accessor"
   spec.license               = "MIT"
-  spec.required_ruby_version = '~> 2.0'
+  spec.required_ruby_version = "~> 2.0"
 
   spec.files                 = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
   spec.bindir                = "exe"
