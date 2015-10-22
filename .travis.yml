@@ -12,3 +12,8 @@ before_script:
   - bundle exec rake db:create
   - bundle exec rake db:migrate
 cache: bundler
+gemfile:
+  - gemfiles/activerecord_4.2.1.gemfile
+  - gemfiles/activerecord_4.2.2.gemfile
+  - gemfiles/activerecord_4.2.3.gemfile
+  - gemfiles/activerecord_4.2.4.gemfile
