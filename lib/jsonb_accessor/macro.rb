@@ -38,9 +38,11 @@ module JsonbAccessor
 
       def _initialize_jsonb_attrs(jsonb_attribute, fields_map, jsonb_attribute_initialization_method_name)
         define_method(jsonb_attribute_initialization_method_name) do
-          jsonb_attribute_hash = send(jsonb_attribute) || {}
-          fields_map.names.each do |field|
-            send("#{field}=", jsonb_attribute_hash[field.to_s])
+          if has_attribute?(jsonb_attribute)
+            jsonb_attribute_hash = send(jsonb_attribute) || {}
+            fields_map.names.each do |field|
+              send("#{field}=", jsonb_attribute_hash[field.to_s])
+            end
           end
         end
         after_initialize(jsonb_attribute_initialization_method_name)

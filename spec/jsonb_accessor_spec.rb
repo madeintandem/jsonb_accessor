@@ -1131,4 +1131,13 @@ RSpec.describe JsonbAccessor do
       end
     end
   end
+
+  context "typical active record queries" do
+    context "using select" do
+      it "does not raise an attribute missing error (or any other error)" do
+        Product.create!
+        expect { Product.select(:id).to_a }.to_not raise_error
+      end
+    end
+  end
 end
