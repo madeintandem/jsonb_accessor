@@ -1139,5 +1139,13 @@ RSpec.describe JsonbAccessor do
         expect { Product.select(:id).to_a }.to_not raise_error
       end
     end
+
+    context "using `includes` to eager load a jsonb accessor model" do
+      it "does not raise an error" do
+        product_category = ProductCategory.create!(title: "what")
+        Product.create!(product_category: product_category)
+        expect { Product.includes(:product_category).order("products.id").to_a }.to_not raise_error
+      end
+    end
   end
 end
