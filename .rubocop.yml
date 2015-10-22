@@ -3,6 +3,7 @@ AllCops:
     - "**/Rakefile"
   Exclude:
     - db/**/*
+    - gemfiles/**/*
     - vendor/**/*
 Lint/SpaceBeforeFirstArg:
   Enabled: false
