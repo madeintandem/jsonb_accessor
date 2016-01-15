@@ -35,10 +35,7 @@ module JsonbAccessor
       end
 
       def fetch_active_record_type(type)
-        class_name = type.to_s.camelize
-        klass = value_descendants.find do |ar_type|
-          ar_type.to_s.split(CONSTANT_SEPARATOR).last == class_name
-        end
+        klass = available_types[type.to_s.camelize]
 
         if klass
           klass.new
@@ -47,12 +44,17 @@ module JsonbAccessor
         end
       end
 
-      def value_descendants
-        grouped_types = ActiveRecord::Type::Value.descendants.group_by do |ar_type|
-          !!ar_type.to_s.match(ActiveRecord::ConnectionAdapters::PostgreSQL::OID.to_s)
-        end
+      def available_types
+        @available_types ||= begin
+          grouped_types = ActiveRecord::Type::Value.descendants.group_by do |ar_type|
+            !!ar_type.to_s.match(ActiveRecord::ConnectionAdapters::PostgreSQL::OID.to_s)
+          end
 
-        grouped_types[true] + grouped_types[false]
+          postgresql_types = grouped_types[true].map { |type| type.to_s.demodulize }
+          grouped_types[false].delete_if { |type| postgresql_types.include?(type.to_s.demodulize) }
+
+          grouped_types.values.flatten.index_by { |type| type.to_s.demodulize }
+        end
       end
 
       def value
