@@ -66,6 +66,27 @@ RSpec.describe JsonbAccessor do
         end
       end
     end
+
+    context "inheritance" do
+      let(:sub_class) { Class.new(Product) }
+      before { stub_const("Foo", sub_class) }
+      after { JsonbAccessor.send(:remove_const, "JAFoo") }
+
+      it "adds new declared accessor fields" do
+        Foo.class_eval { jsonb_accessor :data, inventory: :boolean }
+        instance = Foo.new
+        instance.title = "1.0"
+        expect(instance).to respond_to(:inventory)
+        expect(instance.title).to eq("1.0")
+      end
+
+      it "rewrites the type definition from the super class" do
+        Foo.class_eval { jsonb_accessor :data, title: :decimal }
+        instance = Foo.new
+        instance.title = "1.0"
+        expect(instance.title).to eq(1.0)
+      end
+    end
   end
 
   context "value setters" do
