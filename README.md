@@ -90,38 +90,23 @@ end
 
 ### Supported Types
 
-The following types are supported:
+Because the underlying storage mechanism is JSON, we attempt to abide by the limitations of what can be represented natively. We use [ActiveRecord::Type](https://github.com/rails/rails/blob/master/activerecord/lib/active_record/type.rb) for seralization, but any type defined in the [Postgres connection adapter](https://github.com/rails/rails/blob/master/activerecord/lib/active_record/connection_adapters/postgresql/oid.rb) will also be accepted. Beware of the impact of using complex Postgres column types such as inet, enum, hstore, etc... We plan to restrict which types are allowed in a future patch.
+
+The following types are explicitly supported.
 
 * big_integer
 * binary
-* bit
-* bit_varying
 * boolean
-* bytea
-* cidr
 * date
 * date_time
 * decimal
-* decimal_without_scale
-* enum
 * float
-* hstore
-* inet
 * integer
-* json
-* jsonb
-* money
-* point
-* range
-* specialized_string
 * string
 * text
 * time
-* unsigned_integer
-* uuid
 * value
-* vector
-* xml
+
 
 Typed arrays are also supported by specifying `:type_array` (i.e. `:float_array`). `:array` is interpreted as an array of `value` types.
 
