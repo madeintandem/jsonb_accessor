@@ -32,13 +32,25 @@ RSpec.describe JsonbAccessor do
         end.to_not change { JsonbAccessor::JAFoo }
       end
 
-      it "initializes attributes properly" do
-        dummy_class.class_eval { jsonb_accessor :options, :bar }
-        dummy = dummy_class.new
-        dummy.foo = 5
-        dummy.save!
-        dummy.reload
-        expect(dummy.foo).to eq(5)
+      context do
+        let(:subject) { dummy_class.last }
+
+        before do
+          dummy_class.class_eval { jsonb_accessor :options, :bar }
+
+          dummy = dummy_class.new
+          dummy.foo = 5
+          dummy.save!
+        end
+
+        it "initializes attributes properly" do
+          expect(subject.foo).to eq(5)
+        end
+
+        it "doesn't mark attributes loaded from the db as dirty" do
+          expect(subject).to be_persisted
+          expect(subject).to_not be_changed
+        end
       end
     end
 

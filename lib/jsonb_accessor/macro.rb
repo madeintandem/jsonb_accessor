@@ -43,6 +43,7 @@ module JsonbAccessor
             fields_map.names.each do |field|
               send("#{field}=", jsonb_attribute_hash[field.to_s])
             end
+            send(:clear_attribute_changes, fields_map.names)
           end
         end
         after_initialize(jsonb_attribute_initialization_method_name)
