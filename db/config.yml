@@ -1,9 +1,6 @@
 default: &default
   adapter: postgresql
   database: jsonb_accessor
-  username: postgres
-  host: localhost
-  port: 5432
 
 development:
   <<: *default
