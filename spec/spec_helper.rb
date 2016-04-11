@@ -48,9 +48,13 @@ TYPED_FIELDS = {
 }
 ALL_FIELDS = VALUE_FIELDS + TYPED_FIELDS.keys
 
-class Product < ActiveRecord::Base
-  jsonb_accessor :options, *VALUE_FIELDS, TYPED_FIELDS
+class StaticProduct < ActiveRecord::Base
+  self.table_name = "products"
   belongs_to :product_category
+end
+
+class Product < StaticProduct
+  jsonb_accessor :options, *VALUE_FIELDS, TYPED_FIELDS
 end
 
 class OtherProduct < ActiveRecord::Base
