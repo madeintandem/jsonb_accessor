@@ -40,12 +40,19 @@ module JsonbAccessor
         define_method(jsonb_attribute_initialization_method_name) do
           if has_attribute?(jsonb_attribute)
             jsonb_attribute_hash = send(jsonb_attribute) || {}
-            fields_map.names.each do |field|
+
+            fields_map.typed_fields.keys.each do |field|
+              write_attribute(field, jsonb_attribute_hash[field.to_s])
+            end
+
+            fields_map.nested_fields.keys.each do |field|
               send("#{field}=", jsonb_attribute_hash[field.to_s])
             end
+
             send(:clear_attribute_changes, fields_map.names)
           end
         end
+
         after_initialize(jsonb_attribute_initialization_method_name)
       end
 
