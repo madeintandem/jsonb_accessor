@@ -1,7 +1,7 @@
 PATH
   remote: ../
   specs:
-    jsonb_accessor (0.3.2)
+    jsonb_accessor (0.3.3)
       activerecord (>= 4.2.1)
       pg (>= 0.18.1)
 
@@ -133,6 +133,7 @@ DEPENDENCIES
   bundler (~> 1.9)
   database_cleaner
   jsonb_accessor!
+  pg
   pry
   pry-doc
   pry-nav
