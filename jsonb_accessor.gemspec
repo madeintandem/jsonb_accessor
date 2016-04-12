@@ -6,8 +6,8 @@ require "jsonb_accessor/version"
 Gem::Specification.new do |spec|
   spec.name                  = "jsonb_accessor"
   spec.version               = JsonbAccessor::VERSION
-  spec.authors               = ["Michael Crismali", "Joe Hirn"]
-  spec.email                 = ["michael.crismali@gmail.com", "joe@devmynd.com"]
+  spec.authors               = ["Michael Crismali", "Joe Hirn", "Jason Haruska"]
+  spec.email                 = ["michael.crismali@gmail.com", "joe@devmynd.com", "jason@haruska.com"]
 
   spec.summary               = %q{Adds typed jsonb backed fields to your ActiveRecord models.}
   spec.description           = %q{Adds typed jsonb backed fields to your ActiveRecord models.}
