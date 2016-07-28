@@ -6,14 +6,14 @@ module JsonbAccessor
         class_namespace = ClassBuilder.generate_class_namespace(name)
         attribute_namespace = ClassBuilder.generate_attribute_namespace(jsonb_attribute, class_namespace)
         nested_classes = ClassBuilder.generate_nested_classes(attribute_namespace, fields_map.nested_fields)
-        jsonb_attribute_initialization_method_name = "initialize_jsonb_attrs_for_#{jsonb_attribute}"
-        jsonb_attribute_scope_name = "#{jsonb_attribute}_contains"
+        jsonb_attribute_initialization_method_name = :"initialize_jsonb_attrs_for_#{jsonb_attribute}"
+        jsonb_attribute_scope_name = :"#{jsonb_attribute}_contains"
 
-        singleton_class.send(:define_method, "#{jsonb_attribute}_classes") do
+        singleton_class.send(:define_method, :"#{jsonb_attribute}_classes") do
           nested_classes
         end
 
-        delegate "#{jsonb_attribute}_classes", to: :class
+        delegate :"#{jsonb_attribute}_classes", to: :class
 
         _initialize_jsonb_attrs(jsonb_attribute, fields_map, jsonb_attribute_initialization_method_name)
         _create_jsonb_attribute_scope_name(jsonb_attribute, jsonb_attribute_scope_name)
@@ -46,7 +46,7 @@ module JsonbAccessor
             end
 
             fields_map.nested_fields.keys.each do |field|
-              send("#{field}=", jsonb_attribute_hash[field.to_s])
+              send(:"#{field}=", jsonb_attribute_hash[field.to_s])
             end
 
             send(:clear_attribute_changes, fields_map.names)
@@ -73,7 +73,7 @@ module JsonbAccessor
 
       def __create_jsonb_standard_scopes(fields_map, jsonb_attribute_scope_name)
         fields_map.names.each do |field|
-          scope "with_#{field}", -> (value) { send(jsonb_attribute_scope_name, field => value) }
+          scope :"with_#{field}", -> (value) { send(jsonb_attribute_scope_name, field => value) }
         end
       end
 
@@ -93,32 +93,32 @@ module JsonbAccessor
       end
 
       def ___create_jsonb_boolean_scopes(field)
-        scope "is_#{field}", -> { send("with_#{field}", true) }
-        scope "not_#{field}", -> { send("with_#{field}", false) }
+        scope :"is_#{field}", -> { send(:"with_#{field}", true) }
+        scope :"not_#{field}", -> { send(:"with_#{field}", false) }
       end
 
       def ___create_jsonb_numeric_scopes(field, jsonb_attribute, type)
         safe_type = type.to_s.gsub("big_", "")
-        scope "__numeric_#{field}_comparator", -> (value, operator) { where("((#{table_name}.#{jsonb_attribute}) ->> ?)::#{safe_type} #{operator} ?", field, value) }
-        scope "#{field}_lt", -> (value) { send("__numeric_#{field}_comparator", value, "<") }
-        scope "#{field}_lte", -> (value) { send("__numeric_#{field}_comparator", value, "<=") }
-        scope "#{field}_gte", -> (value) { send("__numeric_#{field}_comparator", value, ">=") }
-        scope "#{field}_gt", -> (value) { send("__numeric_#{field}_comparator", value, ">") }
+        scope :"__numeric_#{field}_comparator", -> (value, operator) { where("((#{table_name}.#{jsonb_attribute}) ->> ?)::#{safe_type} #{operator} ?", field, value) }
+        scope :"#{field}_lt", -> (value) { send(:"__numeric_#{field}_comparator", value, "<") }
+        scope :"#{field}_lte", -> (value) { send(:"__numeric_#{field}_comparator", value, "<=") }
+        scope :"#{field}_gte", -> (value) { send(:"__numeric_#{field}_comparator", value, ">=") }
+        scope :"#{field}_gt", -> (value) { send(:"__numeric_#{field}_comparator", value, ">") }
       end
 
       def ___create_jsonb_date_time_scopes(field, jsonb_attribute, type)
-        scope "__date_time_#{field}_comparator", -> (value, operator) { where("((#{table_name}.#{jsonb_attribute}) ->> ?)::timestamp #{operator} ?::timestamp", field, value.to_json) }
-        scope "#{field}_before", -> (value) { send("__date_time_#{field}_comparator", value, "<") }
-        scope "#{field}_after", -> (value) { send("__date_time_#{field}_comparator", value, ">") }
+        scope :"__date_time_#{field}_comparator", -> (value, operator) { where("((#{table_name}.#{jsonb_attribute}) ->> ?)::timestamp #{operator} ?::timestamp", field, value.to_json) }
+        scope :"#{field}_before", -> (value) { send(:"__date_time_#{field}_comparator", value, "<") }
+        scope :"#{field}_after", -> (value) { send(:"__date_time_#{field}_comparator", value, ">") }
       end
 
       def ___create_jsonb_array_scopes(field)
-        scope "#{field}_contains", -> (value) { send("with_#{field}", [value]) }
+        scope :"#{field}_contains", -> (value) { send(:"with_#{field}", [value]) }
       end
 
       def _create_jsonb_accessor_methods(jsonb_attribute, jsonb_attribute_initialization_method_name, fields_map)
         jsonb_accessor_methods = Module.new do
-          define_method("#{jsonb_attribute}=") do |value|
+          define_method(:"#{jsonb_attribute}=") do |value|
             write_attribute(jsonb_attribute, value)
             send(jsonb_attribute_initialization_method_name)
           end
@@ -140,7 +140,7 @@ module JsonbAccessor
           attribute(field.to_s, TypeHelper.fetch(type))
 
           jsonb_accessor_methods.instance_eval do
-            define_method("#{field}=") do |value, *args, &block|
+            define_method(:"#{field}=") do |value, *args, &block|
               super(value, *args, &block)
               new_jsonb_value = (send(jsonb_attribute) || {}).merge(field => attributes[field.to_s])
               write_attribute(jsonb_attribute, new_jsonb_value)
@@ -153,8 +153,8 @@ module JsonbAccessor
         fields_map.nested_fields.each do |field, nested_attributes|
           attribute(field.to_s, TypeHelper.fetch(:value))
           jsonb_accessor_methods.instance_eval do
-            define_method("#{field}=") do |value|
-              instance_class = send("#{jsonb_attribute}_classes")[field]
+            define_method(:"#{field}=") do |value|
+              instance_class = send(:"#{jsonb_attribute}_classes")[field]
               instance = cast_nested_field_value(value, instance_class, __method__)
 
               new_jsonb_value = (send(jsonb_attribute) || {}).merge(field.to_s => instance.attributes)
