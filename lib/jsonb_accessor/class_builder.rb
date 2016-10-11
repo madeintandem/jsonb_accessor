@@ -65,7 +65,13 @@ module JsonbAccessor
             define_method(attribute_name) { attributes[attribute_name] }
 
             define_method("#{attribute_name}=") do |value|
-              cast_value = attributes_and_data_types[attribute_name].type_cast_from_user(value)
+              data_type = attributes_and_data_types[attribute_name]
+              cast_value = if data_type.respond_to?(:type_cast_from_user)
+                  data_type.type_cast_from_user(value)
+                else
+                  # active_model >= 5
+                  data_type.cast(value)
+                end
               attributes[attribute_name] = cast_value
               update_parent
             end
