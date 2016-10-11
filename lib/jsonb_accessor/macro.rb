@@ -53,7 +53,7 @@ module JsonbAccessor
           end
         end
 
-        after_initialize(jsonb_attribute_initialization_method_name)
+        after_initialize(jsonb_attribute_initialization_method_name.to_sym)
       end
 
       def _create_jsonb_attribute_scope_name(jsonb_attribute, jsonb_attribute_scope_name)
@@ -73,7 +73,7 @@ module JsonbAccessor
 
       def __create_jsonb_standard_scopes(fields_map, jsonb_attribute_scope_name)
         fields_map.names.each do |field|
-          scope "with_#{field}", -> (value) { send(jsonb_attribute_scope_name, field => value) }
+          scope "with_#{field}", -> (value) { send(jsonb_attribute_scope_name.to_sym, field => value) }
         end
       end
 

@@ -5,3 +5,5 @@ gemspec
 
 # Travis CI requires in Gemfile
 gem 'pg'
+gem 'activerecord', '~> 5.0'
+gem 'actionpack', '~> 5.0'
