@@ -30,11 +30,11 @@ RSpec.describe JsonbAccessor::FieldsMap do
       end
     end
 
-    context "nested fields" do
-      it "is set to a hash of all the nested fields" do
-        expect(subject.nested_fields).to eq(nested_fields)
-      end
-    end
+    # context "nested fields" do
+    #   it "is set to a hash of all the nested fields" do
+    #     expect(subject.nested_fields).to eq(nested_fields)
+    #   end
+    # end
   end
 
   describe "#names" do

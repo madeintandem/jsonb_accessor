@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 $LOAD_PATH.unshift File.expand_path("../../lib", __FILE__)
 require "jsonb_accessor"
-require "action_dispatch/middleware/reloader"
+# require "action_dispatch/middleware/reloader"
 require "pry"
 require "pry-nav"
 require "pry-doc"
@@ -10,44 +10,17 @@ require "database_cleaner"
 require "shoulda-matchers"
 require "yaml"
 
-ActionDispatchAlias = ActionDispatch
-Object.send(:remove_const, :ActionDispatch)
+# ActionDispatchAlias = ActionDispatch
+# Object.send(:remove_const, :ActionDispatch)
 
-VALUE_FIELDS = [:count, :name, :price].freeze
 TYPED_FIELDS = {
   title: :string,
   name_value: :value,
   id_value: :value,
   external_id: :integer,
-  amount_floated: :float,
-  admin: :boolean,
-  approved_on: :date,
-  reviewed_at: :date_time,
-  reset_at: :time,
-  precision: :decimal,
-  sequential_data: :array,
-  things: :json,
-  stuff: :jsonb,
-  a_lot_of_things: :json_array,
-  a_lot_of_stuff: :jsonb_array,
-  nicknames: :string_array,
-  rankings: :integer_array,
-  favorited_history: :boolean_array,
-  login_days: :date_array,
-  favorites_at: :date_time_array,
-  prices: :decimal_array,
-  login_times: :time_array,
-  amounts_floated: :float_array,
-  a_big_number: :big_integer,
-  document: {
-    nested: {
-      values: :array,
-      are: :string
-    },
-    here: :string
-  }
+  amount_floated: :float
 }.freeze
-ALL_FIELDS = VALUE_FIELDS + TYPED_FIELDS.keys
+ALL_FIELDS = TYPED_FIELDS.keys
 
 class StaticProduct < ActiveRecord::Base
   self.table_name = "products"
@@ -55,12 +28,12 @@ class StaticProduct < ActiveRecord::Base
 end
 
 class Product < StaticProduct
-  jsonb_accessor :options, *VALUE_FIELDS, TYPED_FIELDS
+  jsonb_accessor :options, TYPED_FIELDS
 end
 
 class OtherProduct < ActiveRecord::Base
   self.table_name = "products"
-  jsonb_accessor :options, title: :string, document: { nested: { are: :string } }
+  jsonb_accessor :options, title: :string
 
   def options=(value)
     value["title"] = "new title"

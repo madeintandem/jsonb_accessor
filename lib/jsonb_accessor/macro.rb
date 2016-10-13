@@ -29,11 +29,11 @@ module JsonbAccessor
       def _register_jsonb_classes_for_cleanup
         if defined?(ActionDispatch) && ENV["RACK_ENV"] == "development"
           class_name = CLASS_PREFIX + name
-          ActionDispatch::Reloader.to_cleanup do
-            if JsonbAccessor.constants.any? { |c| c.to_s == class_name }
-              JsonbAccessor.send(:remove_const, class_name)
-            end
-          end
+          # ActionDispatch::Reloader.to_cleanup do
+          #   if JsonbAccessor.constants.any? { |c| c.to_s == class_name }
+          #     JsonbAccessor.send(:remove_const, class_name)
+          #   end
+          # end
         end
       end
 
@@ -54,7 +54,7 @@ module JsonbAccessor
           end
         end
 
-        after_initialize(jsonb_attribute_initialization_method_name)
+        after_initialize(jsonb_attribute_initialization_method_name.to_sym)
       end
 
       def _create_jsonb_attribute_scope_name(jsonb_attribute, jsonb_attribute_scope_name)
