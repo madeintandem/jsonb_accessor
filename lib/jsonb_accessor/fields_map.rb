@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module JsonbAccessor
   class FieldsMap
     attr_accessor :nested_fields, :typed_fields

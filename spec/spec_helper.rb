@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 $LOAD_PATH.unshift File.expand_path("../../lib", __FILE__)
 require "jsonb_accessor"
 require "action_dispatch/middleware/reloader"
@@ -12,7 +13,7 @@ require "yaml"
 ActionDispatchAlias = ActionDispatch
 Object.send(:remove_const, :ActionDispatch)
 
-VALUE_FIELDS = [:count, :name, :price]
+VALUE_FIELDS = [:count, :name, :price].freeze
 TYPED_FIELDS = {
   title: :string,
   name_value: :value,
@@ -45,7 +46,7 @@ TYPED_FIELDS = {
     },
     here: :string
   }
-}
+}.freeze
 ALL_FIELDS = VALUE_FIELDS + TYPED_FIELDS.keys
 
 class StaticProduct < ActiveRecord::Base

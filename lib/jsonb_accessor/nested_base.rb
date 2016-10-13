@@ -1,9 +1,10 @@
+# frozen_string_literal: true
 module JsonbAccessor
   class NestedBase
     include Helpers
 
     attr_accessor :attributes, :parent
-    alias_method :to_h, :attributes
+    alias to_h attributes
 
     delegate :[], to: :attributes
     delegate :nested_classes, :attribute_on_parent_name, to: :class

@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module JsonbAccessor
   module Helpers
     def cast_nested_field_value(value, klass, method_name)

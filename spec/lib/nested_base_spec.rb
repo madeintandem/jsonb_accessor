@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require "spec_helper"
 
 RSpec.describe JsonbAccessor::NestedBase do
@@ -73,7 +74,9 @@ RSpec.describe JsonbAccessor::NestedBase do
     let(:dummy_class) do
       Class.new(JsonbAccessor::NestedBase) do
         def self.nested_classes; {}; end
+
         def self.attribute_on_parent_name; :foo; end
+
         def foo=(value); end
       end
     end
@@ -101,6 +104,7 @@ RSpec.describe JsonbAccessor::NestedBase do
     let(:dummy_class) do
       Class.new(JsonbAccessor::NestedBase) do
         def self.nested_classes; {}; end
+
         def foo=(value)
         end
       end
@@ -118,6 +122,7 @@ RSpec.describe JsonbAccessor::NestedBase do
     let(:dummy_class) do
       Class.new(JsonbAccessor::NestedBase) do
         def self.nested_classes; {}; end
+
         def foo=(value)
           attributes[:foo] = value
         end

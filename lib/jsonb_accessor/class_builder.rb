@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module JsonbAccessor
   UnknownValue = Class.new(StandardError)
   CLASS_PREFIX = "JA"

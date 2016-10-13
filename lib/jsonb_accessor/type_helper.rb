@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module JsonbAccessor
   CONSTANT_SEPARATOR = "::"
   module TypeHelper
