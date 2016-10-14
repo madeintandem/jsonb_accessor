@@ -3,16 +3,28 @@ module JsonbAccessor
   module Macro
     module ClassMethods
       def jsonb_accessor(jsonb_attribute, field_types)
+        field_names = field_types.keys
+
         field_types.each do |name, type|
           attribute name, *type
         end
 
         setters = Module.new do
-          field_types.keys.each do |name|
+          field_names.each do |name|
             define_method("#{name}=") do |value|
               super(value)
               new_values = (public_send(jsonb_attribute) || {}).merge(name => public_send(name))
-              public_send("#{jsonb_attribute}=", new_values)
+              write_attribute(jsonb_attribute, new_values)
+            end
+          end
+
+          define_method("#{jsonb_attribute}=") do |value|
+            super(value)
+            default_hash = field_names.each_with_object({}) do |name, defaults|
+              defaults[name] = nil
+            end
+            default_hash.merge(public_send(jsonb_attribute) || {}).each do |name, value|
+              write_attribute(name, value)
             end
           end
         end

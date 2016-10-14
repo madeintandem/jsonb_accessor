@@ -95,6 +95,46 @@ RSpec.describe JsonbAccessor do
     end
   end
 
+  context "setting the jsonb field directly" do
+    let(:klass) do
+      Class.new(ActiveRecord::Base) do
+        self.table_name = "products"
+        jsonb_accessor :options,
+          foo: :string,
+          bar: :integer
+      end
+    end
+
+    before do
+      instance.foo = "foo"
+      instance.bar = 12
+    end
+
+    it "sets the jsonb field" do
+      new_value = { "foo" => "bar" }
+      instance.options = new_value
+      expect(instance.options).to eq(new_value)
+    end
+
+    it "clears the fields that are not set" do
+      instance.options = { foo: "new foo" }
+      expect(instance.bar).to be_nil
+    end
+
+    it "sets the fields given in object" do
+      instance.options = { foo: "new foo" }
+      expect(instance.foo).to eq("new foo")
+    end
+
+    context "when nil" do
+      it "clears all fields" do
+        instance.options = nil
+        expect(instance.foo).to be_nil
+        expect(instance.bar).to be_nil
+      end
+    end
+  end
+
   context "dirty tracking for already persisted models" do
     it "is not dirty by default" do
       instance.foo = "foo"
