@@ -119,7 +119,7 @@ RSpec.describe JsonbAccessor do
 
   describe "#<jsonb_attribute_name>_contains" do
     let(:title) { "title" }
-    let!(:matching_record) { Product.create!(title: title, rank: 3) }
+    let!(:matching_record) { Product.create!(title: title) }
     let!(:other_matching_record) { Product.create!(title: title) }
     let!(:ignored_record) { Product.create!(title: "ignored") }
     subject { Product.all }
@@ -150,6 +150,18 @@ RSpec.describe JsonbAccessor do
           subject.joins(:product_category).merge(ProductCategory.options_contains(title: "category")).to_a
         end.to_not raise_error
       end
+    end
+  end
+
+  describe "#with_<field name>" do
+    let(:title) { "title" }
+    let!(:matching_record) { Product.create!(title: title) }
+    let!(:other_matching_record) { Product.create!(title: title) }
+    let!(:ignored_record) { Product.create!(title: "ignored") }
+    subject { Product.all }
+
+    it "is all records associated with the given field" do
+      expect(subject.with_title(title)).to match_array([matching_record, other_matching_record])
     end
   end
 
