@@ -23,8 +23,8 @@ module JsonbAccessor
             default_hash = field_names.each_with_object({}) do |name, defaults|
               defaults[name] = nil
             end
-            default_hash.merge(public_send(jsonb_attribute) || {}).each do |name, value|
-              write_attribute(name, value)
+            default_hash.merge(public_send(jsonb_attribute) || {}).each do |name, attribute_value|
+              write_attribute(name, attribute_value)
             end
           end
         end
@@ -37,14 +37,10 @@ module JsonbAccessor
         end
 
         contains_scope = "#{jsonb_attribute}_contains"
-        scope contains_scope, -> (attributes) do
-          where("#{table_name}.#{jsonb_attribute} @> (?)::jsonb", attributes.to_json)
-        end
+        scope contains_scope, -> (attributes) { where("#{table_name}.#{jsonb_attribute} @> (?)::jsonb", attributes.to_json) }
 
         field_types.keys.each do |name|
-          scope "with_#{name}", -> (value) do
-            public_send(contains_scope, name => value)
-          end
+          scope("with_#{name}", -> (value) { public_send(contains_scope, name => value) })
         end
       end
     end
