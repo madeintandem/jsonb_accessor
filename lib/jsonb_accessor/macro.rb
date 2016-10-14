@@ -14,12 +14,13 @@ module JsonbAccessor
         end
 
         after_initialize do
-          jsonb_value = send(jsonb_attribute) || {}
-          field_types.keys.each do |name|
-            value = jsonb_value[name.to_s]
-            write_attribute(name, value) unless value.nil?
-          end
-          clear_changes_information
+          jsonb_values = send(jsonb_attribute) || {}
+          jsonb_values.each { |name, value| write_attribute(name, value) }
+          clear_changes_information if persisted?
+        end
+
+        scope "#{jsonb_attribute}_contains", -> (attributes) do
+          where("#{table_name}.#{jsonb_attribute} @> (?)::jsonb", attributes.to_json)
         end
 
         # fields_map = JsonbAccessor::FieldsMap.new(value_fields, typed_fields)

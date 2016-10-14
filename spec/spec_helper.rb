@@ -13,14 +13,14 @@ require "yaml"
 # ActionDispatchAlias = ActionDispatch
 # Object.send(:remove_const, :ActionDispatch)
 
-TYPED_FIELDS = {
-  title: :string,
-  name_value: :value,
-  id_value: :value,
-  external_id: :integer,
-  amount_floated: :float
-}.freeze
-ALL_FIELDS = TYPED_FIELDS.keys
+# TYPED_FIELDS = {
+#   title: :string,
+#   name_value: :value,
+#   id_value: :value,
+#   external_id: :integer,
+#   amount_floated: :float
+# }.freeze
+# ALL_FIELDS = TYPED_FIELDS.keys
 
 class StaticProduct < ActiveRecord::Base
   self.table_name = "products"
@@ -28,7 +28,7 @@ class StaticProduct < ActiveRecord::Base
 end
 
 class Product < StaticProduct
-  jsonb_accessor :options, TYPED_FIELDS
+  jsonb_accessor :options, title: :string, rank: :integer
 end
 
 class OtherProduct < ActiveRecord::Base

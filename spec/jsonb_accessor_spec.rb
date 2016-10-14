@@ -71,6 +71,11 @@ RSpec.describe JsonbAccessor do
       expect(persisted_instance.foo).to eq("foo")
       expect(persisted_instance).to_not be_foo_changed
       expect(persisted_instance).to_not be_options_changed
+
+      persisted_instance = klass.find(klass.create!(foo: "foo").id)
+      expect(persisted_instance.foo).to eq("foo")
+      expect(persisted_instance).to_not be_foo_changed
+      expect(persisted_instance).to_not be_options_changed
     end
   end
 
@@ -79,6 +84,43 @@ RSpec.describe JsonbAccessor do
       expect(instance).to_not be_options_changed
     end
   end
+
+  describe "#<jsonb_attribute_name>_contains" do
+    let(:title) { "title" }
+    let!(:matching_record) { Product.create!(title: title, rank: 3) }
+    let!(:other_matching_record) { Product.create!(title: title) }
+    let!(:ignored_record) { Product.create!(title: "ignored") }
+    subject { Product.all }
+
+    it "is a collection of records that match the query" do
+      query = subject.options_contains(title: title)
+      expect(query).to exist
+      expect(query).to match_array([matching_record, other_matching_record])
+    end
+
+    it "escapes sql" do
+      expect do
+        subject.options_contains(title: "foo\"};delete from products where id = #{matching_record.id}").to_a
+      end.to_not raise_error
+      expect(Product.count).to eq(3)
+    end
+
+    context "table names" do
+      let!(:product_category) { ProductCategory.create!(title: "category") }
+
+      before do
+        product_category.products << matching_record
+        product_category.products << other_matching_record
+      end
+
+      it "is not ambigious which table is being referenced" do
+        expect do
+          subject.joins(:product_category).merge(ProductCategory.options_contains(title: "category")).to_a
+        end.to_not raise_error
+      end
+    end
+  end
+
 
   # describe "#jsonb_accessor" do
   #   # context "multiple calls" do
