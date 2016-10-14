@@ -75,11 +75,7 @@ end
 
 RSpec::Matchers.define :attr_accessorize do |attribute_name|
   match do |actual|
-    if actual.respond_to?(attribute_name) && actual.respond_to?("#{attribute_name}=")
-      value = (1..5).to_a.sample
-      actual.send("#{attribute_name}=", value)
-      actual.send(attribute_name) == value
-    end
+    actual.respond_to?(attribute_name) && actual.respond_to?("#{attribute_name}=")
   end
 end
 

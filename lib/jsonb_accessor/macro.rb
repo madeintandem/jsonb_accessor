@@ -2,40 +2,46 @@
 module JsonbAccessor
   module Macro
     module ClassMethods
-      def jsonb_accessor(jsonb_attribute, *value_fields, **typed_fields)
-        fields_map = JsonbAccessor::FieldsMap.new(value_fields, typed_fields)
-        class_namespace = ClassBuilder.generate_class_namespace(name)
-        attribute_namespace = ClassBuilder.generate_attribute_namespace(jsonb_attribute, class_namespace)
-        nested_classes = ClassBuilder.generate_nested_classes(attribute_namespace, fields_map.nested_fields)
-        jsonb_attribute_initialization_method_name = "initialize_jsonb_attrs_for_#{jsonb_attribute}"
-        jsonb_attribute_scope_name = "#{jsonb_attribute}_contains"
+      def jsonb_accessor(jsonb_attribute, field_types)
+        field_types.each do |name, type|
+          attribute name, *type
 
-        singleton_class.send(:define_method, "#{jsonb_attribute}_classes") do
-          nested_classes
+          define_method("#{name}=") do |value|
+            super(value)
+            new_values = (send(jsonb_attribute) || {}).merge(name => send(name))
+            send("#{jsonb_attribute}=", new_values)
+          end
         end
 
-        delegate "#{jsonb_attribute}_classes", to: :class
+        after_initialize do
+          jsonb_value = send(jsonb_attribute) || {}
+          field_types.keys.each do |name|
+            value = jsonb_value[name.to_s]
+            write_attribute(name, value) unless value.nil?
+          end
+          clear_changes_information
+        end
 
-        _initialize_jsonb_attrs(jsonb_attribute, fields_map, jsonb_attribute_initialization_method_name)
-        _create_jsonb_attribute_scope_name(jsonb_attribute, jsonb_attribute_scope_name)
-        _create_jsonb_scopes(jsonb_attribute, fields_map, jsonb_attribute_scope_name)
-        _create_jsonb_accessor_methods(jsonb_attribute, jsonb_attribute_initialization_method_name, fields_map)
+        # fields_map = JsonbAccessor::FieldsMap.new(value_fields, typed_fields)
+        # class_namespace = ClassBuilder.generate_class_namespace(name)
+        # attribute_namespace = ClassBuilder.generate_attribute_namespace(jsonb_attribute, class_namespace)
+        # nested_classes = ClassBuilder.generate_nested_classes(attribute_namespace, fields_map.nested_fields)
+        # jsonb_attribute_initialization_method_name = "initialize_jsonb_attrs_for_#{jsonb_attribute}"
+        # jsonb_attribute_scope_name = "#{jsonb_attribute}_contains"
 
-        _register_jsonb_classes_for_cleanup
+        # singleton_class.send(:define_method, "#{jsonb_attribute}_classes") do
+        #   nested_classes
+        # end
+
+        # delegate "#{jsonb_attribute}_classes", to: :class
+
+        # _initialize_jsonb_attrs(jsonb_attribute, fields_map, jsonb_attribute_initialization_method_name)
+        # _create_jsonb_attribute_scope_name(jsonb_attribute, jsonb_attribute_scope_name)
+        # _create_jsonb_scopes(jsonb_attribute, fields_map, jsonb_attribute_scope_name)
+        # _create_jsonb_accessor_methods(jsonb_attribute, jsonb_attribute_initialization_method_name, fields_map)
       end
 
       private
-
-      def _register_jsonb_classes_for_cleanup
-        if defined?(ActionDispatch) && ENV["RACK_ENV"] == "development"
-          class_name = CLASS_PREFIX + name
-          # ActionDispatch::Reloader.to_cleanup do
-          #   if JsonbAccessor.constants.any? { |c| c.to_s == class_name }
-          #     JsonbAccessor.send(:remove_const, class_name)
-          #   end
-          # end
-        end
-      end
 
       def _initialize_jsonb_attrs(jsonb_attribute, fields_map, jsonb_attribute_initialization_method_name)
         define_method(jsonb_attribute_initialization_method_name) do

@@ -2,6 +2,18 @@
 require "spec_helper"
 
 RSpec.describe JsonbAccessor do
+  let(:klass) do
+    Class.new(ActiveRecord::Base) do
+      self.table_name = "products"
+      jsonb_accessor :options,
+        foo: :string,
+        bar: :integer,
+        baz: [:integer, array: true],
+        bazzle: [:integer, default: 5]
+    end
+  end
+  let(:instance) { klass.new }
+
   it "has a version number" do
     expect(JsonbAccessor::VERSION).to_not be nil
   end
@@ -12,6 +24,60 @@ RSpec.describe JsonbAccessor do
 
   it "defines jsonb_accessor" do
     expect(ActiveRecord::Base).to respond_to(:jsonb_accessor)
+  end
+
+  describe "#jsonb_accessor" do
+    it "defines getters and setters for the given methods" do
+      expect(instance).to attr_accessorize(:foo)
+      expect(instance).to attr_accessorize(:bar)
+      expect(instance).to attr_accessorize(:baz)
+    end
+
+    it "supports types" do
+      instance.foo = 12
+      expect(instance.foo).to eq("12")
+
+      instance.bar = "12"
+      expect(instance.bar).to eq(12)
+    end
+
+    it "supports arrays" do
+      instance.baz = %w(1 2 3)
+      expect(instance.baz).to eq([1, 2, 3])
+    end
+
+    it "supports defaults" do
+      expect(instance.bazzle).to eq(5)
+    end
+  end
+
+  context "setters" do
+    it "updates the jsonb column" do
+      foo = "foo"
+      instance.foo = foo
+      expect(instance.options).to eq("foo" => foo)
+
+      bar = 17
+      instance.bar = bar
+      expect(instance.options).to eq("foo" => foo, "bar" => bar)
+    end
+  end
+
+  context "dirty tracking for already persisted models" do
+    it "is not dirty by default" do
+      instance.foo = "foo"
+      instance.save!
+      persisted_instance = klass.find(instance.id)
+      expect(persisted_instance.foo).to eq("foo")
+      expect(persisted_instance).to_not be_foo_changed
+      expect(persisted_instance).to_not be_options_changed
+    end
+  end
+
+  context "dirty tracking for new records" do
+    it "is not dirty by default" do
+      expect(instance).to_not be_options_changed
+    end
   end
 
   # describe "#jsonb_accessor" do
