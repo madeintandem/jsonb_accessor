@@ -5,13 +5,18 @@ module JsonbAccessor
       def jsonb_accessor(jsonb_attribute, field_types)
         field_types.each do |name, type|
           attribute name, *type
+        end
 
-          define_method("#{name}=") do |value|
-            super(value)
-            new_values = (send(jsonb_attribute) || {}).merge(name => send(name))
-            send("#{jsonb_attribute}=", new_values)
+        setters = Module.new do
+          field_types.keys.each do |name|
+            define_method("#{name}=") do |value|
+              super(value)
+              new_values = (send(jsonb_attribute) || {}).merge(name => send(name))
+              send("#{jsonb_attribute}=", new_values)
+            end
           end
         end
+        include setters
 
         after_initialize do
           jsonb_values = send(jsonb_attribute) || {}

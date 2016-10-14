@@ -51,7 +51,33 @@ RSpec.describe JsonbAccessor do
     end
   end
 
+  context "getters" do
+    let(:klass) do
+      Class.new(ActiveRecord::Base) do
+        self.table_name = "products"
+        jsonb_accessor :options, foo: :string
+        define_method(:foo) { super().upcase }
+      end
+    end
+
+    it "is overridable" do
+      instance.foo = "foo"
+      expect(instance.foo).to eq("FOO")
+      expect(instance.options).to eq("foo" => "FOO")
+    end
+  end
+
   context "setters" do
+    let(:klass) do
+      Class.new(ActiveRecord::Base) do
+        self.table_name = "products"
+        jsonb_accessor :options,
+          foo: :string,
+          bar: :integer
+        define_method(:foo=) { |value| super(value.downcase) }
+      end
+    end
+
     it "updates the jsonb column" do
       foo = "foo"
       instance.foo = foo
@@ -60,6 +86,12 @@ RSpec.describe JsonbAccessor do
       bar = 17
       instance.bar = bar
       expect(instance.options).to eq("foo" => foo, "bar" => bar)
+    end
+
+    it "is overridable" do
+      instance.foo = "FOO"
+      expect(instance.foo).to eq("foo")
+      expect(instance.options).to eq("foo" => "foo")
     end
   end
 
@@ -120,7 +152,6 @@ RSpec.describe JsonbAccessor do
       end
     end
   end
-
 
   # describe "#jsonb_accessor" do
   #   # context "multiple calls" do
