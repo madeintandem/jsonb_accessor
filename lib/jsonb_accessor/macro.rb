@@ -42,9 +42,12 @@ module JsonbAccessor
         end
 
         # From here down we're defining scopes.
+
+        # <jsonb_attribute>_contains scope
         contains_scope = "#{jsonb_attribute}_contains"
         scope contains_scope, -> (attributes) { where("#{table_name}.#{jsonb_attribute} @> (?)::jsonb", attributes.to_json) }
 
+        # with_<jsonb_field> scopes
         field_names.each do |name|
           scope("with_#{name}", -> (value) { public_send(contains_scope, name => value) })
         end
