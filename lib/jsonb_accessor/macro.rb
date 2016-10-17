@@ -53,7 +53,7 @@ module JsonbAccessor
           end
         end
 
-        after_initialize(jsonb_attribute_initialization_method_name)
+        after_initialize(jsonb_attribute_initialization_method_name.to_sym)
       end
 
       def _create_jsonb_attribute_scope_name(jsonb_attribute, jsonb_attribute_scope_name)
