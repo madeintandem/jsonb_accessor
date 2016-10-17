@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 module JsonbAccessor
-  GREATER_THAN = ">".freeze
-  GREATER_THAN_OR_EQUAL_TO = ">=".freeze
-  LESS_THAN = "<".freeze
-  LESS_THAN_OR_EQUAL_TO = "<=".freeze
+  GREATER_THAN = ">"
+  GREATER_THAN_OR_EQUAL_TO = ">="
+  LESS_THAN = "<"
+  LESS_THAN_OR_EQUAL_TO = "<="
 
   NUMBER_OPERATORS_MAP = {
     GREATER_THAN => GREATER_THAN,
@@ -40,7 +40,7 @@ module JsonbAccessor
         where("(#{table_name}.#{column_name} ->> ?)::float #{operator} ?", field_name, value)
       end)
 
-      scope(:jsonb_time_query, -> (column_name, field_name, given_operator, value) do
+      scope(:jsonb_time_query, lambda do |column_name, field_name, given_operator, value|
         operator = JsonbAccessor::TIME_OPERATORS_MAP.fetch(given_operator.to_s)
         where("(#{table_name}.#{column_name} ->> ?)::timestamp #{operator} ?", field_name, value)
       end)
