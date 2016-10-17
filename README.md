@@ -7,6 +7,7 @@ Adds typed `jsonb` backed fields as first class citizens to your `ActiveRecord` 
 ## Table of Contents
 
 * [Installation](#installation)
+* [Rails 5](#rails-5)
 * [Usage](#usage)
 * [ActiveRecord Methods Generated for Fields](#activerecord-methods-generated-for-fields)
 * [Validations](#validations)
@@ -28,6 +29,10 @@ gem "jsonb_accessor"
 And then execute:
 
     $ bundle install
+
+## Rails 5
+
+Version 0.4.X will run on Rails 5, but behavior around type coercion for array and other collection field types behaves differently. When you upgrade to 0.4.X make sure you do not depend on subtle type coercion rules.
 
 ## Usage
 
