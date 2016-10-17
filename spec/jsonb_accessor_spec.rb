@@ -157,51 +157,21 @@ RSpec.describe JsonbAccessor do
     end
   end
 
-  describe "#<jsonb_attribute_name>_contains" do
+  describe "#<jsonb_attribute>_where" do
     let(:title) { "title" }
-    let!(:matching_record) { Product.create!(title: title) }
-    let!(:other_matching_record) { Product.create!(title: title) }
-    let!(:ignored_record) { Product.create!(title: "ignored") }
+    let!(:matching_record) { Product.create!(title: title, rank: 4, made_at: Time.current) }
+    let!(:ignored_record) { Product.create!(title: "ignored", rank: 3, made_at: 3.years.ago) }
+    let!(:blank_record) { Product.create! }
     subject { Product.all }
 
-    it "is a collection of records that match the query" do
-      query = subject.options_contains(title: title)
+    it "is records matching the criteria" do
+      query = subject.options_where(
+        title: title,
+        rank: { greater_than: 3, less_than: 7 },
+        made_at: { before: 2.days.from_now, after: 2.days.ago }
+      )
       expect(query).to exist
-      expect(query).to match_array([matching_record, other_matching_record])
-    end
-
-    it "escapes sql" do
-      expect do
-        subject.options_contains(title: "foo\"};delete from products where id = #{matching_record.id}").to_a
-      end.to_not raise_error
-      expect(Product.count).to eq(3)
-    end
-
-    context "table names" do
-      let!(:product_category) { ProductCategory.create!(title: "category") }
-
-      before do
-        product_category.products << matching_record
-        product_category.products << other_matching_record
-      end
-
-      it "is not ambigious which table is being referenced" do
-        expect do
-          subject.joins(:product_category).merge(ProductCategory.options_contains(title: "category")).to_a
-        end.to_not raise_error
-      end
-    end
-  end
-
-  describe "#with_<field name>" do
-    let(:title) { "title" }
-    let!(:matching_record) { Product.create!(title: title) }
-    let!(:other_matching_record) { Product.create!(title: title) }
-    let!(:ignored_record) { Product.create!(title: "ignored") }
-    subject { Product.all }
-
-    it "is all records associated with the given field" do
-      expect(subject.with_title(title)).to match_array([matching_record, other_matching_record])
+      expect(query).to eq([matching_record])
     end
   end
 end

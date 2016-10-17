@@ -41,16 +41,8 @@ module JsonbAccessor
           clear_changes_information if persisted?
         end
 
-        # From here down we're defining scopes.
-
-        # <jsonb_attribute>_contains scope
-        contains_scope = "#{jsonb_attribute}_contains"
-        scope contains_scope, -> (attributes) { where("#{table_name}.#{jsonb_attribute} @> (?)::jsonb", attributes.to_json) }
-
-        # with_<jsonb_field> scopes
-        field_names.each do |name|
-          scope("with_#{name}", -> (value) { public_send(contains_scope, name => value) })
-        end
+        # <jsonb_attribute>_where scope
+        scope("#{jsonb_attribute}_where", -> (attributes) { jsonb_where(jsonb_attribute, attributes) })
       end
     end
   end
