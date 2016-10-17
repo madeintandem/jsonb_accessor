@@ -20,7 +20,7 @@ RSpec.describe "Jsonb Accessor Performace" do
       static_time = Benchmark.realtime { StaticProduct.all.to_a }
       jsonb_time = Benchmark.realtime { Product.all.to_a }
 
-      expect(static_time * 3).to be > jsonb_time
+      expect(static_time * 10).to be > jsonb_time
     end
   end
 end

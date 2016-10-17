@@ -73,4 +73,43 @@ RSpec.describe JsonbAccessor::QueryBuilder do
       end
     end
   end
+
+  context "jsonb_number_query" do
+    let!(:high_rank_record) { Product.create!(rank: 5) }
+    let!(:middle_rank_record) { Product.create!(rank: 4) }
+    let!(:low_rank_record) { Product.create!(rank: 0) }
+    subject { Product.all }
+
+    context "greater than" do
+      it "is matching records" do
+        query = subject.jsonb_number_query(:options, :rank, :>, middle_rank_record.rank)
+        expect(query).to exist
+        expect(query).to eq([high_rank_record])
+      end
+    end
+
+    context "less than" do
+      it "is matching records" do
+        query = subject.jsonb_number_query(:options, :rank, :<, middle_rank_record.rank)
+        expect(query).to exist
+        expect(query).to eq([low_rank_record])
+      end
+    end
+
+    context "less than or equal to" do
+      it "is matching records" do
+        query = subject.jsonb_number_query(:options, :rank, :<=, middle_rank_record.rank)
+        expect(query).to exist
+        expect(query).to match_array([low_rank_record, middle_rank_record])
+      end
+    end
+
+    context "greater than or equal to" do
+      it "is matching records" do
+        query = subject.jsonb_number_query(:options, :rank, :>=, middle_rank_record.rank)
+        expect(query).to exist
+        expect(query).to match_array([high_rank_record, middle_rank_record])
+      end
+    end
+  end
 end
