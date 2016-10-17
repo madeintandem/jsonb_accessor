@@ -26,13 +26,19 @@ module JsonbAccessor
       private
 
       def _register_jsonb_classes_for_cleanup
-        if defined?(ActionDispatch) && ENV["RACK_ENV"] == "development"
-          class_name = CLASS_PREFIX + name
-          ActionDispatch::Reloader.to_cleanup do
-            if JsonbAccessor.constants.any? { |c| c.to_s == class_name }
-              JsonbAccessor.send(:remove_const, class_name)
-            end
+        return unless ENV["RACK_ENV"] == "development"
+
+        class_name = CLASS_PREFIX + name
+        clean_up_proc = proc do
+          if JsonbAccessor.constants.any? { |c| c.to_s == class_name }
+            JsonbAccessor.send(:remove_const, class_name)
           end
+        end
+
+        if ActiveRecord::VERSION::MAJOR == 5 && defined?(ActiveSupport::Reloader)
+          ActiveSupport::Reloader.to_complete(&clean_up_proc)
+        elsif defined?(ActionDispatch)
+          ActionDispatch::Reloader.to_cleanup(&clean_up_proc)
         end
       end
 

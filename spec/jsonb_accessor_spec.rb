@@ -1104,61 +1104,63 @@ RSpec.describe JsonbAccessor do
     end
   end
 
-  context "ActionDispatch clean up" do
-    context "ActionDispatch defined and in development" do
-      before do
-        stub_const("ActionDispatch", ActionDispatchAlias)
-        ENV["RACK_ENV"] = "development"
-      end
-
-      after { ENV["RACK_ENV"] = "test" }
-
-      let!(:dummy_class) do
-        klass = Class.new(ActiveRecord::Base) do
-          self.table_name = "products"
+  if ActiveRecord::VERSION::MAJOR != 5
+    context "ActionDispatch clean up" do
+      context "ActionDispatch defined and in development" do
+        before do
+          stub_const("ActionDispatch", ActionDispatchAlias)
+          ENV["RACK_ENV"] = "development"
         end
-        stub_const("FooBaz", klass)
-        klass.class_eval { jsonb_accessor :options, foo: { bar: :integer } }
-      end
 
-      it "removes dynamically generated classes when cleanup happens" do
-        expect(defined?(JsonbAccessor::JAFooBaz)).to eq("constant")
-        ActionDispatch::Reloader.cleanup!
-        expect(defined?(JsonbAccessor::JAFooBaz)).to be_nil
-        expect { ActionDispatch::Reloader.cleanup! }.to_not raise_error
-      end
-    end
+        after { ENV["RACK_ENV"] = "test" }
 
-    context "ActionDispatch defined but not in development" do
-      before do
-        stub_const("ActionDispatch", ActionDispatchAlias)
-      end
-
-      let(:dummy_class) do
-        klass = Class.new(ActiveRecord::Base) do
-          self.table_name = "products"
+        let!(:dummy_class) do
+          klass = Class.new(ActiveRecord::Base) do
+            self.table_name = "products"
+          end
+          stub_const("FooBaz", klass)
+          klass.class_eval { jsonb_accessor :options, foo: { bar: :integer } }
         end
-        stub_const("BazBar", klass)
-        klass.class_eval { jsonb_accessor :options, foo: { bar: :integer } }
-      end
 
-      it "does nothing" do
-        expect(ActionDispatch::Reloader).to_not receive(:to_cleanup)
-        dummy_class
-      end
-    end
-
-    context "ActionDispatch is not defined" do
-      let(:dummy_class) do
-        klass = Class.new(ActiveRecord::Base) do
-          self.table_name = "products"
+        it "removes dynamically generated classes when cleanup happens" do
+          expect(defined?(JsonbAccessor::JAFooBaz)).to eq("constant")
+          ActionDispatch::Reloader.cleanup!
+          expect(defined?(JsonbAccessor::JAFooBaz)).to be_nil
+          expect { ActionDispatch::Reloader.cleanup! }.to_not raise_error
         end
-        stub_const("FooBarBaz", klass)
-        klass.class_eval { jsonb_accessor :options, foo: { bar: :integer } }
       end
 
-      it "does nothing" do
-        expect { dummy_class }.to_not raise_error
+      context "ActionDispatch defined but not in development" do
+        before do
+          stub_const("ActionDispatch", ActionDispatchAlias)
+        end
+
+        let(:dummy_class) do
+          klass = Class.new(ActiveRecord::Base) do
+            self.table_name = "products"
+          end
+          stub_const("BazBar", klass)
+          klass.class_eval { jsonb_accessor :options, foo: { bar: :integer } }
+        end
+
+        it "does nothing" do
+          expect(ActionDispatch::Reloader).to_not receive(:to_cleanup)
+          dummy_class
+        end
+      end
+
+      context "ActionDispatch is not defined" do
+        let(:dummy_class) do
+          klass = Class.new(ActiveRecord::Base) do
+            self.table_name = "products"
+          end
+          stub_const("FooBarBaz", klass)
+          klass.class_eval { jsonb_accessor :options, foo: { bar: :integer } }
+        end
+
+        it "does nothing" do
+          expect { dummy_class }.to_not raise_error
+        end
       end
     end
   end
