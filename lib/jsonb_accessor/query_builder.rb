@@ -12,6 +12,9 @@ module JsonbAccessor
 
       scope(:jsonb_number_query,
         -> (column_name, field_name, operator, value) { where("(#{table_name}.#{column_name} ->> ?)::float #{operator} ?", field_name, value) })
+
+      scope(:jsonb_time_query,
+        -> (column_name, field_name, operator, value) { where("(#{table_name}.#{column_name} ->> ?)::timestamp #{operator} ?", field_name, value) })
     end
   end
 end

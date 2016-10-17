@@ -28,7 +28,7 @@ class StaticProduct < ActiveRecord::Base
 end
 
 class Product < StaticProduct
-  jsonb_accessor :options, title: :string, rank: :integer
+  jsonb_accessor :options, title: :string, rank: :integer, made_at: :datetime
 end
 
 class OtherProduct < ActiveRecord::Base
