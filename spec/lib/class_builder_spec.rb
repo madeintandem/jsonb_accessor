@@ -199,9 +199,10 @@ RSpec.describe JsonbAccessor::ClassBuilder do
 
     describe "#attributes_and_data_types" do
       it "is a hash of attribute names and their data types" do
+        klass = ActiveRecord::VERSION::MAJOR == 5 ? ActiveRecord::Type::Integer : ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Integer
         expect(dummy.attributes_and_data_types).to eq(
           foo: ActiveRecord::Type::String.new,
-          bar: ActiveRecord::ConnectionAdapters::PostgreSQL::OID::Integer.new
+          bar: klass.new
         )
       end
     end
