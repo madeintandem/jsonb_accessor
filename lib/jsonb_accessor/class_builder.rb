@@ -64,8 +64,9 @@ module JsonbAccessor
           fields_map.typed_fields.keys.each do |attribute_name|
             define_method(attribute_name) { attributes[attribute_name] }
 
+            cast_method_name = ActiveRecord::VERSION::MAJOR == 5 ? :cast : :type_cast_from_user
             define_method("#{attribute_name}=") do |value|
-              cast_value = attributes_and_data_types[attribute_name].type_cast_from_user(value)
+              cast_value = attributes_and_data_types[attribute_name].public_send(cast_method_name, value)
               attributes[attribute_name] = cast_value
               update_parent
             end
