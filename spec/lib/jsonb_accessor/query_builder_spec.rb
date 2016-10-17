@@ -82,33 +82,41 @@ RSpec.describe JsonbAccessor::QueryBuilder do
 
     context "greater than" do
       it "is matching records" do
-        query = subject.jsonb_number_query(:options, :rank, :>, middle_rank_record.rank)
-        expect(query).to exist
-        expect(query).to eq([high_rank_record])
+        [:>, :greater_than, :gt, ">", "greater_than", "gt"].each do |operator|
+          query = subject.jsonb_number_query(:options, :rank, operator, middle_rank_record.rank)
+          expect(query).to exist
+          expect(query).to eq([high_rank_record])
+        end
       end
     end
 
     context "less than" do
       it "is matching records" do
-        query = subject.jsonb_number_query(:options, :rank, :<, middle_rank_record.rank)
-        expect(query).to exist
-        expect(query).to eq([low_rank_record])
+        [:<, :less_than, :lt, "<", "less_than", "lt"].each do |operator|
+          query = subject.jsonb_number_query(:options, :rank, operator, middle_rank_record.rank)
+          expect(query).to exist
+          expect(query).to eq([low_rank_record])
+        end
       end
     end
 
     context "less than or equal to" do
       it "is matching records" do
-        query = subject.jsonb_number_query(:options, :rank, :<=, middle_rank_record.rank)
-        expect(query).to exist
-        expect(query).to match_array([low_rank_record, middle_rank_record])
+        [:<=, :less_than_or_equal_to, :lte, "<=", "less_than_or_equal_to", "lte"].each do |operator|
+          query = subject.jsonb_number_query(:options, :rank, operator, middle_rank_record.rank)
+          expect(query).to exist
+          expect(query).to match_array([low_rank_record, middle_rank_record])
+        end
       end
     end
 
     context "greater than or equal to" do
       it "is matching records" do
-        query = subject.jsonb_number_query(:options, :rank, :>=, middle_rank_record.rank)
-        expect(query).to exist
-        expect(query).to match_array([high_rank_record, middle_rank_record])
+        [:>=, :greater_than_or_equal_to, :gte, ">=", "greater_than_or_equal_to", "gte"].each do |operator|
+          query = subject.jsonb_number_query(:options, :rank, operator, middle_rank_record.rank)
+          expect(query).to exist
+          expect(query).to match_array([high_rank_record, middle_rank_record])
+        end
       end
     end
   end
@@ -120,17 +128,21 @@ RSpec.describe JsonbAccessor::QueryBuilder do
 
     context "before" do
       it "is matching records" do
-        query = subject.jsonb_time_query(:options, :made_at, :<, Time.current)
-        expect(query).to exist
-        expect(query).to eq([early_record])
+        [:before, "before"].each do |operator|
+          query = subject.jsonb_time_query(:options, :made_at, operator, Time.current)
+          expect(query).to exist
+          expect(query).to eq([early_record])
+        end
       end
     end
 
     context "after" do
       it "is matching records" do
-        query = subject.jsonb_time_query(:options, :made_at, :>, Time.current)
-        expect(query).to exist
-        expect(query).to eq([late_record])
+        [:after, "after"].each do |operator|
+          query = subject.jsonb_time_query(:options, :made_at, operator, Time.current)
+          expect(query).to exist
+          expect(query).to eq([late_record])
+        end
       end
     end
   end
