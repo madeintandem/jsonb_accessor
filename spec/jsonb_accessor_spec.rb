@@ -235,7 +235,7 @@ RSpec.describe JsonbAccessor do
         expect(subject.options["admin"]).to eq(admin)
       end
 
-      false_values = ActiveRecord::VERSION::MAJOR == 5 ?  ActiveModel::Type::Boolean::FALSE_VALUES : ActiveRecord::ConnectionAdapters::Column::FALSE_VALUES
+      false_values = ActiveRecord::VERSION::MAJOR == 5 ? ActiveModel::Type::Boolean::FALSE_VALUES : ActiveRecord::ConnectionAdapters::Column::FALSE_VALUES
       false_values.each do |value|
         it "coerces the value to false when the value is '#{value}'" do
           subject.admin = value
@@ -406,7 +406,7 @@ RSpec.describe JsonbAccessor do
             expect(subject.options["favorited_history"]).to eq(favorited_history)
           end
 
-          false_values = ActiveRecord::VERSION::MAJOR == 5 ?  ActiveModel::Type::Boolean::FALSE_VALUES : ActiveRecord::ConnectionAdapters::Column::FALSE_VALUES
+          false_values = ActiveRecord::VERSION::MAJOR == 5 ? ActiveModel::Type::Boolean::FALSE_VALUES : ActiveRecord::ConnectionAdapters::Column::FALSE_VALUES
           false_values.each do |value|
             it "coerces the value to false when the value is '#{value}'" do
               subject.favorited_history = [value]

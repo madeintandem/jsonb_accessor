@@ -19,8 +19,9 @@ module JsonbAccessor
       end
 
       def type_cast_as_jsonb(suspect)
-        type_cast_hash = jsonb.type_cast_from_user(suspect)
-        jsonb.type_cast_for_database(type_cast_hash)
+        user_cast_method_name, db_case_method_name = ActiveRecord::VERSION::MAJOR == 5 ? [:cast, :serialize] : [:type_cast_from_user, :type_cast_for_database]
+        type_cast_hash = jsonb.public_send(user_cast_method_name, suspect)
+        jsonb.public_send(db_case_method_name, type_cast_hash)
       end
 
       private
