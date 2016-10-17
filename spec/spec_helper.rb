@@ -1,6 +1,6 @@
 $LOAD_PATH.unshift File.expand_path("../../lib", __FILE__)
 require "jsonb_accessor"
-require "action_dispatch/middleware/reloader"
+require "action_dispatch"
 require "pry"
 require "pry-nav"
 require "pry-doc"
