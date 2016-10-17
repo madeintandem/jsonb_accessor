@@ -243,11 +243,9 @@ RSpec.describe JsonbAccessor do
         end
       end
 
-      [1, "foo"].each do |value|
-        it "coerces the value to true when the value is '#{value}'" do
-          subject.admin = value
-          expect(subject.admin).to eq(true)
-        end
+      it "coerces the value to true when the value is '1'" do
+        subject.admin = 1
+        expect(subject.admin).to eq(true)
       end
 
       it "preserves the value after a trip to the database" do
@@ -416,11 +414,9 @@ RSpec.describe JsonbAccessor do
             end
           end
 
-          [1, "foo"].each do |value|
-            it "coerces the value to true when the value is '#{value}'" do
-              subject.favorited_history = [value]
-              expect(subject.favorited_history).to eq([true])
-            end
+          it "coerces the value to true when the value is '1'" do
+            subject.favorited_history = [1]
+            expect(subject.favorited_history).to eq([true])
           end
 
           it "preserves the value after a trip to the database" do
