@@ -74,7 +74,7 @@ RSpec.describe JsonbAccessor::QueryBuilder do
     end
   end
 
-  context "jsonb_number_query" do
+  describe "#jsonb_number_query" do
     let!(:high_rank_record) { Product.create!(rank: 5) }
     let!(:middle_rank_record) { Product.create!(rank: 4) }
     let!(:low_rank_record) { Product.create!(rank: 0) }
@@ -121,7 +121,7 @@ RSpec.describe JsonbAccessor::QueryBuilder do
     end
   end
 
-  context "jsonb_time_query" do
+  describe "#jsonb_time_query" do
     let!(:early_record) { Product.create!(made_at: 10.days.ago) }
     let!(:late_record) { Product.create!(made_at: 2.days.from_now) }
     subject { Product.all }
@@ -143,6 +143,99 @@ RSpec.describe JsonbAccessor::QueryBuilder do
           expect(query).to exist
           expect(query).to eq([late_record])
         end
+      end
+    end
+  end
+
+  describe "#jsonb_where" do
+    let(:title) { "title" }
+    let!(:matching_record) { Product.create!(title: title, rank: 4, made_at: Time.current) }
+    let!(:ignored_record) { Product.create!(title: "ignored", rank: 3, made_at: 3.years.ago) }
+    let!(:blank_record) { Product.create! }
+    subject { Product.all }
+
+    context "contains" do
+      it "is matching records" do
+        query = subject.jsonb_where(:options, title: title)
+        expect(query).to exist
+        expect(query).to eq([matching_record])
+      end
+    end
+
+    context "number queries" do
+      it "is records matching the criteria" do
+        query = subject.jsonb_where(:options, rank: { greater_than: 3, less_than: 7 })
+        expect(query).to exist
+        expect(query).to eq([matching_record])
+      end
+    end
+
+    context "time queries" do
+      it "is records matching the criteria" do
+        query = subject.jsonb_where(:options, made_at: { before: 2.days.from_now, after: 2.days.ago })
+        expect(query).to exist
+        expect(query).to eq([matching_record])
+      end
+    end
+
+    context "smoke test" do
+      it "is records matching the criteria" do
+        query = subject.jsonb_where(
+          :options,
+          title: title,
+          rank: { greater_than: 3, less_than: 7 },
+          made_at: { before: 2.days.from_now, after: 2.days.ago }
+        )
+        expect(query).to exist
+        expect(query).to eq([matching_record])
+      end
+    end
+  end
+
+  describe "->is_number_query_arguments" do
+    subject { JsonbAccessor::IS_NUMBER_QUERY_ARGUMENTS }
+
+    context "not a hash" do
+      it "is false" do
+        expect(subject.call(nil)).to eq(false)
+        expect(subject.call("foo")).to eq(false)
+      end
+    end
+
+    context "hash that is not for a number query" do
+      it "is false" do
+        expect(subject.call("before" => 12)).to eq(false)
+        expect(subject.call("title" => "foo")).to eq(false)
+      end
+    end
+
+    context "hash that is for a number query" do
+      it "is true" do
+        expect(subject.call(greater_than: 5, "less_than" => 10)).to eq(true)
+      end
+    end
+  end
+
+  describe "->is_time_query_arguments" do
+    subject { JsonbAccessor::IS_TIME_QUERY_ARGUMENTS }
+
+    context "not a hash" do
+      it "is false" do
+        expect(subject.call(nil)).to eq(false)
+        expect(subject.call("foo")).to eq(false)
+      end
+    end
+
+    context "hash that is not for a number query" do
+      it "is false" do
+        expect(subject.call("greater_than" => 12)).to eq(false)
+        expect(subject.call("title" => "foo")).to eq(false)
+      end
+    end
+
+    context "hash that is for a number query" do
+      it "is true" do
+        expect(subject.call(before: 10, "after" => 5)).to eq(true)
       end
     end
   end

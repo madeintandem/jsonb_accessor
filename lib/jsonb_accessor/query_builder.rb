@@ -20,10 +20,24 @@ module JsonbAccessor
     "lte" => LESS_THAN_OR_EQUAL_TO
   }.freeze
 
+  NUMBER_OPERATORS = NUMBER_OPERATORS_MAP.keys.freeze
+
   TIME_OPERATORS_MAP = {
     "after" => GREATER_THAN,
     "before" => LESS_THAN
   }.freeze
+
+  TIME_OPERATORS = TIME_OPERATORS_MAP.keys.freeze
+
+  IS_NUMBER_QUERY_ARGUMENTS = lambda do |arg|
+    arg.is_a?(Hash) &&
+      arg.keys.map(&:to_s).all? { |key| JsonbAccessor::NUMBER_OPERATORS.include?(key) }
+  end
+
+  IS_TIME_QUERY_ARGUMENTS = lambda do |arg|
+    arg.is_a?(Hash) &&
+      arg.keys.map(&:to_s).all? { |key| JsonbAccessor::TIME_OPERATORS.include?(key) }
+  end
 
   module QueryBuilder
     extend ActiveSupport::Concern
@@ -43,6 +57,24 @@ module JsonbAccessor
       scope(:jsonb_time_query, lambda do |column_name, field_name, given_operator, value|
         operator = JsonbAccessor::TIME_OPERATORS_MAP.fetch(given_operator.to_s)
         where("(#{table_name}.#{column_name} ->> ?)::timestamp #{operator} ?", field_name, value)
+      end)
+
+      scope(:jsonb_where, lambda do |column_name, attributes|
+        query = all
+        contains_attributes = {}
+
+        attributes.each do |name, value|
+          case value
+          when IS_NUMBER_QUERY_ARGUMENTS
+            value.each { |operator, query_value| query = query.jsonb_number_query(column_name, name, operator, query_value) }
+          when IS_TIME_QUERY_ARGUMENTS
+            value.each { |operator, query_value| query = query.jsonb_time_query(column_name, name, operator, query_value) }
+          else
+            contains_attributes[name] = value
+          end
+        end
+
+        query.jsonb_contains(column_name, contains_attributes)
       end)
     end
   end

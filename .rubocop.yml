@@ -23,6 +23,8 @@ Metrics/MethodLength:
   Enabled: false
 Metrics/ModuleLength:
   Enabled: false
+Metrics/BlockLength:
+  Enabled: false
 Metrics/PerceivedComplexity:
   Enabled: false
 Style/AlignParameters:
