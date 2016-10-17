@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 $LOAD_PATH.unshift File.expand_path("../../lib", __FILE__)
 require "jsonb_accessor"
-# require "action_dispatch/middleware/reloader"
 require "pry"
 require "pry-nav"
 require "pry-doc"
@@ -10,18 +9,6 @@ require "database_cleaner"
 require "shoulda-matchers"
 require "yaml"
 
-# ActionDispatchAlias = ActionDispatch
-# Object.send(:remove_const, :ActionDispatch)
-
-# TYPED_FIELDS = {
-#   title: :string,
-#   name_value: :value,
-#   id_value: :value,
-#   external_id: :integer,
-#   amount_floated: :float
-# }.freeze
-# ALL_FIELDS = TYPED_FIELDS.keys
-
 class StaticProduct < ActiveRecord::Base
   self.table_name = "products"
   belongs_to :product_category
@@ -29,29 +16,6 @@ end
 
 class Product < StaticProduct
   jsonb_accessor :options, title: :string, rank: :integer, made_at: :datetime
-end
-
-class OtherProduct < ActiveRecord::Base
-  self.table_name = "products"
-  jsonb_accessor :options, title: :string
-
-  def options=(value)
-    value["title"] = "new title"
-    super
-  end
-
-  def title=(value)
-    super(value.try(:upcase))
-  end
-
-  def title
-    super.try(:downcase)
-  end
-
-  def reload
-    super
-    :wrapped
-  end
 end
 
 class ProductCategory < ActiveRecord::Base
@@ -92,15 +56,10 @@ RSpec.configure do |config|
 
   config.filter_run :focus
   config.run_all_when_everything_filtered = true
-
   config.disable_monkey_patching!
-
   config.default_formatter = "doc" if config.files_to_run.one?
-
   config.profile_examples = 0
-
   config.order = :random
-
   Kernel.srand config.seed
 
   config.before :suite do
