@@ -46,9 +46,6 @@ module JsonbAccessor
       scope(:jsonb_contains,
         -> (column_name, attributes) { where("#{table_name}.#{column_name} @> (?)::jsonb", attributes.to_json) })
 
-      scope(:jsonb_is,
-        -> (column_name, attributes) { where("#{table_name}.#{column_name} = (?)::jsonb", attributes.to_json) })
-
       scope(:jsonb_number_query, lambda do |column_name, field_name, given_operator, value|
         operator = JsonbAccessor::NUMBER_OPERATORS_MAP.fetch(given_operator.to_s)
         where("(#{table_name}.#{column_name} ->> ?)::float #{operator} ?", field_name, value)
