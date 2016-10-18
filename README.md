@@ -51,10 +51,37 @@ We can then declare the `jsonb` fields we wish to expose via the accessor:
 class Product < ActiveRecord::Base
   jsonb_accessor :data,
     title: :string,
-    id_value: :value,
     external_id: :integer,
     reviewed_at: :datetime
 end
+```
+
+Any type the [`attribute` API](http://api.rubyonrails.org/classes/ActiveRecord/Attributes/ClassMethods.html#method-i-attribute) supports. You can also implement your own type by following the example in the `attribute` documentation.
+
+To pass through options like `default` and `array` to the `attribute` API, just put them in an array.
+
+```ruby
+class Product < ActiveRecord::Base
+  jsonb_accessor :data,
+    title: [:string, default: "Untitled"],
+    previous_titles: [:string, array: true, default: []]
+end
+```
+
+You can also pass in a `store_key` option.
+
+```ruby
+class Product < ActiveRecord::Base
+  jsonb_accessor :data, title: [:string, store_key: :t]
+end
+```
+
+This allows you to use `title` for your getters and setters, but use `t` as the key in the `jsonb` column.
+
+```ruby
+product = Product.new(title: "Foo")
+product.title #=> "Foo"
+product.data #=> { "t" => "Foo" }
 ```
 
 ## Scopes
