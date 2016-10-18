@@ -108,10 +108,12 @@ For number fields you can query using `<` or `>`or use plain english if that's w
 
 ```ruby
 Product.all.data_where(price: { <: 15 })
+Product.all.data_where(price: { <=: 15 })
 Product.all.data_where(price: { less_than: 15 })
 Product.all.data_where(price: { less_than_or_equal_to: 15 })
 
 Product.all.data_where(price: { >: 15 })
+Product.all.data_where(price: { >=: 15 })
 Product.all.data_where(price: { greater_than: 15 })
 Product.all.data_where(price: { greater_than_or_equal_to: 15 })
 
