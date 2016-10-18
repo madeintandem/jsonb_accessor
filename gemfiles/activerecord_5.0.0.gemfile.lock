@@ -1,7 +1,7 @@
 PATH
   remote: ../
   specs:
-    jsonb_accessor (1.0.0.pre.rails5)
+    jsonb_accessor (1.0.0.beta)
       activerecord (>= 5.0.0)
       pg (>= 0.18.1)
 
@@ -137,4 +137,4 @@ DEPENDENCIES
   standalone_migrations
 
 BUNDLED WITH
-   1.11.2
+   1.13.5
