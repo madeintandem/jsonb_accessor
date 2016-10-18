@@ -201,11 +201,20 @@ RSpec.describe JsonbAccessor do
   end
 
   describe "#<jsonb_attribute>_where" do
+    let(:klass) do
+      Class.new(ActiveRecord::Base) do
+        self.table_name = "products"
+        jsonb_accessor :options,
+          title: [:string, store_key: :t],
+          rank: [:integer, store_key: :r],
+          made_at: [:datetime, store_key: :ma]
+      end
+    end
     let(:title) { "title" }
-    let!(:matching_record) { Product.create!(title: title, rank: 4, made_at: Time.current) }
-    let!(:ignored_record) { Product.create!(title: "ignored", rank: 3, made_at: 3.years.ago) }
-    let!(:blank_record) { Product.create! }
-    subject { Product.all }
+    let!(:matching_record) { klass.create!(title: title, rank: 4, made_at: Time.current) }
+    let!(:ignored_record) { klass.create!(title: "ignored", rank: 3, made_at: 3.years.ago) }
+    let!(:blank_record) { klass.create! }
+    subject { klass.all }
 
     it "is records matching the criteria" do
       query = subject.options_where(

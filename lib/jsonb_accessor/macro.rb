@@ -50,7 +50,13 @@ module JsonbAccessor
         end
 
         # <jsonb_attribute>_where scope
-        scope("#{jsonb_attribute}_where", -> (attributes) { jsonb_where(jsonb_attribute, attributes) })
+        scope("#{jsonb_attribute}_where", lambda do |attributes|
+          store_key_attributes = attributes.each_with_object({}) do |(name, value), new_attributes|
+            store_key = names_and_store_keys[name.to_s]
+            new_attributes[store_key] = value
+          end
+          jsonb_where(jsonb_attribute, store_key_attributes)
+        end)
       end
     end
   end
