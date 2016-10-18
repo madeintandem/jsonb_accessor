@@ -244,7 +244,7 @@ Because this gem promotes attributes nested into the JSON column to first level 
 
 ## Dependencies
 
-- ActiveRecord 5.0
+- ActiveRecord >= 5.0
 - Postgres >= 9.4 (in order to use the [jsonb column type](http://www.postgresql.org/docs/9.4/static/datatype-json.html)).
 
 ## Development
