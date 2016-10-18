@@ -101,7 +101,8 @@ RSpec.describe JsonbAccessor do
         self.table_name = "products"
         jsonb_accessor :options,
           foo: :string,
-          bar: :integer
+          bar: :integer,
+          baz: [:string, store_key: :b]
       end
     end
 
@@ -113,7 +114,7 @@ RSpec.describe JsonbAccessor do
     it "sets the jsonb field" do
       new_value = { "foo" => "bar" }
       instance.options = new_value
-      expect(instance.options).to eq(new_value)
+      expect(instance.options).to eq("foo" => "bar", "bar" => nil, "b" => nil)
     end
 
     it "clears the fields that are not set" do
@@ -126,6 +127,21 @@ RSpec.describe JsonbAccessor do
       expect(instance.foo).to eq("new foo")
     end
 
+    context "when store key is specified" do
+      it "maps the store key to the new value" do
+        instance.options = { baz: "baz" }
+        expect(instance.baz).to eq("baz")
+        expect(instance.options).to eq("b" => "baz", "foo" => nil, "bar" => nil)
+      end
+
+      it "clears the store key field" do
+        instance.options = { baz: "baz" }
+        instance.options = { foo: "foo" }
+        expect(instance.baz).to be_nil
+        expect(instance.options).to eq("foo" => "foo", "b" => nil, "bar" => nil)
+      end
+    end
+
     context "when nil" do
       it "clears all fields" do
         instance.options = nil
@@ -136,24 +152,51 @@ RSpec.describe JsonbAccessor do
   end
 
   context "dirty tracking for already persisted models" do
+    let(:klass) do
+      Class.new(ActiveRecord::Base) do
+        self.table_name = "products"
+        jsonb_accessor :options,
+          foo: :string,
+          bar: [:string, store_key: :b]
+      end
+    end
+
     it "is not dirty by default" do
       instance.foo = "foo"
+      instance.bar = "bar"
       instance.save!
       persisted_instance = klass.find(instance.id)
       expect(persisted_instance.foo).to eq("foo")
+      expect(persisted_instance.bar).to eq("bar")
       expect(persisted_instance).to_not be_foo_changed
+      expect(persisted_instance).to_not be_bar_changed
       expect(persisted_instance).to_not be_options_changed
 
-      persisted_instance = klass.find(klass.create!(foo: "foo").id)
+      persisted_instance = klass.find(klass.create!(foo: "foo", bar: "bar").id)
       expect(persisted_instance.foo).to eq("foo")
+      expect(persisted_instance.bar).to eq("bar")
       expect(persisted_instance).to_not be_foo_changed
+      expect(persisted_instance).to_not be_bar_changed
       expect(persisted_instance).to_not be_options_changed
     end
   end
 
   context "dirty tracking for new records" do
+    let(:klass) do
+      Class.new(ActiveRecord::Base) do
+        self.table_name = "products"
+        jsonb_accessor :options,
+          foo: :string,
+          bar: [:string, store_key: :b]
+      end
+    end
+
     it "is not dirty by default" do
       expect(instance).to_not be_options_changed
+      expect(instance).to_not be_foo_changed
+      expect(instance).to_not be_bar_changed
+
+      expect(klass.new(options: {})).to_not be_foo_changed
     end
   end
 
@@ -172,6 +215,19 @@ RSpec.describe JsonbAccessor do
       )
       expect(query).to exist
       expect(query).to eq([matching_record])
+    end
+  end
+
+  describe "store keys" do
+    let(:klass) do
+      Class.new(ActiveRecord::Base) do
+        self.table_name = "products"
+        jsonb_accessor :options, foo: [:string, store_key: :f]
+      end
+    end
+    it "stores the value at the given key in the jsonb attribute" do
+      instance.foo = "foo"
+      expect(instance.options).to eq("f" => "foo")
     end
   end
 end
