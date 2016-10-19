@@ -1,8 +1,7 @@
 language: ruby
 rvm:
-  - 2.1.5
-  - 2.2.0
-  - 2.3.0
+  - 2.2.5
+  - 2.3.1
 addons:
   postgresql: '9.4'
 before_install:
@@ -14,7 +13,4 @@ before_script:
   - bundle exec rake db:migrate
 cache: bundler
 gemfile:
-  - gemfiles/activerecord_4.2.1.gemfile
-  - gemfiles/activerecord_4.2.2.gemfile
-  - gemfiles/activerecord_4.2.3.gemfile
-  - gemfiles/activerecord_4.2.4.gemfile
+  - gemfiles/activerecord_5.0.0.gemfile

@@ -1,19 +1,24 @@
 # JSONb Accessor
 
-[![Gem Version](https://badge.fury.io/rb/jsonb_accessor.svg)](http://badge.fury.io/rb/jsonb_accessor) [![Build Status](https://travis-ci.org/devmynd/jsonb_accessor.svg)](https://travis-ci.org/devmynd/jsonb_accessor) 
+[![Gem Version](https://badge.fury.io/rb/jsonb_accessor.svg)](http://badge.fury.io/rb/jsonb_accessor) [![Build Status](https://travis-ci.org/devmynd/jsonb_accessor.svg)](https://travis-ci.org/devmynd/jsonb_accessor)
 
 Adds typed `jsonb` backed fields as first class citizens to your `ActiveRecord` models. This gem is similar in spirit to [HstoreAccessor](https://github.com/devmynd/hstore_accessor), but the `jsonb` column in PostgreSQL has a few distinct advantages, mostly around nested documents and support for collections.
+
+It also adds generic scopes for querying `jsonb` columns.
+
+## 1.0 Beta
+
+This README reflects the most recent 1.0 beta. Method names and interfaces may still change.
 
 ## Table of Contents
 
 * [Installation](#installation)
 * [Usage](#usage)
-* [ActiveRecord Methods Generated for Fields](#activerecord-methods-generated-for-fields)
-* [Validations](#validations)
-* [Single-Table Inheritance](#single-table-inheritance)
 * [Scopes](#scopes)
-* [Migrations](#migrations)
+* [Single-Table Inheritance](#single-table-inheritance)
 * [Dependencies](#dependencies)
+* [Validations](#validations)
+* [Upgrading](#upgrading)
 * [Development](#development)
 * [Contributing](#contributing)
 
@@ -34,10 +39,10 @@ And then execute:
 First we must create a model which has a `jsonb` column available to store data into it:
 
 ```ruby
-class CreateProductsTable < ActiveRecord::Migration
+class CreateProducts < ActiveRecord::Migration
   def change
     create_table :products do |t|
-      t.jsonb :options
+      t.jsonb :data
     end
   end
 end
@@ -47,87 +52,141 @@ We can then declare the `jsonb` fields we wish to expose via the accessor:
 
 ```ruby
 class Product < ActiveRecord::Base
-  jsonb_accessor(
-    :options,
-    :count, # => value type
+  jsonb_accessor :data,
     title: :string,
-    id_value: :value,
     external_id: :integer,
-    reviewed_at: :date_time
-  )
+    reviewed_at: :datetime
 end
 ```
 
-JSONb Accessor accepts both untyped and typed key definitions. Untyped keys are treated as-is and no additional casting is performed. This allows the freedom of dynamic values alongside the power types, which is especially convenient when saving nested form attributes. Typed keys will be cast to their respective values using the same mechanism ActiveRecord uses to coerce standard attribute columns. It's as close to a real column as you can get and the goal is to keep it that way.
+Any type the [`attribute` API](http://api.rubyonrails.org/classes/ActiveRecord/Attributes/ClassMethods.html#method-i-attribute) supports. You can also implement your own type by following the example in the `attribute` documentation.
 
-All untyped keys must be defined prior to typed columns. You can declare a typed column with type `value` for explicit dynamic behavior. For reference, the `jsonb_accessor` macro is defined thusly.
-
-```ruby
-def jsonb_accessor(jsonb_attribute, *value_fields, **typed_fields)
-  ...
-end
-```
-
-There's quite a bit more to do do and document but we're excited to get this out there while we work on it some more.
-
-## ActiveRecord Methods Generated for Fields
+To pass through options like `default` and `array` to the `attribute` API, just put them in an array.
 
 ```ruby
 class Product < ActiveRecord::Base
-  jsonb_accessor :data, field: :string
+  jsonb_accessor :data,
+    title: [:string, default: "Untitled"],
+    previous_titles: [:string, array: true, default: []]
 end
 ```
 
-* `field`
-* `field=`
-* `field?`
-* `field_changed?`
-* `field_was`
-* `field_change`
-* `reset_field!`
-* `restore_field!`
-* `field_will_change!`
-
-### Supported Types
-
-Because the underlying storage mechanism is JSON, we attempt to abide by the limitations of what can be represented natively. We use [ActiveRecord::Type](https://github.com/rails/rails/blob/master/activerecord/lib/active_record/type.rb) for seralization, but any type defined in the [Postgres connection adapter](https://github.com/rails/rails/blob/master/activerecord/lib/active_record/connection_adapters/postgresql/oid.rb) will also be accepted. Beware of the impact of using complex Postgres column types such as inet, enum, hstore, etc... We plan to restrict which types are allowed in a future patch.
-
-The following types are explicitly supported.
-
-* big_integer
-* binary
-* boolean
-* date
-* date_time
-* decimal
-* float
-* integer
-* string
-* text
-* time
-* value
-
-
-Typed arrays are also supported by specifying `:type_array` (i.e. `:float_array`). `:array` is interpreted as an array of `value` types.
-
-Support for nested types is also available but experimental at this point. If you must, you may try something like this for nested objects.
+You can also pass in a `store_key` option.
 
 ```ruby
 class Product < ActiveRecord::Base
-  jsonb_accessor(
-    :options,
-    nested_object: { key: :integer }
-  )
+  jsonb_accessor :data, title: [:string, store_key: :t]
 end
-
-p = Product.new
-p.nested_object.key = "10"
-puts p.nested_object.key #=> 10
 ```
 
-## Validations
+This allows you to use `title` for your getters and setters, but use `t` as the key in the `jsonb` column.
 
-Because this gem promotes attributes nested into the JSON column to first level attributes, most validations should just work. We still have to add some testing and support around this feature but feel free to try and leave us feedback if they're not working as expected.
+```ruby
+product = Product.new(title: "Foo")
+product.title #=> "Foo"
+product.data #=> { "t" => "Foo" }
+```
+
+## Scopes
+
+Jsonb Accessor provides several scopes to make it easier to query `jsonb` columns. `jsonb_contains`, `jsonb_number_where`, `jsonb_time_where`, and `jsonb_where` are available on all `ActiveRecord::Base` subclasses and don't require that you make use of the `jsonb_accessor` declaration.
+
+If a class does have a `jsonb_accessor` declaration, then we define one custom scope. So, let's say we have a class that looks like this:
+
+```ruby
+class Product < ActiveRecord::Base
+  jsonb_accessor :data,
+    name: :string,
+    price: [:integer, store_key: :p],
+    price_in_cents: :integer,
+    reviewed_at: :datetime
+end
+```
+
+Jsonb Accessor will add a `scope` to `Product` called `data_where`.
+
+```ruby
+Product.all.data_where(name: "Granite Towel", price: 17)
+```
+
+For number fields you can query using `<` or `>`or use plain english if that's what you prefer.
+
+```ruby
+Product.all.data_where(price: { <: 15 })
+Product.all.data_where(price: { <=: 15 })
+Product.all.data_where(price: { less_than: 15 })
+Product.all.data_where(price: { less_than_or_equal_to: 15 })
+
+Product.all.data_where(price: { >: 15 })
+Product.all.data_where(price: { >=: 15 })
+Product.all.data_where(price: { greater_than: 15 })
+Product.all.data_where(price: { greater_than_or_equal_to: 15 })
+
+Product.all.data_where(price: { greater_than: 15, less_than: 30 })
+```
+
+For time related fields you can query using `before` and `after`.
+
+```ruby
+Product.all.data_where(reviewed_at: { before: Time.current.beginning_of_week, after: 4.weeks.ago })
+```
+
+This scope is a convenient wrapper around the `jsonb_where` `scope` that saves you from having to convert the given keys to the store keys and from specifying the column.
+
+### `jsonb_where`
+
+Works just like the [`scope` above](#scopes) except that it does not convert the given keys to store keys and you must specify the column name. For example:
+
+```ruby
+Product.all.jsonb_where(:data, reviewed_at: { before: Time.current }, p: { greater_than: 5 })
+
+# instead of
+
+Product.all.data_where(reviewed_at: { before: Time.current }, price: { greater_than: 5 })
+```
+This scope makes use of the `jsonb_contains`, `jsonb_number_where`, and `jsonb_time_where` `scope`s.
+
+### `jsonb_contains`
+
+Returns all records that contain the given JSON paths.
+
+```ruby
+Product.all.jsonb_contains(:data, title: "foo")
+Product.all.jsonb_contains(:data, reviewed_at: 10.minutes.ago, p: 12) # Using the store key
+```
+
+**Note:** Under the hood, `jsonb_contains` uses the [`@>` operator in Postgres](https://www.postgresql.org/docs/9.5/static/functions-json.html) so when you include an array query, the stored array and the array used for the query do not need to match exactly. For example, when queried with `[1, 2]`, records that have arrays of `[2, 1, 3]` will be returned.
+
+### `jsonb_number_where`
+
+Returns all records that match the given criteria.
+
+```ruby
+Product.all.jsonb_number_where(:data, :price_in_cents, :greater_than, 300)
+```
+
+It supports:
+
+* `>`
+* `>=`
+* `greater_than`
+* `greater_than_or_equal_to`
+* `<`
+* `<=`
+* `less_than`
+* `less_than_or_equal_to`
+
+and it is indifferent to strings/symbols.
+
+### `jsonb_time_where`
+
+Returns all records that match the given criteria.
+
+```ruby
+Product.all.jsonb_time_where(:data, :reviewed_at, :before, 2.days.ago)
+```
+
+It supports `before` and `after` and is indifferent to strings/symbols.
 
 ## Single-Table Inheritance
 
@@ -141,8 +200,8 @@ rows can have different values.
 We set up our table with an `jsonb` field:
 
 ```ruby
-# db/migration/<timestamp>_create_players_table.rb
-class CreateVehiclesTable < ActiveRecord::Migration
+# db/migration/<timestamp>_create_players.rb
+class CreateVehicles < ActiveRecord::Migration
   def change
     create_table :vehicles do |t|
       t.string :make
@@ -181,175 +240,21 @@ From here any attributes specific to any sub-class can be stored in the
 `jsonb` column avoiding sparse data.  Indices can also be created on
 individual fields in an `jsonb` column.
 
-This approach was originally concieved by Joe Hirn in [this blog
+This approach was originally conceived by Joe Hirn in [this blog
 post](http://www.devmynd.com/blog/2013-3-single-table-inheritance-hstore-lovely-combination).
 
-## Scopes
+## Validations
 
-JsonbAccessor currently supports several scopes. Let's say we have a class that looks like this:
-
-```ruby
-class Product < ActiveRecord::Base
-  jsonb_accessor :data,
-    approved: :boolean,
-    name: :string,
-    price: :integer,
-    previous_prices: :integer_array,
-    reviewed_at: :date_time
-end
-```
-
-### General Scopes
-
-#### `<jsonb_field>_contains`
-
-**Description:** returns all records that contain matching attributes in the specified `jsonb` field. 
-
-```ruby
-product_1 = Product.create!(name: "foo", approved: true, reviewed_at: 3.days.ago)
-product_2 = Product.create!(name: "bar", approved: true)
-product_3 = Product.create!(name: "foo", approved: false)
-
-Product.data_contains(name: "foo", approved: true) # => [product_1]
-```
-
-**Note:** when including an array attribute, the stored array and the array used for the query do not need to match exactly. For example, when queried with `[1, 2]`, records that have arrays of `[2, 1, 3]` will be returned. 
-
-#### `with_<jsonb_defined_field>`
-
-**Description:** returns all records with the given value in the field. This is defined for all `jsonb_accessor` defined fields. It's a convenience method that allows you to do `Product.with_name("foo")` instead of `Product.data_contains(name: "foo")`.
-
-```ruby
-product_1 = Product.create!(name: "foo")
-product_2 = Product.create!(name: "bar")
-
-Product.with_name("foo") # => [product_1]
-```
-
-**Note:** when including an array attribute, the stored array and the array used for the query do not need to match exactly. For example, when queried with `[1, 2]`, records that have arrays of `[2, 1, 3]` will be returned. 
-
-### Integer, Big Integer, Decimal, and Float Scopes
-
-#### `<jsonb_defined_field>_gt`
-
-**Description:** returns all records with a value that is greater than the argument.
-
-```ruby
-product_1 = Product.create!(price: 10)
-product_2 = Product.create!(price: 11)
-
-Product.price_gt(10) # => [product_2]
-```
-
-#### `<jsonb_defined_field>_gte`
-
-**Description:** returns all records with a value that is greater than or equal to the argument.
-
-```ruby
-product_1 = Product.create!(price: 10)
-product_2 = Product.create!(price: 11)
-product_3 = Product.create!(price: 9)
-
-Product.price_gte(10) # => [product_1, product_2]
-```
-
-#### `<jsonb_defined_field>_lt`
-
-**Description:** returns all records with a value that is less than the argument.
-
-```ruby
-product_1 = Product.create!(price: 10)
-product_2 = Product.create!(price: 11)
-
-Product.price_lt(11) # => [product_1]
-```
-
-#### `<jsonb_defined_field>_lte`
-
-**Description:** returns all records with a value that is less than or equal to the argument.
-
-```ruby
-product_1 = Product.create!(price: 10)
-product_2 = Product.create!(price: 11)
-product_3 = Product.create!(price: 12)
-
-Product.price_lte(11) # => [product_1, product_2]
-```
-
-
-### Boolean Scopes
-
-#### `is_<jsonb_defined_field>`
-
-**Description:** returns all records where the value is `true`.
-
-```ruby
-product_1 = Product.create!(approved: true)
-product_2 = Product.create!(approved: false)
-
-Product.is_approved # => [product_1]
-```
-
-#### `not_<jsonb_defined_field>`
-
-**Description:** returns all records where the value is `false`.
-
-```ruby
-product_1 = Product.create!(approved: true)
-product_2 = Product.create!(approved: false)
-
-Product.not_approved # => [product_2]
-```
-
-### Date, DateTime Scopes
-
-#### `<jsonb_defined_field>_before`
-
-**Description:** returns all records where the value is before the argument. Also supports JSON string arguments.
-
-```ruby
-product_1 = Product.create!(reviewed_at: 3.days.ago)
-product_2 = Product.create!(reviewed_at: 5.days.ago)
-
-Product.reviewed_at_before(4.days.ago) # => [product_2]
-Product.reviewed_at_before(4.days.ago.to_json) # => [product_2]
-```
-
-#### `<jsonb_defined_field>_after`
-
-**Description:** returns all records where the value is after the argument. Also supports JSON string arguments.
-
-```ruby
-product_1 = Product.create!(reviewed_at: 3.days.from_now)
-product_2 = Product.create!(reviewed_at: 5.days.from_now)
-
-Product.reviewed_at_after(4.days.from_now) # => [product_2]
-Product.reviewed_at_after(4.days.from_now.to_json) # => [product_2]
-```
-
-### Array Scopes
-
-#### `<jsonb_defined_fields>_contains`
-
-**Description:** returns all records where the value is contained in the array field.
-
-```ruby
-product_1 = Product.create!(previous_prices: [3])
-product_2 = Product.create!(previous_prices: [4, 5, 6])
-
-Product.previous_prices_contains(5) # => [product_2]
-```
-
-## Migrations
-
-Coming soon...
-
-`jsonb` supports `GIN`, `GIST`, `btree` and `hash` indexes over `json` column. We have plans to add migrations helpers for generating these indexes for you.
+Because this gem promotes attributes nested into the JSON column to first level attributes, most validations should just work. Please leave us feedback if they're not working as expected.
 
 ## Dependencies
 
-- ActiveRecord 4.2
-- Postgres 9.4 (in order to use the [jsonb column type](http://www.postgresql.org/docs/9.4/static/datatype-json.html)).
+- ActiveRecord >= 5.0
+- Postgres >= 9.4 (in order to use the [jsonb column type](http://www.postgresql.org/docs/9.4/static/datatype-json.html)).
+
+## Upgrading
+
+See the [upgrade guide](UPGRADE_GUIDE.md).
 
 ## Development
 

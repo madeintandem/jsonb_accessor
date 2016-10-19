@@ -1,14 +1,11 @@
+# frozen_string_literal: true
 require "active_record"
 
 require "active_record/connection_adapters/postgresql_adapter"
 
 require "jsonb_accessor/version"
-require "jsonb_accessor/fields_map"
-require "jsonb_accessor/helpers"
-require "jsonb_accessor/type_helper"
-require "jsonb_accessor/nested_base"
-require "jsonb_accessor/class_builder"
 require "jsonb_accessor/macro"
+require "jsonb_accessor/query_builder"
 
 module JsonbAccessor
   extend ActiveSupport::Concern
@@ -17,5 +14,5 @@ end
 
 ActiveSupport.on_load(:active_record) do
   ActiveRecord::Base.send(:include, JsonbAccessor)
-  ActiveRecord::Base.send(:include, JsonbAccessor::Helpers)
+  ActiveRecord::Base.send(:include, JsonbAccessor::QueryBuilder)
 end

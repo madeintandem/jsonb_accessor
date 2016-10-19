@@ -1,6 +1,6 @@
+# frozen_string_literal: true
 $LOAD_PATH.unshift File.expand_path("../../lib", __FILE__)
 require "jsonb_accessor"
-require "action_dispatch/middleware/reloader"
 require "pry"
 require "pry-nav"
 require "pry-doc"
@@ -9,75 +9,13 @@ require "database_cleaner"
 require "shoulda-matchers"
 require "yaml"
 
-ActionDispatchAlias = ActionDispatch
-Object.send(:remove_const, :ActionDispatch)
-
-VALUE_FIELDS = [:count, :name, :price]
-TYPED_FIELDS = {
-  title: :string,
-  name_value: :value,
-  id_value: :value,
-  external_id: :integer,
-  amount_floated: :float,
-  admin: :boolean,
-  approved_on: :date,
-  reviewed_at: :date_time,
-  reset_at: :time,
-  precision: :decimal,
-  sequential_data: :array,
-  things: :json,
-  stuff: :jsonb,
-  a_lot_of_things: :json_array,
-  a_lot_of_stuff: :jsonb_array,
-  nicknames: :string_array,
-  rankings: :integer_array,
-  favorited_history: :boolean_array,
-  login_days: :date_array,
-  favorites_at: :date_time_array,
-  prices: :decimal_array,
-  login_times: :time_array,
-  amounts_floated: :float_array,
-  a_big_number: :big_integer,
-  document: {
-    nested: {
-      values: :array,
-      are: :string
-    },
-    here: :string
-  }
-}
-ALL_FIELDS = VALUE_FIELDS + TYPED_FIELDS.keys
-
 class StaticProduct < ActiveRecord::Base
   self.table_name = "products"
   belongs_to :product_category
 end
 
 class Product < StaticProduct
-  jsonb_accessor :options, *VALUE_FIELDS, TYPED_FIELDS
-end
-
-class OtherProduct < ActiveRecord::Base
-  self.table_name = "products"
-  jsonb_accessor :options, title: :string, document: { nested: { are: :string } }
-
-  def options=(value)
-    value["title"] = "new title"
-    super
-  end
-
-  def title=(value)
-    super(value.try(:upcase))
-  end
-
-  def title
-    super.try(:downcase)
-  end
-
-  def reload
-    super
-    :wrapped
-  end
+  jsonb_accessor :options, title: :string, rank: :integer, made_at: :datetime
 end
 
 class ProductCategory < ActiveRecord::Base
@@ -101,11 +39,7 @@ end
 
 RSpec::Matchers.define :attr_accessorize do |attribute_name|
   match do |actual|
-    if actual.respond_to?(attribute_name) && actual.respond_to?("#{attribute_name}=")
-      value = (1..5).to_a.sample
-      actual.send("#{attribute_name}=", value)
-      actual.send(attribute_name) == value
-    end
+    actual.respond_to?(attribute_name) && actual.respond_to?("#{attribute_name}=")
   end
 end
 
@@ -122,15 +56,10 @@ RSpec.configure do |config|
 
   config.filter_run :focus
   config.run_all_when_everything_filtered = true
-
   config.disable_monkey_patching!
-
   config.default_formatter = "doc" if config.files_to_run.one?
-
   config.profile_examples = 0
-
   config.order = :random
-
   Kernel.srand config.seed
 
   config.before :suite do

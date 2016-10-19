@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 # rubocop:disable Lint/UselessAssignment
 
 require "bundler/setup"
@@ -6,11 +7,8 @@ require "jsonb_accessor"
 require "rspec"
 require File.expand_path("../../spec/spec_helper.rb", __FILE__)
 
-ActiveRecord::Base.establish_connection(
-  adapter: "postgresql",
-  database: "jsonb_accessor",
-  username: "postgres"
-)
+dbconfig = YAML.load(File.open("db/config.yml"))
+ActiveRecord::Base.establish_connection(dbconfig["development"])
 
 x = Product.new
 
