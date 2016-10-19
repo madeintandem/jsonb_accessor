@@ -47,8 +47,8 @@ In 0.X.X you could write:
 class Product < ActiveRecord::Base
   jsonb_accessor :data,
     ranking_info: {
-      original_rank: integer,
-      current_rank: integer,
+      original_rank: :integer,
+      current_rank: :integer,
       metadata: {
         ranked_on: :date
       }
