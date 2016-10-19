@@ -1,7 +1,7 @@
 PATH
   remote: ../
   specs:
-    jsonb_accessor (1.0.0.beta)
+    jsonb_accessor (1.0.0.beta.1)
       activerecord (>= 5.0.0)
       pg (>= 0.18.1)
 
