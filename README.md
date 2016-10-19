@@ -8,7 +8,7 @@ It also adds generic scopes for querying `jsonb` columns.
 
 ## 1.0 Beta
 
-This README reflects the 1.0 beta. Method names and interfaces may still change.
+This README reflects the most recent 1.0 beta. Method names and interfaces may still change.
 
 ## Table of Contents
 
@@ -18,6 +18,7 @@ This README reflects the 1.0 beta. Method names and interfaces may still change.
 * [Single-Table Inheritance](#single-table-inheritance)
 * [Dependencies](#dependencies)
 * [Validations](#validations)
+* [Upgrading](#upgrading)
 * [Development](#development)
 * [Contributing](#contributing)
 
@@ -250,6 +251,10 @@ Because this gem promotes attributes nested into the JSON column to first level 
 
 - ActiveRecord >= 5.0
 - Postgres >= 9.4 (in order to use the [jsonb column type](http://www.postgresql.org/docs/9.4/static/datatype-json.html)).
+
+## Upgrading
+
+See the [upgrade guide](UPGRADE_GUIDE.md).
 
 ## Development
 
