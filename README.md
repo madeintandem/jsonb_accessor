@@ -139,7 +139,7 @@ Product.all.jsonb_where(:data, reviewed_at: { before: Time.current }, p: { great
 
 Product.all.data_where(reviewed_at: { before: Time.current }, price: { greater_than: 5 })
 ```
-This scope makes use of the `jsonb_contains`, `jsonb_number_query`, and `jsonb_time_query` `scope`s.
+This scope makes use of the `jsonb_contains`, `jsonb_number_where`, and `jsonb_time_where` `scope`s.
 
 ### `jsonb_contains`
 
@@ -152,12 +152,12 @@ Product.all.jsonb_contains(:data, reviewed_at: 10.minutes.ago, p: 12) # Using th
 
 **Note:** Under the hood, `jsonb_contains` uses the [`@>` operator in Postgres](https://www.postgresql.org/docs/9.5/static/functions-json.html) so when you include an array query, the stored array and the array used for the query do not need to match exactly. For example, when queried with `[1, 2]`, records that have arrays of `[2, 1, 3]` will be returned.
 
-### `jsonb_number_query`
+### `jsonb_number_where`
 
 Returns all records that match the given criteria.
 
 ```ruby
-Product.all.jsonb_number_query(:data, :price_in_cents, :greater_than, 300)
+Product.all.jsonb_number_where(:data, :price_in_cents, :greater_than, 300)
 ```
 
 It supports:
@@ -173,12 +173,12 @@ It supports:
 
 and it is indifferent to strings/symbols.
 
-### `jsonb_time_query`
+### `jsonb_time_where`
 
 Returns all records that match the given criteria.
 
 ```ruby
-Product.all.jsonb_time_query(:data, :reviewed_at, :before, 2.days.ago)
+Product.all.jsonb_time_where(:data, :reviewed_at, :before, 2.days.ago)
 ```
 
 It supports `before` and `after` and is indifferent to strings/symbols.

@@ -46,12 +46,12 @@ module JsonbAccessor
       scope(:jsonb_contains,
         -> (column_name, attributes) { where("#{table_name}.#{column_name} @> (?)::jsonb", attributes.to_json) })
 
-      scope(:jsonb_number_query, lambda do |column_name, field_name, given_operator, value|
+      scope(:jsonb_number_where, lambda do |column_name, field_name, given_operator, value|
         operator = JsonbAccessor::NUMBER_OPERATORS_MAP.fetch(given_operator.to_s)
         where("(#{table_name}.#{column_name} ->> ?)::float #{operator} ?", field_name, value)
       end)
 
-      scope(:jsonb_time_query, lambda do |column_name, field_name, given_operator, value|
+      scope(:jsonb_time_where, lambda do |column_name, field_name, given_operator, value|
         operator = JsonbAccessor::TIME_OPERATORS_MAP.fetch(given_operator.to_s)
         where("(#{table_name}.#{column_name} ->> ?)::timestamp #{operator} ?", field_name, value)
       end)
@@ -63,9 +63,9 @@ module JsonbAccessor
         attributes.each do |name, value|
           case value
           when IS_NUMBER_QUERY_ARGUMENTS
-            value.each { |operator, query_value| query = query.jsonb_number_query(column_name, name, operator, query_value) }
+            value.each { |operator, query_value| query = query.jsonb_number_where(column_name, name, operator, query_value) }
           when IS_TIME_QUERY_ARGUMENTS
-            value.each { |operator, query_value| query = query.jsonb_time_query(column_name, name, operator, query_value) }
+            value.each { |operator, query_value| query = query.jsonb_time_where(column_name, name, operator, query_value) }
           else
             contains_attributes[name] = value
           end

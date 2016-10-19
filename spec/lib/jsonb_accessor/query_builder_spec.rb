@@ -38,7 +38,7 @@ RSpec.describe JsonbAccessor::QueryBuilder do
     end
   end
 
-  describe "#jsonb_number_query" do
+  describe "#jsonb_number_where" do
     let!(:high_rank_record) { Product.create!(rank: 5) }
     let!(:middle_rank_record) { Product.create!(rank: 4) }
     let!(:low_rank_record) { Product.create!(rank: 0) }
@@ -47,7 +47,7 @@ RSpec.describe JsonbAccessor::QueryBuilder do
     context "greater than" do
       it "is matching records" do
         [:>, :greater_than, :gt, ">", "greater_than", "gt"].each do |operator|
-          query = subject.jsonb_number_query(:options, :rank, operator, middle_rank_record.rank)
+          query = subject.jsonb_number_where(:options, :rank, operator, middle_rank_record.rank)
           expect(query).to exist
           expect(query).to eq([high_rank_record])
         end
@@ -57,7 +57,7 @@ RSpec.describe JsonbAccessor::QueryBuilder do
     context "less than" do
       it "is matching records" do
         [:<, :less_than, :lt, "<", "less_than", "lt"].each do |operator|
-          query = subject.jsonb_number_query(:options, :rank, operator, middle_rank_record.rank)
+          query = subject.jsonb_number_where(:options, :rank, operator, middle_rank_record.rank)
           expect(query).to exist
           expect(query).to eq([low_rank_record])
         end
@@ -67,7 +67,7 @@ RSpec.describe JsonbAccessor::QueryBuilder do
     context "less than or equal to" do
       it "is matching records" do
         [:<=, :less_than_or_equal_to, :lte, "<=", "less_than_or_equal_to", "lte"].each do |operator|
-          query = subject.jsonb_number_query(:options, :rank, operator, middle_rank_record.rank)
+          query = subject.jsonb_number_where(:options, :rank, operator, middle_rank_record.rank)
           expect(query).to exist
           expect(query).to match_array([low_rank_record, middle_rank_record])
         end
@@ -77,7 +77,7 @@ RSpec.describe JsonbAccessor::QueryBuilder do
     context "greater than or equal to" do
       it "is matching records" do
         [:>=, :greater_than_or_equal_to, :gte, ">=", "greater_than_or_equal_to", "gte"].each do |operator|
-          query = subject.jsonb_number_query(:options, :rank, operator, middle_rank_record.rank)
+          query = subject.jsonb_number_where(:options, :rank, operator, middle_rank_record.rank)
           expect(query).to exist
           expect(query).to match_array([high_rank_record, middle_rank_record])
         end
@@ -85,7 +85,7 @@ RSpec.describe JsonbAccessor::QueryBuilder do
     end
   end
 
-  describe "#jsonb_time_query" do
+  describe "#jsonb_time_where" do
     let!(:early_record) { Product.create!(made_at: 10.days.ago) }
     let!(:late_record) { Product.create!(made_at: 2.days.from_now) }
     subject { Product.all }
@@ -93,7 +93,7 @@ RSpec.describe JsonbAccessor::QueryBuilder do
     context "before" do
       it "is matching records" do
         [:before, "before"].each do |operator|
-          query = subject.jsonb_time_query(:options, :made_at, operator, Time.current)
+          query = subject.jsonb_time_where(:options, :made_at, operator, Time.current)
           expect(query).to exist
           expect(query).to eq([early_record])
         end
@@ -103,7 +103,7 @@ RSpec.describe JsonbAccessor::QueryBuilder do
     context "after" do
       it "is matching records" do
         [:after, "after"].each do |operator|
-          query = subject.jsonb_time_query(:options, :made_at, operator, Time.current)
+          query = subject.jsonb_time_where(:options, :made_at, operator, Time.current)
           expect(query).to exist
           expect(query).to eq([late_record])
         end
