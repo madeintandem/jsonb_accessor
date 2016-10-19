@@ -4,6 +4,8 @@
 
 Adds typed `jsonb` backed fields as first class citizens to your `ActiveRecord` models. This gem is similar in spirit to [HstoreAccessor](https://github.com/devmynd/hstore_accessor), but the `jsonb` column in PostgreSQL has a few distinct advantages, mostly around nested documents and support for collections.
 
+It also adds generic scopes for querying `jsonb` columns.
+
 ## 1.0 Beta
 
 This README reflects the 1.0 beta. Method names and interfaces may still change.
@@ -86,7 +88,9 @@ product.data #=> { "t" => "Foo" }
 
 ## Scopes
 
-Let's say we have a class that looks like this:
+Jsonb Accessor provides several scopes to make it easier to query `jsonb` columns. `jsonb_contains`, `jsonb_number_where`, `jsonb_time_where`, and `jsonb_where` are available on all `ActiveRecord::Base` subclasses and don't require that you make use of the `jsonb_accessor` declaration.
+
+If a class does have a `jsonb_accessor` declaration, then we define one custom scope. So, let's say we have a class that looks like this:
 
 ```ruby
 class Product < ActiveRecord::Base
