@@ -27,7 +27,7 @@ This README reflects the most recent 1.0 beta. Method names and interfaces may s
 Add this line to your application's `Gemfile`:
 
 ```ruby
-gem "jsonb_accessor"
+gem "jsonb_accessor", "1.0.0.beta.1"
 ```
 
 And then execute:
