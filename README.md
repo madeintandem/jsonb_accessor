@@ -1,6 +1,6 @@
 # JSONb Accessor
 
-Created by <img src="https://raw.githubusercontent.com/devmynd/jsonb_accessor/master/devmynd-logo.png" alt="DevMynd Logo" /> [![Gem Version](https://badge.fury.io/rb/jsonb_accessor.svg)](http://badge.fury.io/rb/jsonb_accessor) [![Build Status](https://travis-ci.org/devmynd/jsonb_accessor.svg)](https://travis-ci.org/devmynd/jsonb_accessor)
+Created by [<img src="https://raw.githubusercontent.com/devmynd/jsonb_accessor/master/devmynd-logo.png" alt="DevMynd Logo" />](https://www.devmynd.com/) [![Gem Version](https://badge.fury.io/rb/jsonb_accessor.svg)](http://badge.fury.io/rb/jsonb_accessor) [![Build Status](https://travis-ci.org/devmynd/jsonb_accessor.svg)](https://travis-ci.org/devmynd/jsonb_accessor)
 
 <img src="https://raw.githubusercontent.com/devmynd/jsonb_accessor/master/json-bee.png" alt="JSONb Accessor Logo" align="right" />
 
