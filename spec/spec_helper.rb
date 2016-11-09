@@ -11,11 +11,12 @@ require "yaml"
 
 class StaticProduct < ActiveRecord::Base
   self.table_name = "products"
+  jsonb_accessor :options, title: :string
   belongs_to :product_category
 end
 
 class Product < StaticProduct
-  jsonb_accessor :options, title: :string, rank: :integer, made_at: :datetime
+  jsonb_accessor :options, rank: :integer, made_at: :datetime
 end
 
 class ProductCategory < ActiveRecord::Base
