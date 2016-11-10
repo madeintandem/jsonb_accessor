@@ -239,4 +239,14 @@ RSpec.describe JsonbAccessor do
       expect(instance.options).to eq("f" => "foo")
     end
   end
+
+  describe "having non jsonb accessor declared fields" do
+    let!(:static_product) { StaticProduct.create!(options: { "foo" => 5 }) }
+    let(:product) { Product.find(static_product.id) }
+
+    it "does not raise an error" do
+      expect { product }.to_not raise_error
+      expect(product.options).to eq(static_product.options)
+    end
+  end
 end
