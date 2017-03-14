@@ -9,7 +9,8 @@ RSpec.describe JsonbAccessor do
         foo: :string,
         bar: :integer,
         baz: [:integer, array: true],
-        bazzle: [:integer, default: 5]
+        bazzle: [:integer, default: 5],
+        foozle: [:string, default: 'My default']
     end
   end
   let(:instance) { klass.new }
@@ -49,6 +50,10 @@ RSpec.describe JsonbAccessor do
     it "supports defaults" do
       expect(instance.bazzle).to eq(5)
     end
+
+    it "supports defaults on original hash" do
+      expect(instance.options['foozle']).to eq('My default')
+    end
   end
 
   context "getters" do
@@ -81,17 +86,18 @@ RSpec.describe JsonbAccessor do
     it "updates the jsonb column" do
       foo = "foo"
       instance.foo = foo
-      expect(instance.options).to eq("foo" => foo)
+      expect(instance.options["foo"]).to eq(foo)
 
       bar = 17
       instance.bar = bar
-      expect(instance.options).to eq("foo" => foo, "bar" => bar)
+      expect(instance.options["foo"]).to eq(foo)
+      expect(instance.options["bar"]).to eq(bar)
     end
 
     it "is overridable" do
       instance.foo = "FOO"
       expect(instance.foo).to eq("foo")
-      expect(instance.options).to eq("foo" => "foo")
+      expect(instance.options["foo"]).to eq("foo")
     end
   end
 
@@ -241,7 +247,7 @@ RSpec.describe JsonbAccessor do
   end
 
   describe "having non jsonb accessor declared fields" do
-    let!(:static_product) { StaticProduct.create!(options: { "foo" => 5 }) }
+    let!(:static_product) { StaticProduct.create!(options: {"foo"=>5, "title"=>nil, "rank"=>nil, "made_at"=>nil}) }
     let(:product) { Product.find(static_product.id) }
 
     it "does not raise an error" do
