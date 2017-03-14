@@ -31,12 +31,12 @@ module JsonbAccessor
 
   IS_NUMBER_QUERY_ARGUMENTS = lambda do |arg|
     arg.is_a?(Hash) &&
-      arg.keys.map(&:to_s).all? { |key| JsonbAccessor::NUMBER_OPERATORS.include?(key) }
+    arg.keys.map(&:to_s).all? { |key| JsonbAccessor::NUMBER_OPERATORS.include?(key) }
   end
 
   IS_TIME_QUERY_ARGUMENTS = lambda do |arg|
     arg.is_a?(Hash) &&
-      arg.keys.map(&:to_s).all? { |key| JsonbAccessor::TIME_OPERATORS.include?(key) }
+    arg.keys.map(&:to_s).all? { |key| JsonbAccessor::TIME_OPERATORS.include?(key) }
   end
 
   module QueryBuilder
