@@ -103,7 +103,7 @@ class Product < ActiveRecord::Base
 end
 ```
 
-Jsonb Accessor will add a `scope` to `Product` called `data_where`.
+Jsonb Accessor will add a `scope` to `Product` called like the json column with `_where` suffix, in our case `data_where`.
 
 ```ruby
 Product.all.data_where(name: "Granite Towel", price: 17)
