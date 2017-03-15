@@ -121,6 +121,53 @@ RSpec.describe JsonbAccessor::QueryBuilder do
     end
   end
 
+  describe "#jsonb_number_where_not" do
+    let!(:high_rank_record) { Product.create!(rank: 5) }
+    let!(:middle_rank_record) { Product.create!(rank: 4) }
+    let!(:low_rank_record) { Product.create!(rank: 0) }
+    subject { Product.all }
+
+    context "greater than" do
+      it "excludes matching records" do
+        [:>, :greater_than, :gt, ">", "greater_than", "gt"].each do |operator|
+          query = subject.jsonb_number_where_not(:options, :rank, operator, middle_rank_record.rank)
+          expect(query).to exist
+          expect(query).to match_array([low_rank_record, middle_rank_record])
+        end
+      end
+    end
+
+    context "less than" do
+      it "excludes matching records" do
+        [:<, :less_than, :lt, "<", "less_than", "lt"].each do |operator|
+          query = subject.jsonb_number_where_not(:options, :rank, operator, middle_rank_record.rank)
+          expect(query).to exist
+          expect(query).to match_array([high_rank_record, middle_rank_record])
+        end
+      end
+    end
+
+    context "less than or equal to" do
+      it "excludes matching records" do
+        [:<=, :less_than_or_equal_to, :lte, "<=", "less_than_or_equal_to", "lte"].each do |operator|
+          query = subject.jsonb_number_where_not(:options, :rank, operator, middle_rank_record.rank)
+          expect(query).to exist
+          expect(query).to match_array([high_rank_record])
+        end
+      end
+    end
+
+    context "greater than or equal to" do
+      it "excludes matching records" do
+        [:>=, :greater_than_or_equal_to, :gte, ">=", "greater_than_or_equal_to", "gte"].each do |operator|
+          query = subject.jsonb_number_where_not(:options, :rank, operator, middle_rank_record.rank)
+          expect(query).to exist
+          expect(query).to match_array([low_rank_record])
+        end
+      end
+    end
+  end
+
   describe "#jsonb_time_where" do
     let!(:early_record) { Product.create!(made_at: 10.days.ago) }
     let!(:late_record) { Product.create!(made_at: 2.days.from_now) }

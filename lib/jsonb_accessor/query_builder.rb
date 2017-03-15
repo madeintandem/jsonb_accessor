@@ -54,6 +54,11 @@ module JsonbAccessor
         where("(#{table_name}.#{column_name} ->> ?)::float #{operator} ?", field_name, value)
       end)
 
+      scope(:jsonb_number_where_not, lambda do |column_name, field_name, given_operator, value|
+        operator = JsonbAccessor::NUMBER_OPERATORS_MAP.fetch(given_operator.to_s)
+        where.not("(#{table_name}.#{column_name} ->> ?)::float #{operator} ?", field_name, value)
+      end)
+
       scope(:jsonb_time_where, lambda do |column_name, field_name, given_operator, value|
         operator = JsonbAccessor::TIME_OPERATORS_MAP.fetch(given_operator.to_s)
         where("(#{table_name}.#{column_name} ->> ?)::timestamp #{operator} ?", field_name, value)
