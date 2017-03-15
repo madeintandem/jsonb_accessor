@@ -8,6 +8,15 @@ module JsonbAccessor
           _type, options = Array(type)
           mapping[name.to_s] = (options.try(:delete, :store_key) || name).to_s
         end
+
+        names_and_defaults = field_types.each_with_object({}) do |(name, type), mapping|
+          _type, options = Array(type)
+          field_default = options.try(:delete, :default)
+          mapping[name.to_s] = field_default if field_default
+        end
+
+        attribute jsonb_attribute, :jsonb, default: names_and_defaults if names_and_defaults.present?
+
         # Defines virtual attributes for each jsonb field.
         field_types.each do |name, type|
           attribute name, *type

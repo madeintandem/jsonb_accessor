@@ -95,6 +95,41 @@ RSpec.describe JsonbAccessor do
     end
   end
 
+  context "defaults" do
+    let(:klass) do
+      Class.new(ActiveRecord::Base) do
+        self.table_name = "products"
+        jsonb_accessor :options, foo: [:string, default: "bar"]
+      end
+    end
+
+    it "allows defaults" do
+      expect(instance.foo).to eq("bar")
+      expect(instance.options).to eq("foo" => "bar")
+    end
+
+    context "dirty tracking" do
+      let(:default_class) do
+        Class.new(ActiveRecord::Base) do
+          self.table_name = "products"
+          attribute :options, :jsonb, default: {}
+        end
+      end
+      let(:default_instance) { default_class.new }
+
+      it "is dirty the same way that overriding the default for a column via `attribute` dirties the model" do
+        expect(instance).to be_options_changed
+        expect(default_instance).to be_options_changed
+        instance.save!
+        default_instance.save!
+        expect(instance).to_not be_options_changed
+        expect(default_instance).to_not be_options_changed
+        expect(instance.class.find(instance.id)).to_not be_options_changed
+        expect(default_instance.class.find(default_instance.id)).to_not be_options_changed
+      end
+    end
+  end
+
   context "setting the jsonb field directly" do
     let(:klass) do
       Class.new(ActiveRecord::Base) do
