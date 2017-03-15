@@ -49,6 +49,13 @@ module JsonbAccessor
       end
     end
 
+    def self.convert_keys_to_store_keys(attributes, store_key_mapping)
+      attributes.each_with_object({}) do |(name, value), new_attributes|
+        store_key = store_key_mapping[name.to_s]
+        new_attributes[store_key] = value
+      end
+    end
+
     included do
       scope(:jsonb_contains, lambda do |column_name, attributes|
         JsonbAccessor::QueryBuilder.validate_column_name!(all, column_name)

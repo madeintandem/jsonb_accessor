@@ -260,6 +260,26 @@ RSpec.describe JsonbAccessor do
       expect(query).to exist
       expect(query).to eq([matching_record])
     end
+
+    context "inheritance" do
+      let(:subklass) do
+        Class.new(klass) do
+          self.table_name = "products"
+          jsonb_accessor :options, other_title: [:string, store_key: :ot]
+        end
+      end
+      subject { subklass.all }
+
+      it "is records matching the criteria on a subclass" do
+        query = subject.options_where(
+          title: title,
+          rank: { greater_than: 3, less_than: 7 },
+          made_at: { before: 2.days.from_now, after: 2.days.ago }
+        )
+        expect(query).to exist
+        expect(query.pluck(:id)).to eq([matching_record.id])
+      end
+    end
   end
 
   describe "store keys" do
@@ -282,6 +302,65 @@ RSpec.describe JsonbAccessor do
     it "does not raise an error" do
       expect { product }.to_not raise_error
       expect(product.options).to eq(static_product.options)
+    end
+  end
+
+  describe ".jsonb_store_key_mapping_for<jsonb_attribute>" do
+    let(:klass) do
+      Class.new(ActiveRecord::Base) do
+        self.table_name = "products"
+        jsonb_accessor :options, foo: :string, bar: [:integer, store_key: :b]
+      end
+    end
+
+    it "is a mapping of fields to store keys" do
+      expect(klass.jsonb_store_key_mapping_for_options).to eq("foo" => "foo", "bar" => "b")
+    end
+
+    context "inheritance" do
+      let(:subklass) do
+        Class.new(klass) do
+          self.table_name = "products"
+          jsonb_accessor :options, baz: [:integer, store_key: :bz]
+        end
+      end
+
+      it "includes its parent's and its own jsonb attributes" do
+        expect(subklass.jsonb_store_key_mapping_for_options).to eq("foo" => "foo", "bar" => "b", "baz" => "bz")
+      end
+    end
+  end
+
+  describe "inheritance" do
+    let(:parent_class) do
+      Class.new(ActiveRecord::Base) do
+        self.table_name = "products"
+        jsonb_accessor :options, title: :string
+      end
+    end
+
+    let(:child_class) do
+      Class.new(parent_class) do
+        self.table_name = "products"
+        jsonb_accessor :options, other_title: :string
+      end
+    end
+
+    context "initialization" do
+      let(:title) { "some title" }
+      let(:parent) { parent_class.new(title: title) }
+      let(:child) { child_class.new(title: title, other_title: title) }
+
+      it "sets the object with the proper values" do
+        expect(parent.title).to eq(title)
+        expect(child.title).to eq(title)
+        expect(child.other_title).to eq(title)
+        parent.save!
+        child.save!
+        expect(parent_class.find(parent.id).title).to eq(title)
+        expect(child_class.find(child.id).title).to eq(title)
+        expect(child_class.find(child.id).other_title).to eq(title)
+      end
     end
   end
 end

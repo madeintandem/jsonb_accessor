@@ -58,12 +58,18 @@ module JsonbAccessor
           clear_changes_information if persisted?
         end
 
+        store_key_mapping_method_name = "jsonb_store_key_mapping_for_#{jsonb_attribute}"
+        class_methods = Module.new do
+          define_method(store_key_mapping_method_name) do
+            superclass_mapping = superclass.try(store_key_mapping_method_name) || {}
+            superclass_mapping.merge(names_and_store_keys)
+          end
+        end
+        extend class_methods
+
         # <jsonb_attribute>_where scope
         scope("#{jsonb_attribute}_where", lambda do |attributes|
-          store_key_attributes = attributes.each_with_object({}) do |(name, value), new_attributes|
-            store_key = names_and_store_keys[name.to_s]
-            new_attributes[store_key] = value
-          end
+          store_key_attributes = ::JsonbAccessor::QueryBuilder.convert_keys_to_store_keys(attributes, all.model.public_send(store_key_mapping_method_name))
           jsonb_where(jsonb_attribute, store_key_attributes)
         end)
       end
