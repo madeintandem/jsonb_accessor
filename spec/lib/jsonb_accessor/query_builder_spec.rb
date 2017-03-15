@@ -43,6 +43,7 @@ RSpec.describe JsonbAccessor::QueryBuilder do
     let!(:matching_record) { Product.create!(title: title) }
     let!(:other_matching_record) { Product.create!(title: title) }
     let!(:ignored_record) { Product.create!(title: "ignored") }
+
     subject { Product.all }
 
     it "is a collection of records that don't match the query" do
@@ -258,6 +259,51 @@ RSpec.describe JsonbAccessor::QueryBuilder do
           title: title,
           rank: { greater_than: 3, less_than: 7 },
           made_at: { before: 2.days.from_now, after: 2.days.ago }
+        )
+        expect(query).to exist
+        expect(query).to eq([matching_record])
+      end
+    end
+  end
+
+  describe "#jsonb_where_not" do
+    let(:title) { "title" }
+    let!(:matching_record) { Product.create!(title: "not excluded", rank: 3, made_at: 3.years.ago) }
+    let!(:ignored_record) { Product.create!(title: title, rank: 4, made_at: Time.current) }
+    let!(:blank_record) { Product.create! }
+    subject { Product.all }
+
+    context "contains" do
+      it "excludes matching records" do
+        query = subject.jsonb_where_not(:options, title: ignored_record.title)
+        expect(query).to exist
+        expect(query).to eq([matching_record])
+      end
+    end
+
+    context "number queries" do
+      it "excludes records matching the criteria" do
+        query = subject.jsonb_where_not(:options, rank: { greater_than: 3 })
+        expect(query).to exist
+        expect(query).to eq([matching_record])
+      end
+    end
+
+    context "time queries" do
+      it "excludes records matching the criteria" do
+        query = subject.jsonb_where_not(:options, made_at: { after: 2.days.ago })
+        expect(query).to exist
+        expect(query).to eq([matching_record])
+      end
+    end
+
+    context "smoke test" do
+      it "excludes records matching the criteria" do
+        query = subject.jsonb_where_not(
+          :options,
+          title: title,
+          rank: { greater_than: 3 },
+          made_at: { after: 2.days.ago }
         )
         expect(query).to exist
         expect(query).to eq([matching_record])

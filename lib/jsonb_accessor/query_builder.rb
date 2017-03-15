@@ -86,6 +86,24 @@ module JsonbAccessor
 
         query.jsonb_contains(column_name, contains_attributes)
       end)
+
+      scope(:jsonb_where_not, lambda do |column_name, attributes|
+        query = all
+        excludes_attributes = {}
+
+        attributes.each do |name, value|
+          case value
+          when IS_NUMBER_QUERY_ARGUMENTS
+            value.each { |operator, query_value| query = query.jsonb_number_where_not(column_name, name, operator, query_value) }
+          when IS_TIME_QUERY_ARGUMENTS
+            value.each { |operator, query_value| query = query.jsonb_time_where_not(column_name, name, operator, query_value) }
+          else
+            excludes_attributes[name] = value
+          end
+        end
+
+        excludes_attributes.empty? ? query : query.jsonb_excludes(column_name, excludes_attributes)
+      end)
     end
   end
 end
