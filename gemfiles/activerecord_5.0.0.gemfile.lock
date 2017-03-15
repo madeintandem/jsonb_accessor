@@ -1,8 +1,8 @@
 PATH
-  remote: ../
+  remote: ..
   specs:
     jsonb_accessor (1.0.0.beta.2)
-      activerecord (>= 5.0.0)
+      activerecord (>= 5.0)
       pg (>= 0.18.1)
 
 GEM
@@ -137,4 +137,4 @@ DEPENDENCIES
   standalone_migrations
 
 BUNDLED WITH
-   1.13.6
+   1.14.6
