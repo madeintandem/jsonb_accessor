@@ -194,6 +194,32 @@ RSpec.describe JsonbAccessor::QueryBuilder do
     end
   end
 
+  describe "#jsonb_time_where_not" do
+    let!(:early_record) { Product.create!(made_at: 10.days.ago) }
+    let!(:late_record) { Product.create!(made_at: 2.days.from_now) }
+    subject { Product.all }
+
+    context "before" do
+      it "excludes matching records" do
+        [:before, "before"].each do |operator|
+          query = subject.jsonb_time_where_not(:options, :made_at, operator, Time.current)
+          expect(query).to exist
+          expect(query).to eq([late_record])
+        end
+      end
+    end
+
+    context "after" do
+      it "excludes matching records" do
+        [:after, "after"].each do |operator|
+          query = subject.jsonb_time_where_not(:options, :made_at, operator, Time.current)
+          expect(query).to exist
+          expect(query).to eq([early_record])
+        end
+      end
+    end
+  end
+
   describe "#jsonb_where" do
     let(:title) { "title" }
     let!(:matching_record) { Product.create!(title: title, rank: 4, made_at: Time.current) }
