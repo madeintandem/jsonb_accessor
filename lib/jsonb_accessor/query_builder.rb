@@ -41,30 +41,45 @@ module JsonbAccessor
 
   module QueryBuilder
     extend ActiveSupport::Concern
+    InvalidColumnName = Class.new(StandardError)
+
+    def self.validate_column_name!(query, column_name)
+      if query.model.columns.none? { |column| column.name == column_name.to_s }
+        raise InvalidColumnName, "a column named `#{column_name}` does not exist on the `#{query.model.table_name}` table"
+      end
+    end
 
     included do
-      scope(:jsonb_contains,
-        ->(column_name, attributes) { where("#{table_name}.#{column_name} @> (?)::jsonb", attributes.to_json) })
+      scope(:jsonb_contains, lambda do |column_name, attributes|
+        JsonbAccessor::QueryBuilder.validate_column_name!(all, column_name)
+        where("#{table_name}.#{column_name} @> (?)::jsonb", attributes.to_json)
+      end)
 
-      scope(:jsonb_excludes,
-        ->(column_name, attributes) { where.not("#{table_name}.#{column_name} @> (?)::jsonb", attributes.to_json) })
+      scope(:jsonb_excludes, lambda do |column_name, attributes|
+        JsonbAccessor::QueryBuilder.validate_column_name!(all, column_name)
+        where.not("#{table_name}.#{column_name} @> (?)::jsonb", attributes.to_json)
+      end)
 
       scope(:jsonb_number_where, lambda do |column_name, field_name, given_operator, value|
+        JsonbAccessor::QueryBuilder.validate_column_name!(all, column_name)
         operator = JsonbAccessor::NUMBER_OPERATORS_MAP.fetch(given_operator.to_s)
         where("(#{table_name}.#{column_name} ->> ?)::float #{operator} ?", field_name, value)
       end)
 
       scope(:jsonb_number_where_not, lambda do |column_name, field_name, given_operator, value|
+        JsonbAccessor::QueryBuilder.validate_column_name!(all, column_name)
         operator = JsonbAccessor::NUMBER_OPERATORS_MAP.fetch(given_operator.to_s)
         where.not("(#{table_name}.#{column_name} ->> ?)::float #{operator} ?", field_name, value)
       end)
 
       scope(:jsonb_time_where, lambda do |column_name, field_name, given_operator, value|
+        JsonbAccessor::QueryBuilder.validate_column_name!(all, column_name)
         operator = JsonbAccessor::TIME_OPERATORS_MAP.fetch(given_operator.to_s)
         where("(#{table_name}.#{column_name} ->> ?)::timestamp #{operator} ?", field_name, value)
       end)
 
       scope(:jsonb_time_where_not, lambda do |column_name, field_name, given_operator, value|
+        JsonbAccessor::QueryBuilder.validate_column_name!(all, column_name)
         operator = JsonbAccessor::TIME_OPERATORS_MAP.fetch(given_operator.to_s)
         where.not("(#{table_name}.#{column_name} ->> ?)::timestamp #{operator} ?", field_name, value)
       end)

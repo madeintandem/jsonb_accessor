@@ -2,6 +2,33 @@
 require "spec_helper"
 
 RSpec.describe JsonbAccessor::QueryBuilder do
+  describe "validate_column_name!" do
+    subject { JsonbAccessor::QueryBuilder }
+
+    context "when the column exists for the relation" do
+      it "is true" do
+        expect do
+          subject.validate_column_name!(Product.all, :options)
+        end.to_not raise_error
+        expect do
+          subject.validate_column_name!(Product.all, "options")
+        end.to_not raise_error
+      end
+    end
+
+    context "when the column does not exist for the relation" do
+      it "is false" do
+        error_message = "a column named `nope` does not exist on the `products` table"
+        expect do
+          subject.validate_column_name!(Product.all, :nope)
+        end.to raise_error(JsonbAccessor::QueryBuilder::InvalidColumnName, error_message)
+        expect do
+          subject.validate_column_name!(Product.all, "nope")
+        end.to raise_error(JsonbAccessor::QueryBuilder::InvalidColumnName, error_message)
+      end
+    end
+  end
+
   describe ".jsonb_contains" do
     let(:title) { "title" }
     let!(:matching_record) { Product.create!(title: title) }
@@ -20,6 +47,14 @@ RSpec.describe JsonbAccessor::QueryBuilder do
         subject.jsonb_contains(:options, title: "foo\"};delete from products where id = #{matching_record.id}").to_a
       end.to_not raise_error
       expect(subject.count).to eq(3)
+    end
+
+    context "given an invalid column name" do
+      it "raises an error" do
+        expect do
+          subject.jsonb_contains(:nope, title: "foo")
+        end.to raise_error(JsonbAccessor::QueryBuilder::InvalidColumnName)
+      end
     end
 
     context "table names" do
@@ -59,6 +94,14 @@ RSpec.describe JsonbAccessor::QueryBuilder do
       expect(subject.count).to eq(3)
     end
 
+    context "given an invalid column name" do
+      it "raises an error" do
+        expect do
+          subject.jsonb_excludes(:nope, title: "foo")
+        end.to raise_error(JsonbAccessor::QueryBuilder::InvalidColumnName)
+      end
+    end
+
     context "table names" do
       let!(:product_category) { ProductCategory.create!(title: "category") }
 
@@ -80,6 +123,14 @@ RSpec.describe JsonbAccessor::QueryBuilder do
     let!(:middle_rank_record) { Product.create!(rank: 4) }
     let!(:low_rank_record) { Product.create!(rank: 0) }
     subject { Product.all }
+
+    context "given an invalid column name" do
+      it "raises an error" do
+        expect do
+          subject.jsonb_number_where(:nope, :rank, ">", middle_rank_record.rank)
+        end.to raise_error(JsonbAccessor::QueryBuilder::InvalidColumnName)
+      end
+    end
 
     context "greater than" do
       it "is matching records" do
@@ -128,6 +179,14 @@ RSpec.describe JsonbAccessor::QueryBuilder do
     let!(:low_rank_record) { Product.create!(rank: 0) }
     subject { Product.all }
 
+    context "given an invalid column name" do
+      it "raises an error" do
+        expect do
+          subject.jsonb_number_where_not(:nope, :rank, ">", middle_rank_record.rank)
+        end.to raise_error(JsonbAccessor::QueryBuilder::InvalidColumnName)
+      end
+    end
+
     context "greater than" do
       it "excludes matching records" do
         [:>, :greater_than, :gt, ">", "greater_than", "gt"].each do |operator|
@@ -174,6 +233,14 @@ RSpec.describe JsonbAccessor::QueryBuilder do
     let!(:late_record) { Product.create!(made_at: 2.days.from_now) }
     subject { Product.all }
 
+    context "given an invalid column name" do
+      it "raises an error" do
+        expect do
+          subject.jsonb_time_where(:nope, :made_at, "before", Time.current)
+        end.to raise_error(JsonbAccessor::QueryBuilder::InvalidColumnName)
+      end
+    end
+
     context "before" do
       it "is matching records" do
         [:before, "before"].each do |operator|
@@ -199,6 +266,14 @@ RSpec.describe JsonbAccessor::QueryBuilder do
     let!(:early_record) { Product.create!(made_at: 10.days.ago) }
     let!(:late_record) { Product.create!(made_at: 2.days.from_now) }
     subject { Product.all }
+
+    context "given an invalid column name" do
+      it "raises an error" do
+        expect do
+          subject.jsonb_time_where_not(:nope, :made_at, "before", Time.current)
+        end.to raise_error(JsonbAccessor::QueryBuilder::InvalidColumnName)
+      end
+    end
 
     context "before" do
       it "excludes matching records" do
