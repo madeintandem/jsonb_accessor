@@ -59,7 +59,9 @@ module JsonbAccessor
         end
 
         store_key_mapping_method_name = "jsonb_store_key_mapping_for_#{jsonb_attribute}"
+        # Defines methods on the model class
         class_methods = Module.new do
+          # Allows us to get a mapping of field names to store keys scoped to the column
           define_method(store_key_mapping_method_name) do
             superclass_mapping = superclass.try(store_key_mapping_method_name) || {}
             superclass_mapping.merge(names_and_store_keys)
