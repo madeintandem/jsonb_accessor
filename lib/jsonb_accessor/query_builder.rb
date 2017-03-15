@@ -31,12 +31,12 @@ module JsonbAccessor
 
   IS_NUMBER_QUERY_ARGUMENTS = lambda do |arg|
     arg.is_a?(Hash) &&
-    arg.keys.map(&:to_s).all? { |key| JsonbAccessor::NUMBER_OPERATORS.include?(key) }
+      arg.keys.map(&:to_s).all? { |key| JsonbAccessor::NUMBER_OPERATORS.include?(key) }
   end
 
   IS_TIME_QUERY_ARGUMENTS = lambda do |arg|
     arg.is_a?(Hash) &&
-    arg.keys.map(&:to_s).all? { |key| JsonbAccessor::TIME_OPERATORS.include?(key) }
+      arg.keys.map(&:to_s).all? { |key| JsonbAccessor::TIME_OPERATORS.include?(key) }
   end
 
   module QueryBuilder
@@ -44,7 +44,7 @@ module JsonbAccessor
 
     included do
       scope(:jsonb_contains,
-        -> (column_name, attributes) { where("#{table_name}.#{column_name} @> (?)::jsonb", attributes.to_json) })
+        ->(column_name, attributes) { where("#{table_name}.#{column_name} @> (?)::jsonb", attributes.to_json) })
 
       scope(:jsonb_number_where, lambda do |column_name, field_name, given_operator, value|
         operator = JsonbAccessor::NUMBER_OPERATORS_MAP.fetch(given_operator.to_s)

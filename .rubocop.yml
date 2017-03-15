@@ -25,6 +25,10 @@ Metrics/ModuleLength:
   Enabled: false
 Metrics/PerceivedComplexity:
   Enabled: false
+Metrics/BlockLength:
+  Enabled: false
+Security/YAMLLoad:
+  Enabled: false
 Style/AlignParameters:
   Enabled: false
 Style/ClassAndModuleChildren:
