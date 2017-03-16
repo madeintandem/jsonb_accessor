@@ -27,7 +27,7 @@ This README reflects the most recent 1.0 beta. Method names and interfaces may s
 Add this line to your application's `Gemfile`:
 
 ```ruby
-gem "jsonb_accessor", "1.0.0.beta.2"
+gem "jsonb_accessor", "1.0.0.beta.3"
 ```
 
 And then execute:
@@ -71,6 +71,8 @@ class Product < ActiveRecord::Base
 end
 ```
 
+A brief note about defaults: `default` works pretty much as you would expect in practice, but it actually becomes part of a defaults hash that is the `default` value for the jsonb column (in the above example it would be `:data`).
+
 You can also pass in a `store_key` option.
 
 ```ruby
@@ -107,6 +109,12 @@ Jsonb Accessor will add a `scope` to `Product` called like the json column with 
 
 ```ruby
 Product.all.data_where(name: "Granite Towel", price: 17)
+```
+
+Similarly, it will also add a `data_where_not` `scope` to `Product`.
+
+```ruby
+Product.all.data_where_not(name: "Plasma Fork")
 ```
 
 For number fields you can query using `<` or `>`or use plain english if that's what you prefer.
@@ -157,6 +165,15 @@ Product.all.jsonb_contains(:data, reviewed_at: 10.minutes.ago, p: 12) # Using th
 
 **Note:** Under the hood, `jsonb_contains` uses the [`@>` operator in Postgres](https://www.postgresql.org/docs/9.5/static/functions-json.html) so when you include an array query, the stored array and the array used for the query do not need to match exactly. For example, when queried with `[1, 2]`, records that have arrays of `[2, 1, 3]` will be returned.
 
+### `jsonb_excludes`
+
+Returns all records that exclude the given JSON paths. Pretty much the opposite of `jsonb_contains`. Note that this will automatically exclude all records that contain `null` in their jsonb column (the `data` column, in the example below).
+
+```ruby
+Product.all.jsonb_excludes(:data, title: "foo")
+Product.all.jsonb_excludes(:data, reviewed_at: 10.minutes.ago, p: 12) # Using the store key
+```
+
 ### `jsonb_number_where`
 
 Returns all records that match the given criteria.
@@ -178,6 +195,14 @@ It supports:
 
 and it is indifferent to strings/symbols.
 
+### `jsonb_number_where_not`
+
+Returns all records that do not match the given criteria. It's the opposite of `jsonb_number_where`. Note that this will automatically exclude all records that contain `null` in their jsonb column (the `data` column, in the example below).
+
+```ruby
+Product.all.jsonb_number_where_not(:data, :price_in_cents, :greater_than, 300)
+```
+
 ### `jsonb_time_where`
 
 Returns all records that match the given criteria.
@@ -187,6 +212,14 @@ Product.all.jsonb_time_where(:data, :reviewed_at, :before, 2.days.ago)
 ```
 
 It supports `before` and `after` and is indifferent to strings/symbols.
+
+### `jsonb_time_where_not`
+
+Returns all records that match the given criteria. The opposite of `jsonb_time_where`. Note that this will automatically exclude all records that contain `null` in their jsonb column (the `data` column, in the example below).
+
+```ruby
+Product.all.jsonb_time_where_not(:data, :reviewed_at, :before, 2.days.ago)
+```
 
 ## Single-Table Inheritance
 
