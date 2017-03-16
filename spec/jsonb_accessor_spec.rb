@@ -171,47 +171,82 @@ RSpec.describe JsonbAccessor do
       end
     end
 
+    let(:subklass) do
+      Class.new(klass) do
+        self.table_name = "products"
+        jsonb_accessor :options, sub: [:integer, store_key: :s]
+      end
+    end
+
+    let(:subklass_instance) { subklass.new }
+
     before do
       instance.foo = "foo"
       instance.bar = 12
+      subklass_instance.foo = "foo"
+      subklass_instance.bar = 12
+      subklass_instance.sub = 4
     end
 
     it "sets the jsonb field" do
       new_value = { "foo" => "bar" }
       instance.options = new_value
+      subklass_instance.options = new_value
       expect(instance.options).to eq("foo" => "bar", "bar" => nil, "b" => nil)
+      expect(subklass_instance.options).to eq("foo" => "bar", "bar" => nil, "b" => nil, "s" => nil)
     end
 
     it "clears the fields that are not set" do
-      instance.options = { foo: "new foo" }
+      new_value = { foo: "new foo" }
+      instance.options = new_value
+      subklass_instance.options = new_value
       expect(instance.bar).to be_nil
+      expect(subklass_instance.bar).to be_nil
     end
 
     it "sets the fields given in object" do
-      instance.options = { foo: "new foo" }
+      new_value = { foo: "new foo" }
+      instance.options = new_value
+      subklass_instance.options = new_value
       expect(instance.foo).to eq("new foo")
+      expect(subklass_instance.foo).to eq("new foo")
     end
 
     context "when store key is specified" do
       it "maps the store key to the new value" do
-        instance.options = { baz: "baz" }
+        new_value = { baz: "baz" }
+        instance.options = new_value
+        subklass_instance.options = new_value
         expect(instance.baz).to eq("baz")
         expect(instance.options).to eq("b" => "baz", "foo" => nil, "bar" => nil)
+        expect(subklass_instance.baz).to eq("baz")
+        expect(subklass_instance.options).to eq("b" => "baz", "foo" => nil, "bar" => nil, "s" => nil)
       end
 
       it "clears the store key field" do
-        instance.options = { baz: "baz" }
-        instance.options = { foo: "foo" }
+        new_value = { baz: "baz" }
+        instance.options = new_value
+        subklass_instance.options = new_value
+        newer_value = { foo: "foo" }
+        instance.options = newer_value
+        subklass_instance.options = newer_value
+
         expect(instance.baz).to be_nil
         expect(instance.options).to eq("foo" => "foo", "b" => nil, "bar" => nil)
+        expect(subklass_instance.baz).to be_nil
+        expect(subklass_instance.options).to eq("foo" => "foo", "b" => nil, "bar" => nil, "s" => nil)
       end
     end
 
     context "when nil" do
       it "clears all fields" do
         instance.options = nil
+        subklass_instance.options = nil
         expect(instance.foo).to be_nil
         expect(instance.bar).to be_nil
+        expect(subklass_instance.foo).to be_nil
+        expect(subklass_instance.bar).to be_nil
+        expect(subklass_instance.sub).to be_nil
       end
     end
   end
@@ -391,31 +426,48 @@ RSpec.describe JsonbAccessor do
     let(:parent_class) do
       Class.new(ActiveRecord::Base) do
         self.table_name = "products"
-        jsonb_accessor :options, title: :string
+        jsonb_accessor :options, title: :string, rank: [:integer, store_key: :r]
       end
     end
 
     let(:child_class) do
       Class.new(parent_class) do
         self.table_name = "products"
-        jsonb_accessor :options, other_title: :string
+        jsonb_accessor :options, other_title: :string, year: [:integer, store_key: :y]
       end
     end
 
     context "initialization" do
       let(:title) { "some title" }
-      let(:parent) { parent_class.new(title: title) }
-      let(:child) { child_class.new(title: title, other_title: title) }
+      let(:parent) { parent_class.new(title: title, rank: 3) }
+      let(:child) { child_class.new(title: title, other_title: title, rank: 4, year: 1996) }
 
       it "sets the object with the proper values" do
         expect(parent.title).to eq(title)
+        expect(parent.rank).to eq(3)
         expect(child.title).to eq(title)
         expect(child.other_title).to eq(title)
+        expect(child.rank).to eq(4)
+        expect(child.year).to eq(1996)
         parent.save!
         child.save!
-        expect(parent_class.find(parent.id).title).to eq(title)
-        expect(child_class.find(child.id).title).to eq(title)
-        expect(child_class.find(child.id).other_title).to eq(title)
+
+        db_parent = parent_class.find(parent.id)
+        db_child = child_class.find(child.id)
+
+        expect(db_parent.title).to eq(title)
+        expect(db_parent.rank).to eq(3)
+        expect(db_child.title).to eq(title)
+        expect(db_child.other_title).to eq(title)
+        expect(db_child.rank).to eq(4)
+        expect(db_child.year).to eq(1996)
+
+        expect(db_parent.title).to eq(title)
+        expect(db_parent.rank).to eq(3)
+        expect(db_child.title).to eq(title)
+        expect(db_child.other_title).to eq(title)
+        expect(db_child.rank).to eq(4)
+        expect(db_child.year).to eq(1996)
       end
     end
   end
