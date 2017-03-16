@@ -9,14 +9,6 @@ module JsonbAccessor
           mapping[name.to_s] = (options.try(:delete, :store_key) || name).to_s
         end
 
-        names_and_defaults = field_types.each_with_object({}) do |(name, type), mapping|
-          _type, options = Array(type)
-          field_default = options.try(:delete, :default)
-          mapping[name.to_s] = field_default if field_default
-        end
-
-        attribute jsonb_attribute, :jsonb, default: names_and_defaults if names_and_defaults.present?
-
         # Defines virtual attributes for each jsonb field.
         field_types.each do |name, type|
           attribute name, *type
@@ -67,7 +59,30 @@ module JsonbAccessor
             superclass_mapping.merge(names_and_store_keys)
           end
         end
+        # We extend with class methods here so we can use the results of methods it defines to define more useful methods later
         extend class_methods
+
+        # Get field names to default values mapping
+        names_and_defaults = field_types.each_with_object({}) do |(name, type), mapping|
+          _type, options = Array(type)
+          field_default = options.try(:delete, :default)
+          mapping[name.to_s] = field_default if field_default
+        end
+
+        # Get store keys to default values mapping
+        store_keys_and_defaults = ::JsonbAccessor::QueryBuilder.convert_keys_to_store_keys(names_and_defaults, public_send(store_key_mapping_method_name))
+
+        # Define jsonb_defaults_mapping_for_<jsonb_attribute>
+        defaults_mapping_method_name = "jsonb_defaults_mapping_for_#{jsonb_attribute}"
+        class_methods.instance_eval do
+          define_method(defaults_mapping_method_name) do
+            superclass_mapping = superclass.try(defaults_mapping_method_name) || {}
+            superclass_mapping.merge(store_keys_and_defaults)
+          end
+        end
+
+        all_defaults_mapping = public_send(defaults_mapping_method_name)
+        attribute jsonb_attribute, :jsonb, default: all_defaults_mapping if all_defaults_mapping.present?
 
         # <jsonb_attribute>_where scope
         scope("#{jsonb_attribute}_where", lambda do |attributes|

@@ -108,6 +108,36 @@ RSpec.describe JsonbAccessor do
       expect(instance.options).to eq("foo" => "bar")
     end
 
+    context "store keys" do
+      let(:klass) do
+        Class.new(ActiveRecord::Base) do
+          self.table_name = "products"
+          jsonb_accessor :options, foo: [:string, default: "bar", store_key: :f]
+        end
+      end
+
+      it "puts the default value in the jsonb hash at the given store key" do
+        expect(instance.foo).to eq("bar")
+        expect(instance.options).to eq("f" => "bar")
+      end
+
+      context "inheritance" do
+        let(:subklass) do
+          Class.new(klass) do
+            self.table_name = "products"
+            jsonb_accessor :options, bar: [:integer, default: 2, store_key: :o]
+          end
+        end
+        let(:subklass_instance) { subklass.new }
+
+        it "includes default values from the parent in the jsonb hash with the correct store keys" do
+          expect(subklass_instance.foo).to eq("bar")
+          expect(subklass_instance.bar).to eq(2)
+          expect(subklass_instance.options).to eq("f" => "bar", "o" => 2)
+        end
+      end
+    end
+
     context "dirty tracking" do
       let(:default_class) do
         Class.new(ActiveRecord::Base) do
@@ -305,7 +335,7 @@ RSpec.describe JsonbAccessor do
     end
   end
 
-  describe ".jsonb_store_key_mapping_for<jsonb_attribute>" do
+  describe ".jsonb_store_key_mapping_for_<jsonb_attribute>" do
     let(:klass) do
       Class.new(ActiveRecord::Base) do
         self.table_name = "products"
@@ -327,6 +357,32 @@ RSpec.describe JsonbAccessor do
 
       it "includes its parent's and its own jsonb attributes" do
         expect(subklass.jsonb_store_key_mapping_for_options).to eq("foo" => "foo", "bar" => "b", "baz" => "bz")
+      end
+    end
+  end
+
+  describe ".jsonb_defaults_mapping_for_<jsonb_attribute>" do
+    let(:klass) do
+      Class.new(ActiveRecord::Base) do
+        self.table_name = "products"
+        jsonb_accessor :options, bar: [:integer, store_key: :b, default: 2]
+      end
+    end
+
+    it "is a mapping of store keys to defaults" do
+      expect(klass.jsonb_defaults_mapping_for_options).to eq("b" => 2)
+    end
+
+    context "inheritance" do
+      let(:subklass) do
+        Class.new(klass) do
+          self.table_name = "products"
+          jsonb_accessor :options, baz: [:string, store_key: :z, default: 3]
+        end
+      end
+
+      it "is a mapping of store keys to defaults that includes its parent's mapping" do
+        expect(subklass.jsonb_defaults_mapping_for_options).to eq("b" => 2, "z" => 3)
       end
     end
   end
