@@ -89,6 +89,12 @@ module JsonbAccessor
           store_key_attributes = ::JsonbAccessor::QueryBuilder.convert_keys_to_store_keys(attributes, all.model.public_send(store_key_mapping_method_name))
           jsonb_where(jsonb_attribute, store_key_attributes)
         end)
+
+        # <jsonb_attribute>_where_not scope
+        scope("#{jsonb_attribute}_where_not", lambda do |attributes|
+          store_key_attributes = ::JsonbAccessor::QueryBuilder.convert_keys_to_store_keys(attributes, all.model.public_send(store_key_mapping_method_name))
+          jsonb_where_not(jsonb_attribute, store_key_attributes)
+        end)
       end
     end
   end

@@ -347,6 +347,53 @@ RSpec.describe JsonbAccessor do
     end
   end
 
+  describe "#<jsonb_attribute>_where_not" do
+    let(:klass) do
+      Class.new(ActiveRecord::Base) do
+        self.table_name = "products"
+        jsonb_accessor :options,
+          title: [:string, store_key: :t],
+          rank: [:integer, store_key: :r],
+          made_at: [:datetime, store_key: :ma]
+      end
+    end
+    let(:title) { "title" }
+    let!(:matching_record) { klass.create!(title: "foo", rank: 4, made_at: Time.current) }
+    let!(:ignored_record) { klass.create!(title: title, rank: 3, made_at: 3.years.ago) }
+    let!(:blank_record) { klass.create! }
+    subject { klass.all }
+
+    it "excludes records matching the criteria" do
+      query = subject.options_where_not(
+        title: title,
+        rank: { greater_than: 5 },
+        made_at: { before: 1.year.ago }
+      )
+      expect(query).to exist
+      expect(query).to eq([matching_record])
+    end
+
+    context "inheritance" do
+      let(:subklass) do
+        Class.new(klass) do
+          self.table_name = "products"
+          jsonb_accessor :options, other_title: [:string, store_key: :ot]
+        end
+      end
+      subject { subklass.all }
+
+      it "excludes records matching the criteria on a subclass" do
+        query = subject.options_where_not(
+          title: title,
+          rank: { greater_than: 5 },
+          made_at: { before: 1.year.ago }
+        )
+        expect(query).to exist
+        expect(query.pluck(:id)).to eq([matching_record.id])
+      end
+    end
+  end
+
   describe "store keys" do
     let(:klass) do
       Class.new(ActiveRecord::Base) do
