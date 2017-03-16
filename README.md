@@ -154,6 +154,14 @@ Product.all.data_where(reviewed_at: { before: Time.current }, price: { greater_t
 ```
 This scope makes use of the `jsonb_contains`, `jsonb_number_where`, and `jsonb_time_where` `scope`s.
 
+### `jsonb_where_not`
+
+Just the opposite of `jsonb_where`. Note that this will automatically exclude all records that contain `null` in their jsonb column (the `data` column, in the example below).
+
+```ruby
+Product.all.jsonb_where_not(:data, reviewed_at: { before: Time.current }, p: { greater_than: 5 })
+```
+
 ### `jsonb_contains`
 
 Returns all records that contain the given JSON paths.
