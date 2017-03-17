@@ -39,13 +39,31 @@ module JsonbAccessor
       arg.keys.map(&:to_s).all? { |key| JsonbAccessor::TIME_OPERATORS.include?(key) }
   end
 
+  ORDER_DIRECTIONS = [:asc, :desc, "asc", "desc"].freeze
+
   module QueryBuilder
     extend ActiveSupport::Concern
     InvalidColumnName = Class.new(StandardError)
+    InvalidFieldName = Class.new(StandardError)
+    InvalidDirection = Class.new(StandardError)
 
     def self.validate_column_name!(query, column_name)
       if query.model.columns.none? { |column| column.name == column_name.to_s }
         raise InvalidColumnName, "a column named `#{column_name}` does not exist on the `#{query.model.table_name}` table"
+      end
+    end
+
+    def self.validate_field_name!(query, column_name, field_name)
+      store_keys = query.model.public_send("jsonb_store_key_mapping_for_#{column_name}").values
+      if store_keys.exclude?(field_name.to_s)
+        valid_field_names = store_keys.map { |key| "`#{key}`" }.join(", ")
+        raise InvalidFieldName, "`#{field_name}` is not a valid field name, valid field names include: #{valid_field_names}"
+      end
+    end
+
+    def self.validate_direction!(option)
+      if ORDER_DIRECTIONS.exclude?(option)
+        raise InvalidDirection, "`#{option}` is not a valid direction for ordering, only `asc` and `desc` are accepted"
       end
     end
 
@@ -125,6 +143,13 @@ module JsonbAccessor
         end
 
         excludes_attributes.empty? ? query : query.jsonb_excludes(column_name, excludes_attributes)
+      end)
+
+      scope(:jsonb_order, lambda do |column_name, field_name, direction|
+        JsonbAccessor::QueryBuilder.validate_column_name!(all, column_name)
+        JsonbAccessor::QueryBuilder.validate_field_name!(all, column_name, field_name)
+        JsonbAccessor::QueryBuilder.validate_direction!(direction)
+        order("(#{table_name}.#{column_name} -> '#{field_name}') #{direction}")
       end)
     end
   end

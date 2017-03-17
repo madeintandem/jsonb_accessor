@@ -29,6 +29,56 @@ RSpec.describe JsonbAccessor::QueryBuilder do
     end
   end
 
+  describe ".validate_field_name!" do
+    let(:klass) do
+      Class.new(ActiveRecord::Base) do
+        self.table_name = "products"
+        jsonb_accessor :options, title: :string, description: [:string, store_key: :d]
+      end
+    end
+
+    context "given a valid field name" do
+      it "does not raise an error" do
+        expect do
+          subject.validate_field_name!(klass.all, :options, :title)
+          subject.validate_field_name!(klass.all, :options, "title")
+          subject.validate_field_name!(klass.all, :options, "d")
+        end.to_not raise_error
+      end
+    end
+
+    context "given an invalid field name" do
+      it "raises an error" do
+        expect do
+          subject.validate_field_name!(klass.all, :options, "foo")
+        end.to raise_error(
+          JsonbAccessor::QueryBuilder::InvalidFieldName,
+          "`foo` is not a valid field name, valid field names include: `title`, `d`"
+        )
+      end
+    end
+  end
+
+  describe ".validate_direction!" do
+    context "given a valid direction" do
+      it "does not raise an error" do
+        expect do
+          [:asc, :desc, "asc", "desc"].each do |option|
+            subject.validate_direction!(option)
+          end
+        end.to_not raise_error
+      end
+    end
+
+    context "given an invalid direction" do
+      it "raises an error" do
+        expect do
+          subject.validate_direction!(:foo)
+        end.to raise_error(JsonbAccessor::QueryBuilder::InvalidDirection, "`foo` is not a valid direction for ordering, only `asc` and `desc` are accepted")
+      end
+    end
+  end
+
   describe ".convert_keys_to_store_keys" do
     subject { JsonbAccessor::QueryBuilder }
     let(:attributes) { { foo: "bar", bar: "baz" } }
@@ -393,6 +443,43 @@ RSpec.describe JsonbAccessor::QueryBuilder do
         )
         expect(query).to exist
         expect(query).to eq([matching_record])
+      end
+    end
+  end
+
+  describe "#jsonb_order" do
+    let!(:second_product) { Product.create!(title: "B") }
+    let!(:last_product) { Product.create!(title: "C") }
+    let!(:first_product) { Product.create!(title: "A") }
+    let(:ordered_records) { [first_product, second_product, last_product] }
+    subject { Product.all }
+
+    it "orders by the given attribute and direction" do
+      expect(subject.jsonb_order(:options, :title, :asc)).to eq(ordered_records)
+      expect(subject.jsonb_order(:options, :title, :desc)).to eq(ordered_records.reverse)
+    end
+
+    context "given an invalid column name" do
+      it "raises an error" do
+        expect do
+          subject.jsonb_order(:nah, :title, :asc)
+        end.to raise_error(JsonbAccessor::QueryBuilder::InvalidColumnName)
+      end
+    end
+
+    context "given an invalid field" do
+      it "raises an error" do
+        expect do
+          subject.jsonb_order(:options, :nah, :asc)
+        end.to raise_error(JsonbAccessor::QueryBuilder::InvalidFieldName)
+      end
+    end
+
+    context "given an invalid direction" do
+      it "raises an error" do
+        expect do
+          subject.jsonb_order(:options, :title, :nah)
+        end.to raise_error(JsonbAccessor::QueryBuilder::InvalidDirection)
       end
     end
   end
