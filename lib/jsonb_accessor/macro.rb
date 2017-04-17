@@ -1,4 +1,6 @@
 # frozen_string_literal: true
+require 'active_support/core_ext/hash/indifferent_access'
+
 module JsonbAccessor
   module Macro
     module ClassMethods
@@ -56,6 +58,11 @@ module JsonbAccessor
               new_values = (public_send(jsonb_attribute) || {}).merge(store_key => public_send(name))
               write_attribute(jsonb_attribute, new_values)
             end
+          end
+
+          # # Overrides jsonb attribute getter with indifferent access
+          define_method("#{jsonb_attribute}") do
+            (super() || {}).with_indifferent_access
           end
 
           # Overrides the jsonb attribute setter to make sure the jsonb fields are kept in sync.

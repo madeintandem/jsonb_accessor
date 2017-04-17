@@ -49,6 +49,13 @@ RSpec.describe JsonbAccessor do
     it "supports defaults" do
       expect(instance.bazzle).to eq(5)
     end
+
+    it "indifferent accessible" do
+      expect(instance.options).to be_a Hash
+
+      expect(instance.options["bazzle"]).to eq(5)
+      expect(instance.options[:bazzle]).to eq(5)
+    end
   end
 
   context "getters" do
