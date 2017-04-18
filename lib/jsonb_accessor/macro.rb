@@ -1,6 +1,4 @@
 # frozen_string_literal: true
-require 'active_support/core_ext/hash/indifferent_access'
-
 module JsonbAccessor
   module Macro
     module ClassMethods
@@ -60,8 +58,8 @@ module JsonbAccessor
             end
           end
 
-          # # Overrides jsonb attribute getter with indifferent access
-          define_method("#{jsonb_attribute}") do
+          # Overrides jsonb attribute getter with indifferent access or empty hash
+          define_method(jsonb_attribute.to_s) do
             (super() || {}).with_indifferent_access
           end
 
