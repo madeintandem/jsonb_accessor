@@ -108,6 +108,20 @@ RSpec.describe JsonbAccessor do
       expect(instance.options).to eq("foo" => "bar")
     end
 
+    context "false as a default" do
+      let(:klass) do
+        Class.new(ActiveRecord::Base) do
+          self.table_name = "products"
+          jsonb_accessor :options, foo: [:boolean, default: false]
+        end
+      end
+
+      it "allows false" do
+        expect(instance.foo).to eq(false)
+        expect(instance.options).to eq("foo" => false)
+      end
+    end
+
     context "store keys" do
       let(:klass) do
         Class.new(ActiveRecord::Base) do
