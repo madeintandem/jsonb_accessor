@@ -71,16 +71,26 @@ module JsonbAccessor
 
             empty_named_attributes.merge(value).each { |name, attribute_value| write_attribute(name, attribute_value) }
           end
+
         end
         include setters
 
         # Makes sure new objects have the appropriate values in their jsonb fields.
         after_initialize do
           jsonb_values = public_send(jsonb_attribute) || {}
+
+          # attributes  updated to reflect the jsonb_attribute
           jsonb_values.each do |store_key, value|
             name = names_and_store_keys.key(store_key)
             write_attribute(name, value) if name
           end
+
+          # jsonb_attribute updated to reflect what's in attributes (includes default values)
+          names_and_store_keys.each do |key, store_key|
+            jsonb_values[store_key] = read_attribute(key) 
+          end
+          write_attribute(jsonb_attribute, jsonb_values)
+
           clear_changes_information if persisted?
         end
 
