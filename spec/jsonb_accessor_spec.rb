@@ -408,6 +408,37 @@ RSpec.describe JsonbAccessor do
     end
   end
 
+  describe "#<jsonb_attribute_order>" do
+    let(:klass) do
+      Class.new(ActiveRecord::Base) do
+        self.table_name = "products"
+        jsonb_accessor :options, title: :string
+      end
+    end
+
+    let!(:instance_1) { klass.create!(title: "B") }
+    let!(:instance_2) { klass.create!(title: "C") }
+    let!(:instance_3) { klass.create!(title: "A") }
+    let(:ordered_intances) { [instance_3, instance_1, instance_2] }
+
+    it "orders the values" do
+      expect(klass.all.options_order(:title)).to eq(ordered_intances)
+    end
+
+    context "store keys" do
+      let(:klass) do
+        Class.new(ActiveRecord::Base) do
+          self.table_name = "products"
+          jsonb_accessor :options, title: [:string, store_key: :t]
+        end
+      end
+
+      it "orders the values while accounting for store keys" do
+        expect(klass.all.options_order(:title)).to eq(ordered_intances)
+      end
+    end
+  end
+
   describe "store keys" do
     let(:klass) do
       Class.new(ActiveRecord::Base) do

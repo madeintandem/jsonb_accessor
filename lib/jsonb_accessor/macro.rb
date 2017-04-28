@@ -95,6 +95,12 @@ module JsonbAccessor
           store_key_attributes = ::JsonbAccessor::QueryBuilder.convert_keys_to_store_keys(attributes, all.model.public_send(store_key_mapping_method_name))
           jsonb_where_not(jsonb_attribute, store_key_attributes)
         end)
+
+        # <jsonb_attribute>_order scope
+        scope("#{jsonb_attribute}_order", lambda do |attribute, direction = nil|
+          key = all.model.public_send(store_key_mapping_method_name)[attribute.to_s]
+          jsonb_order(jsonb_attribute, key, direction || :asc)
+        end)
       end
     end
   end
