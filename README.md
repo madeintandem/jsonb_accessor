@@ -1,6 +1,8 @@
 # JSONb Accessor
 
-Created by [<img src="https://raw.githubusercontent.com/devmynd/jsonb_accessor/master/devmynd-logo.png" alt="DevMynd Logo" />](https://www.devmynd.com/) [![Gem Version](https://badge.fury.io/rb/jsonb_accessor.svg)](http://badge.fury.io/rb/jsonb_accessor) [![Build Status](https://travis-ci.org/devmynd/jsonb_accessor.svg)](https://travis-ci.org/devmynd/jsonb_accessor) <img src="https://raw.githubusercontent.com/devmynd/jsonb_accessor/master/json-bee.png" alt="JSONb Accessor Logo" align="right" />
+Created by &nbsp;&nbsp;&nbsp; [<img src="https://raw.githubusercontent.com/devmynd/jsonb_accessor/master/devmynd-logo.png" alt="DevMynd Logo" />](https://www.devmynd.com/)
+
+[![Gem Version](https://badge.fury.io/rb/jsonb_accessor.svg)](http://badge.fury.io/rb/jsonb_accessor) &nbsp;&nbsp;&nbsp;[![Build Status](https://travis-ci.org/devmynd/jsonb_accessor.svg)](https://travis-ci.org/devmynd/jsonb_accessor) <img src="https://raw.githubusercontent.com/devmynd/jsonb_accessor/master/json-bee.png" alt="JSONb Accessor Logo" align="right" />
 
 Adds typed `jsonb` backed fields as first class citizens to your `ActiveRecord` models. This gem is similar in spirit to [HstoreAccessor](https://github.com/devmynd/hstore_accessor), but the `jsonb` column in PostgreSQL has a few distinct advantages, mostly around nested documents and support for collections.
 
@@ -71,7 +73,7 @@ class Product < ActiveRecord::Base
 end
 ```
 
-A brief note about defaults: `default` works pretty much as you would expect in practice, but it actually becomes part of a defaults hash that is the `default` value for the jsonb column (in the above example it would be `:data`).
+The `default` option works pretty much as you would expect in practice; if no values are set for the attributes, a hash of the specified default values is saved to the jsonb column.
 
 You can also pass in a `store_key` option.
 
