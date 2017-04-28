@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module JsonbAccessor
   GREATER_THAN = ">"
   GREATER_THAN_OR_EQUAL_TO = ">="

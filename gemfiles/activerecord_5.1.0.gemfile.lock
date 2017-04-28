@@ -133,7 +133,7 @@ DEPENDENCIES
   pry-nav
   rake (~> 10.0)
   rspec (~> 3.2)
-  rubocop (~> 0.31)
+  rubocop (~> 0.48.1)
   shoulda-matchers
   standalone_migrations
 

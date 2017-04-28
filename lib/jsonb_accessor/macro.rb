@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module JsonbAccessor
   module Macro
     module ClassMethods

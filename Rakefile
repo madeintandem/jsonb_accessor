@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require "rubygems"
 require "bundler/setup"
 require "bundler/gem_tasks"
@@ -10,4 +11,4 @@ StandaloneMigrations::Tasks.load_tasks
 RSpec::Core::RakeTask.new
 RuboCop::RakeTask.new
 
-task(default: [:rubocop, :spec])
+task(default: %i[rubocop spec])

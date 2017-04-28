@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require "spec_helper"
 
 RSpec.describe JsonbAccessor do
@@ -42,7 +43,7 @@ RSpec.describe JsonbAccessor do
     end
 
     it "supports arrays" do
-      instance.baz = %w(1 2 3)
+      instance.baz = %w[1 2 3]
       expect(instance.baz).to eq([1, 2, 3])
     end
 

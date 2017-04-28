@@ -59,3 +59,5 @@ Style/SpaceAroundEqualsInParameterDefault:
   Enabled: false
 Style/StringLiterals:
   EnforcedStyle: double_quotes
+Performance/EndWith:
+  Enabled: false
