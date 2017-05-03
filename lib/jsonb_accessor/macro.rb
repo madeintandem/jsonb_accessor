@@ -77,12 +77,14 @@ module JsonbAccessor
 
         # Makes sure new objects have the appropriate values in their jsonb fields.
         after_initialize do
-          jsonb_values = public_send(jsonb_attribute) || {}
-          jsonb_values.each do |store_key, value|
-            name = names_and_store_keys.key(store_key)
-            write_attribute(name, value) if name
+          if has_attribute?(jsonb_attribute)
+            jsonb_values = public_send(jsonb_attribute) || {}
+            jsonb_values.each do |store_key, value|
+              name = names_and_store_keys.key(store_key)
+              write_attribute(name, value) if name
+            end
+            clear_changes_information if persisted?
           end
-          clear_changes_information if persisted?
         end
 
         # <jsonb_attribute>_where scope
