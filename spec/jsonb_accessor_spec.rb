@@ -456,12 +456,16 @@ RSpec.describe JsonbAccessor do
   describe "having non jsonb accessor declared fields" do
     let!(:static_product) { StaticProduct.create!(options: { "foo" => 5 }) }
     let(:product) { Product.find(static_product.id) }
-    let(:products) { Product.select(:string_type).where(nil) }
 
     it "does not raise an error" do
-      expect { products.last }.to_not raise_error
       expect { product }.to_not raise_error
       expect(product.options).to eq(static_product.options)
+    end
+  end
+
+  describe "when excluding the jsonb attribute field from a call to `select`" do
+    it "does not raise an error" do
+      expect { Product.select(:string_type).where(nil).to_a }.to_not raise_error
     end
   end
 
