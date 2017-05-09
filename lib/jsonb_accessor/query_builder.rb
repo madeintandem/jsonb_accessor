@@ -40,6 +40,40 @@ module JsonbAccessor
       arg.keys.map(&:to_s).all? { |key| JsonbAccessor::TIME_OPERATORS.include?(key) }
   end
 
+  CONVERT_NUMBER_RANGES = lambda do |attributes|
+    attributes.each_with_object({}) do |(name, value), new_attributes|
+      is_range = value.is_a?(Range)
+
+      new_attributes[name] = if is_range && value.first.is_a?(Numeric) && value.exclude_end?
+                               { greater_than_or_equal_to: value.first, less_than: value.end }
+                             elsif is_range && value.first.is_a?(Numeric)
+                               { greater_than_or_equal_to: value.first, less_than_or_equal_to: value.end }
+                             else
+                               value
+                             end
+    end
+  end
+
+  CONVERT_TIME_RANGES = lambda do |attributes|
+    attributes.each_with_object({}) do |(name, value), new_attributes|
+      is_range = value.is_a?(Range)
+
+      if is_range && (value.first.is_a?(Time) || value.first.is_a?(Date))
+        start_time = value.first
+        end_time = value.end
+        new_attributes[name] = { before: end_time, after: start_time }
+      else
+        new_attributes[name] = value
+      end
+    end
+  end
+
+  CONVERT_RANGES = lambda do |attributes|
+    [CONVERT_NUMBER_RANGES, CONVERT_TIME_RANGES].reduce(attributes) do |new_attributes, converter|
+      converter.call(new_attributes)
+    end
+  end
+
   ORDER_DIRECTIONS = [:asc, :desc, "asc", "desc"].freeze
 
   module QueryBuilder
@@ -47,6 +81,7 @@ module JsonbAccessor
     InvalidColumnName = Class.new(StandardError)
     InvalidFieldName = Class.new(StandardError)
     InvalidDirection = Class.new(StandardError)
+    NotSupported = Class.new(StandardError)
 
     def self.validate_column_name!(query, column_name)
       if query.model.columns.none? { |column| column.name == column_name.to_s }
@@ -114,7 +149,7 @@ module JsonbAccessor
         query = all
         contains_attributes = {}
 
-        attributes.each do |name, value|
+        JsonbAccessor::CONVERT_RANGES.call(attributes).each do |name, value|
           case value
           when IS_NUMBER_QUERY_ARGUMENTS
             value.each { |operator, query_value| query = query.jsonb_number_where(column_name, name, operator, query_value) }
@@ -133,6 +168,10 @@ module JsonbAccessor
         excludes_attributes = {}
 
         attributes.each do |name, value|
+          if value.is_a?(Range)
+            raise NotSupported, "`jsonb_where_not` scope does not accept ranges as arguments. Given `#{value}` for `#{name}` field"
+          end
+
           case value
           when IS_NUMBER_QUERY_ARGUMENTS
             value.each { |operator, query_value| query = query.jsonb_number_where_not(column_name, name, operator, query_value) }

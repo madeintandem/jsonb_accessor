@@ -361,7 +361,7 @@ RSpec.describe JsonbAccessor::QueryBuilder do
   describe "#jsonb_where" do
     let(:title) { "title" }
     let!(:matching_record) { Product.create!(title: title, rank: 4, made_at: Time.current) }
-    let!(:ignored_record) { Product.create!(title: "ignored", rank: 3, made_at: 3.years.ago) }
+    let!(:ignored_record) { Product.create!(title: "ignored", rank: 8, made_at: 3.years.ago) }
     let!(:blank_record) { Product.create! }
     subject { Product.all }
 
@@ -389,6 +389,38 @@ RSpec.describe JsonbAccessor::QueryBuilder do
       end
     end
 
+    context "number ranges" do
+      it "is records within the range" do
+        query = subject.jsonb_where(:options, rank: 3...6)
+        expect(query).to exist
+        expect(query).to eq([matching_record])
+      end
+
+      context "excluding the end" do
+        it "is the records within the range" do
+          query = subject.jsonb_where(:options, rank: 3...8)
+          expect(query).to exist
+          expect(query).to eq([matching_record])
+        end
+      end
+
+      context "including the end" do
+        it "is the records within the range" do
+          query = subject.jsonb_where(:options, rank: 1..4)
+          expect(query).to exist
+          expect(query).to eq([matching_record])
+        end
+      end
+    end
+
+    context "time ranges" do
+      it "is records within the range" do
+        query = subject.jsonb_where(:options, made_at: 2.days.ago..2.days.from_now)
+        expect(query).to exist
+        expect(query).to eq([matching_record])
+      end
+    end
+
     context "smoke test" do
       it "is records matching the criteria" do
         query = subject.jsonb_where(
@@ -406,7 +438,7 @@ RSpec.describe JsonbAccessor::QueryBuilder do
   describe "#jsonb_where_not" do
     let(:title) { "title" }
     let!(:matching_record) { Product.create!(title: "not excluded", rank: 3, made_at: 3.years.ago) }
-    let!(:ignored_record) { Product.create!(title: title, rank: 4, made_at: Time.current) }
+    let!(:ignored_record) { Product.create!(title: title, rank: 5, made_at: Time.current) }
     let!(:blank_record) { Product.create! }
     subject { Product.all }
 
@@ -431,6 +463,12 @@ RSpec.describe JsonbAccessor::QueryBuilder do
         query = subject.jsonb_where_not(:options, made_at: { after: 2.days.ago })
         expect(query).to exist
         expect(query).to eq([matching_record])
+      end
+    end
+
+    context "ranges" do
+      it "raises an error when any value is a range" do
+        expect { subject.jsonb_where_not(:options, rank: 4...6) }.to raise_error(JsonbAccessor::QueryBuilder::NotSupported, "`jsonb_where_not` scope does not accept ranges as arguments. Given `4...6` for `rank` field")
       end
     end
 
@@ -530,6 +568,92 @@ RSpec.describe JsonbAccessor::QueryBuilder do
       it "is true" do
         expect(subject.call(before: 10, "after" => 5)).to eq(true)
       end
+    end
+  end
+
+  describe "->convert_time_ranges" do
+    subject { JsonbAccessor::CONVERT_TIME_RANGES }
+    let(:start_time) { 3.days.ago }
+    let(:end_time) { 3.days.from_now }
+
+    let(:start_date) { start_time.to_date }
+    let(:end_date) { end_time.to_date }
+
+    context "times" do
+      it "converts time ranges into `before` and `after` hashes" do
+        expect(subject.call(foo: start_time..end_time)).to eq(foo: { after: start_time, before: end_time })
+      end
+    end
+
+    context "dates" do
+      it "converts time ranges into `before` and `after` hashes" do
+        expect(subject.call(foo: start_date..end_date)).to eq(foo: { after: start_date, before: end_date })
+      end
+    end
+
+    context "non ranges" do
+      it "preserves them" do
+        expect(subject.call(foo: start_time)).to eq(foo: start_time)
+        expect(subject.call(bar: 9)).to eq(bar: 9)
+      end
+    end
+
+    context "number ranges" do
+      it "preserves them" do
+        expect(subject.call(foo: 1..3)).to eq(foo: 1..3)
+      end
+    end
+  end
+
+  describe "->convert_number_ranges" do
+    subject { JsonbAccessor::CONVERT_NUMBER_RANGES }
+
+    context "inclusive" do
+      it "is greater than or equal to the start value and less than or equal to the end value" do
+        expect(subject.call(foo: 1..3)).to eq(foo: { greater_than_or_equal_to: 1, less_than_or_equal_to: 3 })
+        expect(subject.call(foo: 1.1..3.3)).to eq(foo: { greater_than_or_equal_to: 1.1, less_than_or_equal_to: 3.3 })
+      end
+    end
+
+    context "exclusive" do
+      it "is greater than or equal to the start value and less than the end value" do
+        expect(subject.call(foo: 1...3)).to eq(foo: { greater_than_or_equal_to: 1, less_than: 3 })
+        expect(subject.call(foo: 1.1...3.3)).to eq(foo: { greater_than_or_equal_to: 1.1, less_than: 3.3 })
+      end
+    end
+
+    context "non ranges" do
+      it "preserves them" do
+        expect(subject.call(foo: "A")).to eq(foo: "A")
+        expect(subject.call(bar: 9)).to eq(bar: 9)
+      end
+    end
+
+    context "date/time ranges" do
+      let(:start_time) { 3.days.ago }
+      let(:end_time) { 3.days.from_now }
+
+      let(:start_date) { start_time.to_date }
+      let(:end_date) { end_time.to_date }
+
+      it "preserves them" do
+        expect(subject.call(foo: start_time..end_time)).to eq(foo: start_time..end_time)
+        expect(subject.call(foo: start_date..end_date)).to eq(foo: start_date..end_date)
+      end
+    end
+  end
+
+  describe "->convert_ranges" do
+    subject { JsonbAccessor::CONVERT_RANGES }
+    let(:start_time) { 3.days.ago }
+    let(:end_time) { 3.days.from_now }
+
+    it "converts number and time ranges" do
+      expected = {
+        foo: { greater_than_or_equal_to: 1, less_than_or_equal_to: 3 },
+        bar: { before: end_time, after: start_time }
+      }
+      expect(subject.call(foo: 1..3, bar: start_time..end_time)).to eq(expected)
     end
   end
 end
