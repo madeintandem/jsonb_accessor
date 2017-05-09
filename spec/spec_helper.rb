@@ -7,7 +7,6 @@ require "pry-nav"
 require "pry-doc"
 require "awesome_print"
 require "database_cleaner"
-require "shoulda-matchers"
 require "yaml"
 
 class StaticProduct < ActiveRecord::Base
@@ -45,8 +44,6 @@ RSpec::Matchers.define :attr_accessorize do |attribute_name|
 end
 
 RSpec.configure do |config|
-  config.include Shoulda::Matchers::Independent
-
   config.expect_with :rspec do |expectations|
     expectations.include_chain_clauses_in_custom_matcher_descriptions = true
   end

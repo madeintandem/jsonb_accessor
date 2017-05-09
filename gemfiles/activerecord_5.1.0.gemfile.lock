@@ -103,8 +103,6 @@ GEM
       ruby-progressbar (~> 1.7)
       unicode-display_width (~> 1.0, >= 1.0.1)
     ruby-progressbar (1.8.1)
-    shoulda-matchers (3.1.1)
-      activesupport (>= 4.0.0)
     slop (3.6.0)
     standalone_migrations (5.2.1)
       activerecord (>= 4.2.7, < 5.2.0)
@@ -134,7 +132,6 @@ DEPENDENCIES
   rake (~> 10.0)
   rspec (~> 3.6.0)
   rubocop (~> 0.48.1)
-  shoulda-matchers
   standalone_migrations
 
 BUNDLED WITH
