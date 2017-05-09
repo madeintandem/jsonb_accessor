@@ -122,7 +122,7 @@ PLATFORMS
 
 DEPENDENCIES
   activerecord (~> 5.1.0)
-  appraisal
+  appraisal (~> 2.2.0)
   awesome_print
   bundler (~> 1.9)
   database_cleaner (~> 1.6.0)

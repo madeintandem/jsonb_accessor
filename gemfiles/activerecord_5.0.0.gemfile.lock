@@ -32,7 +32,7 @@ GEM
       i18n (~> 0.7)
       minitest (~> 5.1)
       tzinfo (~> 1.1)
-    appraisal (2.1.0)
+    appraisal (2.2.0)
       bundler
       rake
       thor (>= 0.14.0)
@@ -122,7 +122,7 @@ PLATFORMS
 
 DEPENDENCIES
   activerecord (~> 5.0.0)
-  appraisal
+  appraisal (~> 2.2.0)
   awesome_print
   bundler (~> 1.9)
   database_cleaner (~> 1.6.0)
