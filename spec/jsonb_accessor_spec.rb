@@ -3,6 +3,13 @@
 require "spec_helper"
 
 RSpec.describe JsonbAccessor do
+  def build_class(jsonb_accessor_config)
+    Class.new(ActiveRecord::Base) do
+      self.table_name = "products"
+      jsonb_accessor :options, jsonb_accessor_config
+    end
+  end
+
   let(:klass) do
     Class.new(ActiveRecord::Base) do
       self.table_name = "products"
@@ -410,29 +417,51 @@ RSpec.describe JsonbAccessor do
   end
 
   describe "#<jsonb_attribute_order>" do
-    let(:klass) do
-      Class.new(ActiveRecord::Base) do
-        self.table_name = "products"
-        jsonb_accessor :options, title: :string
+    context "field name only" do
+      let(:klass) { build_class(title: :string) }
+      let!(:instance_1) { klass.create!(title: "B") }
+      let!(:instance_2) { klass.create!(title: "C") }
+      let!(:instance_3) { klass.create!(title: "A") }
+      let(:ordered_intances) { [instance_3, instance_1, instance_2] }
+
+      it "orders the values" do
+        expect(klass.all.options_order(:title)).to eq(ordered_intances)
       end
     end
 
-    let!(:instance_1) { klass.create!(title: "B") }
-    let!(:instance_2) { klass.create!(title: "C") }
-    let!(:instance_3) { klass.create!(title: "A") }
-    let(:ordered_intances) { [instance_3, instance_1, instance_2] }
+    context "hash argument" do
+      let(:klass) { build_class(title: :string) }
+      let!(:instance_1) { klass.create!(title: "B") }
+      let!(:instance_2) { klass.create!(title: "C") }
+      let!(:instance_3) { klass.create!(title: "A") }
+      let(:ordered_intances) { [instance_2, instance_1, instance_3] }
 
-    it "orders the values" do
-      expect(klass.all.options_order(:title)).to eq(ordered_intances)
+      it "orders the values" do
+        expect(klass.all.options_order(title: :desc)).to eq(ordered_intances)
+      end
+    end
+
+    context "field names and a hash argument" do
+      let(:klass) { build_class(title: :string, rank: :integer, name: :string) }
+      let!(:instance_1) { klass.create!(title: "B", rank: 99, name: "A") }
+      let!(:instance_2) { klass.create!(title: "A", rank: 100, name: "A") }
+      let!(:instance_3) { klass.create!(title: "B", rank: 99, name: "B") }
+      let!(:instance_4) { klass.create!(title: "B", rank: 100, name: "A") }
+      let(:ordered_intances) { [instance_2, instance_4, instance_1, instance_3] }
+      let(:filtered_and_ordered_intances) { [instance_2, instance_4, instance_1] }
+
+      it "orders the values" do
+        expect(klass.all.options_order(:title, rank: :desc, name: :asc)).to eq(ordered_intances)
+        expect(klass.all.options_where(name: "A").options_order(:title, rank: :desc, name: :asc)).to eq(filtered_and_ordered_intances)
+      end
     end
 
     context "store keys" do
-      let(:klass) do
-        Class.new(ActiveRecord::Base) do
-          self.table_name = "products"
-          jsonb_accessor :options, title: [:string, store_key: :t]
-        end
-      end
+      let(:klass) { build_class(title: [:string, store_key: :t]) }
+      let!(:instance_1) { klass.create!(title: "B") }
+      let!(:instance_2) { klass.create!(title: "C") }
+      let!(:instance_3) { klass.create!(title: "A") }
+      let(:ordered_intances) { [instance_3, instance_1, instance_2] }
 
       it "orders the values while accounting for store keys" do
         expect(klass.all.options_order(:title)).to eq(ordered_intances)

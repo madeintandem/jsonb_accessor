@@ -100,9 +100,16 @@ module JsonbAccessor
         end)
 
         # <jsonb_attribute>_order scope
-        scope("#{jsonb_attribute}_order", lambda do |attribute, direction = nil|
-          key = all.model.public_send(store_key_mapping_method_name)[attribute.to_s]
-          jsonb_order(jsonb_attribute, key, direction || :asc)
+        scope("#{jsonb_attribute}_order", lambda do |*args|
+          ordering_options = args.extract_options!
+          order_by_defaults = args.each_with_object({}) { |attribute, config| config[attribute] = :asc }
+          store_key_mapping = all.model.public_send(store_key_mapping_method_name)
+
+          order_by_defaults.merge(ordering_options).reduce(all) do |query, (name, direction)|
+            key = store_key_mapping[name.to_s]
+            order_query = jsonb_order(jsonb_attribute, key, direction)
+            query.merge(order_query)
+          end
         end)
       end
     end
