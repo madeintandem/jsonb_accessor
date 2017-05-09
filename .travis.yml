@@ -1,7 +1,8 @@
 language: ruby
 rvm:
   - 2.2.5
-  - 2.3.1
+  - 2.3.3
+  - 2.4.1
 addons:
   postgresql: '9.4'
 before_install:
