@@ -123,7 +123,7 @@ DEPENDENCIES
   activerecord (~> 5.1.0)
   appraisal (~> 2.2.0)
   awesome_print
-  bundler (~> 1.9)
+  bundler (~> 1.14.0)
   database_cleaner (~> 1.6.0)
   jsonb_accessor!
   pg
