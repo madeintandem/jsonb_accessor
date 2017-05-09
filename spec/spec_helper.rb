@@ -23,20 +23,6 @@ class ProductCategory < ActiveRecord::Base
   has_many :products
 end
 
-RSpec::Matchers.define :alias_the_method do |method_name|
-  match do |actual|
-    if actual.respond_to?(method_name) && actual.respond_to?(@other_method_name)
-      aliased_method = actual.method(@other_method_name)
-      original_method = actual.method(method_name)
-      aliased_method.original_name == original_method.name
-    end
-  end
-
-  chain :to do |other_method_name|
-    @other_method_name = other_method_name
-  end
-end
-
 RSpec::Matchers.define :attr_accessorize do |attribute_name|
   match do |actual|
     actual.respond_to?(attribute_name) && actual.respond_to?("#{attribute_name}=")
