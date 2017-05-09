@@ -34,7 +34,7 @@ module JsonbAccessor
         end
 
         # Get store keys to default values mapping
-        store_keys_and_defaults = ::JsonbAccessor::QueryBuilder.convert_keys_to_store_keys(names_and_defaults, public_send(store_key_mapping_method_name))
+        store_keys_and_defaults = ::JsonbAccessor::QueryHelper.convert_keys_to_store_keys(names_and_defaults, public_send(store_key_mapping_method_name))
 
         # Define jsonb_defaults_mapping_for_<jsonb_attribute>
         defaults_mapping_method_name = "jsonb_defaults_mapping_for_#{jsonb_attribute}"
@@ -67,7 +67,7 @@ module JsonbAccessor
             empty_store_key_attributes = names_to_store_keys.values.each_with_object({}) { |name, defaults| defaults[name] = nil }
             empty_named_attributes = names_to_store_keys.keys.each_with_object({}) { |name, defaults| defaults[name] = nil }
 
-            store_key_attributes = ::JsonbAccessor::QueryBuilder.convert_keys_to_store_keys(value, names_to_store_keys)
+            store_key_attributes = ::JsonbAccessor::QueryHelper.convert_keys_to_store_keys(value, names_to_store_keys)
             write_attribute(jsonb_attribute, empty_store_key_attributes.merge(store_key_attributes))
 
             empty_named_attributes.merge(value).each { |name, attribute_value| write_attribute(name, attribute_value) }
@@ -89,13 +89,13 @@ module JsonbAccessor
 
         # <jsonb_attribute>_where scope
         scope("#{jsonb_attribute}_where", lambda do |attributes|
-          store_key_attributes = ::JsonbAccessor::QueryBuilder.convert_keys_to_store_keys(attributes, all.model.public_send(store_key_mapping_method_name))
+          store_key_attributes = ::JsonbAccessor::QueryHelper.convert_keys_to_store_keys(attributes, all.model.public_send(store_key_mapping_method_name))
           jsonb_where(jsonb_attribute, store_key_attributes)
         end)
 
         # <jsonb_attribute>_where_not scope
         scope("#{jsonb_attribute}_where_not", lambda do |attributes|
-          store_key_attributes = ::JsonbAccessor::QueryBuilder.convert_keys_to_store_keys(attributes, all.model.public_send(store_key_mapping_method_name))
+          store_key_attributes = ::JsonbAccessor::QueryHelper.convert_keys_to_store_keys(attributes, all.model.public_send(store_key_mapping_method_name))
           jsonb_where_not(jsonb_attribute, store_key_attributes)
         end)
 

@@ -6,6 +6,7 @@ require "active_record/connection_adapters/postgresql_adapter"
 
 require "jsonb_accessor/version"
 require "jsonb_accessor/macro"
+require "jsonb_accessor/query_helper"
 require "jsonb_accessor/query_builder"
 
 module JsonbAccessor
