@@ -141,6 +141,14 @@ For time related fields you can query using `before` and `after`.
 Product.all.data_where(reviewed_at: { before: Time.current.beginning_of_week, after: 4.weeks.ago })
 ```
 
+If you want to search for records within a certain time, date, or number range, just pass in the range (Note: this is just shorthand for the above mentioned `before`/`after`/`less_than`/`less_than_or_equal_to`/`greater_than_or_equal_to`/etc options).
+
+```ruby
+Product.all.data_where(price: 10..20)
+Product.all.data_where(price: 10...20)
+Product.all.data_where(reviewed_at: Time.current..3.days.from_now)
+```
+
 This scope is a convenient wrapper around the `jsonb_where` `scope` that saves you from having to convert the given keys to the store keys and from specifying the column.
 
 ### `jsonb_where`
@@ -162,6 +170,27 @@ Just the opposite of `jsonb_where`. Note that this will automatically exclude al
 
 ```ruby
 Product.all.jsonb_where_not(:data, reviewed_at: { before: Time.current }, p: { greater_than: 5 })
+```
+
+### `<jsonb_attribute>_order`
+
+Orders your query according to values in the Jsonb Accessor fields similar to ActiveRecord's `order`.
+
+```ruby
+Product.all.data_order(:price)
+Product.all.data_order(:price, :reviewed_at)
+Product.all.data_order(:price, reviewed_at: :desc)
+```
+
+It will convert your given keys into store keys if necessary.
+
+### `jsonb_order`
+
+Allows you to order by a Jsonb Accessor field.
+
+```ruby
+Product.all.jsonb_order(:data, :price, :asc)
+Product.all.jsonb_order(:data, :price, :desc)
 ```
 
 ### `jsonb_contains`
