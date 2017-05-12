@@ -59,6 +59,11 @@ module JsonbAccessor
             end
           end
 
+          # Overrides jsonb attribute getter with indifferent access or empty hash
+          define_method(jsonb_attribute.to_s) do
+            (super() || {}).with_indifferent_access
+          end
+
           # Overrides the jsonb attribute setter to make sure the jsonb fields are kept in sync.
           define_method("#{jsonb_attribute}=") do |given_value|
             value = given_value || {}

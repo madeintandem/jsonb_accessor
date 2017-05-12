@@ -3,6 +3,7 @@
 require "active_record"
 
 require "active_record/connection_adapters/postgresql_adapter"
+require "active_support/core_ext/hash/indifferent_access"
 
 require "jsonb_accessor/version"
 require "jsonb_accessor/macro"
