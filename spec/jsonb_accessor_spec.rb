@@ -96,20 +96,18 @@ RSpec.describe JsonbAccessor do
     end
   end
 
-  # rubocop:disable GlobalVars
   context "defaults" do
     let(:klass) do
-      build_class(foo: [:string, default: "bar"], baz: [:integer, default: -> { $expected_default }])
+      counter = 0
+      build_class(foo: [:string, default: "bar"], baz: [:integer, default: -> { counter += 1 }])
     end
 
     it "allows defaults (literal and as proc)" do
-      $expected_default = 1
       expect(instance.foo).to eq("bar")
       expect(instance.baz).to eq(1)
       expect(instance.options).to eq("foo" => "bar", "baz" => 1)
 
       # Make sure the default proc is evaluated each time an instance is created
-      $expected_default = 2
       expect(klass.new.baz).to eq(2)
     end
 
@@ -126,19 +124,20 @@ RSpec.describe JsonbAccessor do
 
     context "inheritance" do
       let(:subklass) do
+        counter = 100
         Class.new(klass) do
-          jsonb_accessor :options, bazbaz: [:integer, default: -> { $expected_default }]
+          jsonb_accessor :options, bazbaz: [:integer, default: -> { counter += 1 }]
         end
       end
 
       it "allows procs as default values in both superclasses and subclasses" do
-        $expected_default = 1
-        expect(subklass.new.baz).to eq(1)
-        expect(subklass.new.bazbaz).to eq(1)
+        instance = subklass.new
+        expect(instance.baz).to eq(1)
+        expect(instance.bazbaz).to eq(101)
 
-        $expected_default = 2
-        expect(subklass.new.baz).to eq(2)
-        expect(subklass.new.bazbaz).to eq(2)
+        instance = subklass.new
+        expect(instance.baz).to eq(2)
+        expect(instance.bazbaz).to eq(102)
       end
     end
 
@@ -189,7 +188,6 @@ RSpec.describe JsonbAccessor do
       end
     end
   end
-  # rubocop:enable GlobalVars
 
   context "setting the jsonb field directly" do
     let(:klass) do
