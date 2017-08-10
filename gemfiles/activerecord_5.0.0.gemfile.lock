@@ -1,7 +1,7 @@
 PATH
   remote: ..
   specs:
-    jsonb_accessor (1.0.0.beta.6)
+    jsonb_accessor (1.0.0.beta.7)
       activerecord (>= 5.0)
       activesupport (>= 5.0)
       pg (>= 0.18.1)
@@ -123,7 +123,7 @@ DEPENDENCIES
   activerecord (~> 5.0.0)
   appraisal (~> 2.2.0)
   awesome_print
-  bundler (~> 1.14.0)
+  bundler (~> 1.15.0)
   database_cleaner (~> 1.6.0)
   jsonb_accessor!
   pg
@@ -136,4 +136,4 @@ DEPENDENCIES
   standalone_migrations (~> 5.2.0)
 
 BUNDLED WITH
-   1.14.6
+   1.15.3
