@@ -98,12 +98,17 @@ RSpec.describe JsonbAccessor do
 
   context "defaults" do
     let(:klass) do
-      build_class(foo: [:string, default: "bar"])
+      counter = 0
+      build_class(foo: [:string, default: "bar"], baz: [:integer, default: -> { counter += 1 }])
     end
 
-    it "allows defaults" do
+    it "allows defaults (literal and as proc)" do
       expect(instance.foo).to eq("bar")
-      expect(instance.options).to eq("foo" => "bar")
+      expect(instance.baz).to eq(1)
+      expect(instance.options).to eq("foo" => "bar", "baz" => 1)
+
+      # Make sure the default proc is evaluated each time an instance is created
+      expect(klass.new.baz).to eq(2)
     end
 
     context "false as a default" do
@@ -114,6 +119,25 @@ RSpec.describe JsonbAccessor do
       it "allows false" do
         expect(instance.foo).to eq(false)
         expect(instance.options).to eq("foo" => false)
+      end
+    end
+
+    context "inheritance" do
+      let(:subklass) do
+        counter = 100
+        Class.new(klass) do
+          jsonb_accessor :options, bazbaz: [:integer, default: -> { counter += 1 }]
+        end
+      end
+
+      it "allows procs as default values in both superclasses and subclasses" do
+        instance = subklass.new
+        expect(instance.baz).to eq(1)
+        expect(instance.bazbaz).to eq(101)
+
+        instance = subklass.new
+        expect(instance.baz).to eq(2)
+        expect(instance.bazbaz).to eq(102)
       end
     end
 

@@ -46,7 +46,14 @@ module JsonbAccessor
         end
 
         all_defaults_mapping = public_send(defaults_mapping_method_name)
-        attribute jsonb_attribute, :jsonb, default: all_defaults_mapping if all_defaults_mapping.present?
+        # Fields may have procs as default value. This means `all_defaults_mapping` may contain procs as values. To make this work
+        # with the attributes API, we need to wrap `all_defaults_mapping` with a proc itself, making sure it returns a plain hash
+        # each time it is evaluated.
+        all_defaults_mapping_proc =
+          if all_defaults_mapping.present?
+            -> { all_defaults_mapping.map { |key, value| [key, value.respond_to?(:call) ? value.call : value] }.to_h }
+          end
+        attribute jsonb_attribute, :jsonb, default: all_defaults_mapping_proc if all_defaults_mapping_proc.present?
 
         # Setters are in a module to allow users to override them and still be able to use `super`.
         setters = Module.new do
