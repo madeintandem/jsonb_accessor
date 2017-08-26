@@ -8,10 +8,6 @@ Adds typed `jsonb` backed fields as first class citizens to your `ActiveRecord` 
 
 It also adds generic scopes for querying `jsonb` columns.
 
-## 1.0 Beta
-
-This README reflects the most recent 1.0 beta. Method names and interfaces may still change.
-
 ## Table of Contents
 
 * [Installation](#installation)
@@ -29,7 +25,7 @@ This README reflects the most recent 1.0 beta. Method names and interfaces may s
 Add this line to your application's `Gemfile`:
 
 ```ruby
-gem "jsonb_accessor", "1.0.0.beta.6"
+gem "jsonb_accessor", "~> 1.0.0"
 ```
 
 And then execute:
