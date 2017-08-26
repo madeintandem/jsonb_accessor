@@ -5,7 +5,7 @@ AllCops:
     - db/**/*
     - gemfiles/**/*
     - vendor/**/*
-Lint/SpaceBeforeFirstArg:
+Style/SpaceBeforeFirstArg:
   Enabled: false
 Lint/UnusedBlockArgument:
   Enabled: false
