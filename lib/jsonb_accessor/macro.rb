@@ -4,6 +4,11 @@ module JsonbAccessor
   module Macro
     module ClassMethods
       def jsonb_accessor(jsonb_attribute, field_types)
+        is_array = false
+        if field_types.kind_of?(Array)
+          is_array = true
+          field_types = { jsonb_attribute => field_types }
+        end
         names_and_store_keys = field_types.each_with_object({}) do |(name, type), mapping|
           _type, options = Array(type)
           mapping[name.to_s] = (options.try(:delete, :store_key) || name).to_s
@@ -61,23 +66,25 @@ module JsonbAccessor
           names_and_store_keys.each do |name, store_key|
             define_method("#{name}=") do |value|
               super(value)
-              new_values = (public_send(jsonb_attribute) || {}).merge(store_key => public_send(name))
+              new_values = is_array ? public_send(jsonb_attribute) || names_and_defaults[store_key] : (public_send(jsonb_attribute) || {}).merge(store_key => public_send(name))
               write_attribute(jsonb_attribute, new_values)
             end
           end
 
           # Overrides the jsonb attribute setter to make sure the jsonb fields are kept in sync.
-          define_method("#{jsonb_attribute}=") do |given_value|
-            value = given_value || {}
-            names_to_store_keys = self.class.public_send(store_key_mapping_method_name)
+          unless is_array
+            define_method("#{jsonb_attribute}=") do |given_value|
+              value = given_value || {}
+              names_to_store_keys = self.class.public_send(store_key_mapping_method_name)
 
-            empty_store_key_attributes = names_to_store_keys.values.each_with_object({}) { |name, defaults| defaults[name] = nil }
-            empty_named_attributes = names_to_store_keys.keys.each_with_object({}) { |name, defaults| defaults[name] = nil }
+              empty_store_key_attributes = names_to_store_keys.values.each_with_object({}) { |name, defaults| defaults[name] = nil }
+              empty_named_attributes = names_to_store_keys.keys.each_with_object({}) { |name, defaults| defaults[name] = nil }
 
-            store_key_attributes = ::JsonbAccessor::QueryHelper.convert_keys_to_store_keys(value, names_to_store_keys)
-            write_attribute(jsonb_attribute, empty_store_key_attributes.merge(store_key_attributes))
+              store_key_attributes = ::JsonbAccessor::QueryHelper.convert_keys_to_store_keys(value, names_to_store_keys)
+              write_attribute(jsonb_attribute, empty_store_key_attributes.merge(store_key_attributes))
 
-            empty_named_attributes.merge(value).each { |name, attribute_value| write_attribute(name, attribute_value) }
+              empty_named_attributes.merge(value).each { |name, attribute_value| write_attribute(name, attribute_value) }
+            end
           end
         end
         include setters
