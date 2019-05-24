@@ -81,7 +81,7 @@ module JsonbAccessor
         JsonbAccessor::QueryHelper.validate_column_name!(all, column_name)
         JsonbAccessor::QueryHelper.validate_field_name!(all, column_name, field_name)
         JsonbAccessor::QueryHelper.validate_direction!(direction)
-        order("(#{table_name}.#{column_name} -> '#{field_name}') #{direction}")
+        order(Arel.sql("(#{table_name}.#{column_name} -> '#{field_name}') #{direction}"))
       end)
     end
   end
