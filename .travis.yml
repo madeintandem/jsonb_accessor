@@ -9,7 +9,7 @@ addons:
 before_install:
   - gem update --system
   - gem --version
-  - gem install bundler --version=1.17.3
+  - gem install bundler
 before_script:
   - bundle exec rake db:create
   - bundle exec rake db:migrate
