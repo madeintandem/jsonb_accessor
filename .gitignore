@@ -8,3 +8,4 @@
 /spec/reports/
 /tmp/
 gemfiles/.bundle
+gemfiles/*.gemfile.lock
