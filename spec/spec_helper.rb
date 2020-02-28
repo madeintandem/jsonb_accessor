@@ -49,9 +49,12 @@ RSpec.configure do |config|
   config.before :suite do
     dbconfig = YAML.load(File.open("db/config.yml"))
     ActiveRecord::Base.establish_connection(dbconfig["test"])
+    ActiveRecord::Base.logger = Logger.new(STDOUT, level: :warn)
   end
 
   config.before do
     DatabaseCleaner.clean_with(:truncation)
+    # treat warnings as error
+    expect_any_instance_of(Logger).to_not receive(:warn)
   end
 end
