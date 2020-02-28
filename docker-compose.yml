@@ -1,0 +1,25 @@
+version: '3'
+
+services:
+  ruby:
+    build:
+      args:
+        - "RUBY_VERSION=${RUBY_VERSION:-2.4.1}"
+      context: .
+    volumes:
+    - '.:/usr/src/app'
+    links:
+      - database
+
+  database:
+    image: postgres:12
+    environment:
+      - "POSTGRES_DB=jsonbaccessor"
+      - "POSTGRES_USER=jsonbaccessor"
+      - "POSTGRES_PASSWORD=secret"
+      - "PGDATA=/var/lib/postgresql/data/pgdata"                                                
+    volumes:                                                                                    
+      - "pg_data:/var/lib/postgresql/data/pgdata"
+
+volumes:                                                                                        
+  pg_data:
