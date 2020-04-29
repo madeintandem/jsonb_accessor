@@ -288,6 +288,7 @@ RSpec.describe JsonbAccessor do
       expect(persisted_instance).to_not be_foo_changed
       expect(persisted_instance).to_not be_bar_changed
       expect(persisted_instance).to_not be_options_changed
+      expect(persisted_instance.changes).to be_empty
 
       persisted_instance = klass.find(klass.create!(foo: "foo", bar: "bar").id)
       expect(persisted_instance.foo).to eq("foo")
