@@ -1,6 +1,8 @@
 default: &default
   adapter: postgresql
   database: jsonb_accessor
+  host: 127.0.0.1
+  user: postgres
 
 development:
   <<: *default
