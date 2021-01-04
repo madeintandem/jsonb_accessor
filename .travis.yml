@@ -10,11 +10,9 @@ addons:
   postgresql: '9.4'
 before_install:
   - gem update --system
-  - gem --version
   - gem install bundler
 before_script:
-  - bundle exec rake db:create
-  - bundle exec rake db:migrate
+  - bundle exec rake db:create db:schema:load
 cache: bundler
 gemfile:
   - gemfiles/activerecord_5.0.0.gemfile

@@ -13,7 +13,7 @@ require "active_record"
 include ActiveRecord::Tasks
 
 root = File.expand_path "..", __FILE__
-DatabaseTasks.env = ENV["ENV"] || "development"
+DatabaseTasks.env = "test"
 DatabaseTasks.database_configuration = YAML.load(File.read(File.join(root, "db/config.yml")))
 DatabaseTasks.db_dir = File.join root, "db"
 DatabaseTasks.migrations_paths = [File.join(root, "db/migrate")]
