@@ -5,8 +5,4 @@ source "https://rubygems.org"
 gem "pg"
 gem "activerecord", "~> 5.0.0"
 
-group :development do
-  gem "standalone_migrations", git: "https://github.com/haffla/standalone-migrations.git"
-end
-
 gemspec path: "../"
