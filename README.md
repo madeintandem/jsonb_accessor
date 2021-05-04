@@ -25,7 +25,7 @@ It also adds generic scopes for querying `jsonb` columns.
 Add this line to your application's `Gemfile`:
 
 ```ruby
-gem "jsonb_accessor", "~> 1.0.0"
+gem "jsonb_accessor", "~> 1"
 ```
 
 And then execute:
