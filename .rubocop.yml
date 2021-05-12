@@ -3,7 +3,8 @@ AllCops:
   TargetRubyVersion: 2.7.2
   SuggestExtensions: false
   Exclude:
-    - "gemfiles/**"
+    - "gemfiles/**/*"
+    - "vendor/**/*"
 Layout/SpaceBeforeFirstArg:
   Enabled: false
 Layout/LineLength:
