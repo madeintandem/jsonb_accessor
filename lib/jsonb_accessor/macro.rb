@@ -55,7 +55,7 @@ module JsonbAccessor
         # each time it is evaluated.
         all_defaults_mapping_proc =
           if all_defaults_mapping.present?
-            -> { all_defaults_mapping.map { |key, value| [key, value.respond_to?(:call) ? value.call : value] }.to_h }
+            -> { all_defaults_mapping.transform_values { |value| value.respond_to?(:call) ? value.call : value }.to_h }
           end
         attribute jsonb_attribute, :jsonb, default: all_defaults_mapping_proc if all_defaults_mapping_proc.present?
 

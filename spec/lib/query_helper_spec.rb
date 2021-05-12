@@ -32,7 +32,7 @@ RSpec.describe JsonbAccessor::QueryHelper do
     let(:klass) do
       Class.new(ActiveRecord::Base) do
         self.table_name = "products"
-        jsonb_accessor :options, title: :string, description: [:string, store_key: :d]
+        jsonb_accessor :options, title: :string, description: [:string, { store_key: :d }]
       end
     end
 

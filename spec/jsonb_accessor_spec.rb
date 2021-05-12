@@ -15,8 +15,8 @@ RSpec.describe JsonbAccessor do
     build_class(
       foo: :string,
       bar: :integer,
-      baz: [:integer, array: true],
-      bazzle: [:integer, default: 5]
+      baz: [:integer, { array: true }],
+      bazzle: [:integer, { default: 5 }]
     )
   end
   let(:instance) { klass.new }
@@ -99,7 +99,7 @@ RSpec.describe JsonbAccessor do
   context "defaults" do
     let(:klass) do
       counter = 0
-      build_class(foo: [:string, default: "bar"], baz: [:integer, default: -> { counter += 1 }])
+      build_class(foo: [:string, { default: "bar" }], baz: [:integer, { default: -> { counter += 1 } }])
     end
 
     it "allows defaults (literal and as proc)" do
@@ -113,7 +113,7 @@ RSpec.describe JsonbAccessor do
 
     context "false as a default" do
       let(:klass) do
-        build_class(foo: [:boolean, default: false])
+        build_class(foo: [:boolean, { default: false }])
       end
 
       it "allows false" do
@@ -126,7 +126,7 @@ RSpec.describe JsonbAccessor do
       let(:subklass) do
         counter = 100
         Class.new(klass) do
-          jsonb_accessor :options, bazbaz: [:integer, default: -> { counter += 1 }]
+          jsonb_accessor :options, bazbaz: [:integer, { default: -> { counter += 1 } }]
         end
       end
 
@@ -143,7 +143,7 @@ RSpec.describe JsonbAccessor do
 
     context "store keys" do
       let(:klass) do
-        build_class(foo: [:string, default: "bar", store_key: :f])
+        build_class(foo: [:string, { default: "bar", store_key: :f }])
       end
 
       it "puts the default value in the jsonb hash at the given store key" do
@@ -154,7 +154,7 @@ RSpec.describe JsonbAccessor do
       context "inheritance" do
         let(:subklass) do
           Class.new(klass) do
-            jsonb_accessor :options, bar: [:integer, default: 2, store_key: :o]
+            jsonb_accessor :options, bar: [:integer, { default: 2, store_key: :o }]
           end
         end
         let(:subklass_instance) { subklass.new }
@@ -191,12 +191,12 @@ RSpec.describe JsonbAccessor do
 
   context "setting the jsonb field directly" do
     let(:klass) do
-      build_class(foo: :string, bar: :integer, baz: [:string, store_key: :b])
+      build_class(foo: :string, bar: :integer, baz: [:string, { store_key: :b }])
     end
 
     let(:subklass) do
       Class.new(klass) do
-        jsonb_accessor :options, sub: [:integer, store_key: :s]
+        jsonb_accessor :options, sub: [:integer, { store_key: :s }]
       end
     end
 
@@ -275,7 +275,7 @@ RSpec.describe JsonbAccessor do
 
   context "dirty tracking for already persisted models" do
     let(:klass) do
-      build_class(foo: :string, bar: [:string, store_key: :b])
+      build_class(foo: :string, bar: [:string, { store_key: :b }])
     end
 
     it "is not dirty by default" do
@@ -301,7 +301,7 @@ RSpec.describe JsonbAccessor do
 
   context "dirty tracking for new records" do
     let(:klass) do
-      build_class(foo: :string, bar: [:string, store_key: :b])
+      build_class(foo: :string, bar: [:string, { store_key: :b }])
     end
 
     it "is not dirty by default" do
@@ -316,9 +316,9 @@ RSpec.describe JsonbAccessor do
   describe "#<jsonb_attribute>_where" do
     let(:klass) do
       build_class(
-        title: [:string, store_key: :t],
-        rank: [:integer, store_key: :r],
-        made_at: [:datetime, store_key: :ma]
+        title: [:string, { store_key: :t }],
+        rank: [:integer, { store_key: :r }],
+        made_at: [:datetime, { store_key: :ma }]
       )
     end
     let(:title) { "title" }
@@ -340,7 +340,7 @@ RSpec.describe JsonbAccessor do
     context "inheritance" do
       let(:subklass) do
         Class.new(klass) do
-          jsonb_accessor :options, other_title: [:string, store_key: :ot]
+          jsonb_accessor :options, other_title: [:string, { store_key: :ot }]
         end
       end
       subject { subklass.all }
@@ -360,9 +360,9 @@ RSpec.describe JsonbAccessor do
   describe "#<jsonb_attribute>_where_not" do
     let(:klass) do
       build_class(
-        title: [:string, store_key: :t],
-        rank: [:integer, store_key: :r],
-        made_at: [:datetime, store_key: :ma]
+        title: [:string, { store_key: :t }],
+        rank: [:integer, { store_key: :r }],
+        made_at: [:datetime, { store_key: :ma }]
       )
     end
     let(:title) { "title" }
@@ -385,7 +385,7 @@ RSpec.describe JsonbAccessor do
       let(:subklass) do
         Class.new(klass) do
           self.table_name = "products"
-          jsonb_accessor :options, other_title: [:string, store_key: :ot]
+          jsonb_accessor :options, other_title: [:string, { store_key: :ot }]
         end
       end
       subject { subklass.all }
@@ -443,7 +443,7 @@ RSpec.describe JsonbAccessor do
     end
 
     context "store keys" do
-      let(:klass) { build_class(title: [:string, store_key: :t]) }
+      let(:klass) { build_class(title: [:string, { store_key: :t }]) }
       let!(:instance_1) { klass.create!(title: "B") }
       let!(:instance_2) { klass.create!(title: "C") }
       let!(:instance_3) { klass.create!(title: "A") }
@@ -456,7 +456,7 @@ RSpec.describe JsonbAccessor do
   end
 
   describe "store keys" do
-    let(:klass) { build_class(foo: [:string, store_key: :f]) }
+    let(:klass) { build_class(foo: [:string, { store_key: :f }]) }
 
     it "stores the value at the given key in the jsonb attribute" do
       instance.foo = "foo"
@@ -481,7 +481,7 @@ RSpec.describe JsonbAccessor do
   end
 
   describe ".jsonb_store_key_mapping_for_<jsonb_attribute>" do
-    let(:klass) { build_class(foo: :string, bar: [:integer, store_key: :b]) }
+    let(:klass) { build_class(foo: :string, bar: [:integer, { store_key: :b }]) }
 
     it "is a mapping of fields to store keys" do
       expect(klass.jsonb_store_key_mapping_for_options).to eq("foo" => "foo", "bar" => "b")
@@ -490,7 +490,7 @@ RSpec.describe JsonbAccessor do
     context "inheritance" do
       let(:subklass) do
         Class.new(klass) do
-          jsonb_accessor :options, baz: [:integer, store_key: :bz]
+          jsonb_accessor :options, baz: [:integer, { store_key: :bz }]
         end
       end
 
@@ -501,7 +501,7 @@ RSpec.describe JsonbAccessor do
   end
 
   describe ".jsonb_defaults_mapping_for_<jsonb_attribute>" do
-    let(:klass) { build_class(bar: [:integer, store_key: :b, default: 2]) }
+    let(:klass) { build_class(bar: [:integer, { store_key: :b, default: 2 }]) }
 
     it "is a mapping of store keys to defaults" do
       expect(klass.jsonb_defaults_mapping_for_options).to eq("b" => 2)
@@ -511,7 +511,7 @@ RSpec.describe JsonbAccessor do
       let(:subklass) do
         Class.new(klass) do
           self.table_name = "products"
-          jsonb_accessor :options, baz: [:string, store_key: :z, default: 3]
+          jsonb_accessor :options, baz: [:string, { store_key: :z, default: 3 }]
         end
       end
 
@@ -523,12 +523,12 @@ RSpec.describe JsonbAccessor do
 
   describe "inheritance" do
     let(:parent_class) do
-      build_class(title: :string, rank: [:integer, store_key: :r])
+      build_class(title: :string, rank: [:integer, { store_key: :r }])
     end
 
     let(:child_class) do
       Class.new(parent_class) do
-        jsonb_accessor :options, other_title: :string, year: [:integer, store_key: :y]
+        jsonb_accessor :options, other_title: :string, year: [:integer, { store_key: :y }]
       end
     end
 

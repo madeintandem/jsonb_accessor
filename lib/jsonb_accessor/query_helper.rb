@@ -42,9 +42,7 @@ module JsonbAccessor
 
     class << self
       def validate_column_name!(query, column_name)
-        if query.model.columns.none? { |column| column.name == column_name.to_s }
-          raise InvalidColumnName, "a column named `#{column_name}` does not exist on the `#{query.model.table_name}` table"
-        end
+        raise InvalidColumnName, "a column named `#{column_name}` does not exist on the `#{query.model.table_name}` table" if query.model.columns.none? { |column| column.name == column_name.to_s }
       end
 
       def validate_field_name!(query, column_name, field_name)
@@ -56,9 +54,7 @@ module JsonbAccessor
       end
 
       def validate_direction!(option)
-        if ORDER_DIRECTIONS.exclude?(option)
-          raise InvalidDirection, "`#{option}` is not a valid direction for ordering, only `asc` and `desc` are accepted"
-        end
+        raise InvalidDirection, "`#{option}` is not a valid direction for ordering, only `asc` and `desc` are accepted" if ORDER_DIRECTIONS.exclude?(option)
       end
 
       def convert_keys_to_store_keys(attributes, store_key_mapping)

@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+  ruby:
+    environment:
+      - DATABASE_HOST=postgres
+    build:
+      args:
+        - RUBY_VERSION=${RUBY_VERSION:-2.7.2}
+      context: .
+    volumes:
+      - '.:/usr/src/app'
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:12
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+      - POSTGRES_DB=jsonb_accessor
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:                                                                                    
+      - pg_data:/var/lib/postgresql/data/pgdata
+
+volumes:                                                                                        
+  pg_data:

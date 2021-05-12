@@ -1,11 +1,16 @@
 AllCops:
-  Include:
-    - "**/Rakefile"
+  NewCops: enable
+  TargetRubyVersion: 2.7.2
+  SuggestExtensions: false
   Exclude:
-    - db/**/*
-    - gemfiles/**/*
-    - vendor/**/*
-Style/SpaceBeforeFirstArg:
+    - "db/**/*"
+    - "gemfiles/**/*"
+    - "vendor/**/*"
+Layout/SpaceBeforeFirstArg:
+  Enabled: false
+Layout/LineLength:
+  Enabled: false
+Layout/SpaceAroundEqualsInParameterDefault:
   Enabled: false
 Lint/UnusedBlockArgument:
   Enabled: false
@@ -17,8 +22,6 @@ Metrics/ClassLength:
   Enabled: false
 Metrics/CyclomaticComplexity:
   Enabled: false
-Metrics/LineLength:
-  Enabled: false
 Metrics/MethodLength:
   Enabled: false
 Metrics/ModuleLength:
@@ -29,8 +32,6 @@ Metrics/BlockLength:
   Enabled: false
 Security/YAMLLoad:
   Enabled: false
-Style/AlignParameters:
-  Enabled: false
 Style/ClassAndModuleChildren:
   Enabled: false
 Style/ClassVars:
@@ -39,15 +40,11 @@ Style/Documentation:
   Enabled: false
 Style/DoubleNegation:
   Enabled: false
-Style/FileName:
+Naming/FileName:
   Enabled: false
 Style/GuardClause:
   Enabled: false
-Style/IndentHash:
-  Enabled: false
 Style/NilComparison:
-  Enabled: false
-Style/OpMethod:
   Enabled: false
 Style/RescueModifier:
   Enabled: false
@@ -55,9 +52,11 @@ Style/SignalException:
   Enabled: false
 Style/SingleLineMethods:
   Enabled: false
-Style/SpaceAroundEqualsInParameterDefault:
-  Enabled: false
 Style/StringLiterals:
   EnforcedStyle: double_quotes
-Performance/EndWith:
+Naming/BinaryOperatorParameterName:
+  Enabled: false
+Naming/VariableNumber:
+  Enabled: false
+Gemspec/RequiredRubyVersion:
   Enabled: false

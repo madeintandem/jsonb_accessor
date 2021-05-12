@@ -15,6 +15,6 @@ module JsonbAccessor
 end
 
 ActiveSupport.on_load(:active_record) do
-  ActiveRecord::Base.send(:include, JsonbAccessor)
-  ActiveRecord::Base.send(:include, JsonbAccessor::QueryBuilder)
+  ActiveRecord::Base.include JsonbAccessor
+  ActiveRecord::Base.include JsonbAccessor::QueryBuilder
 end
