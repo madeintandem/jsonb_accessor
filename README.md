@@ -340,7 +340,7 @@ Run `bin/console` for an interactive prompt that will allow you to experiment.
 ```
 # setup
 docker-compose build
-docker-compose run ruby rake db:create db:migrate
+docker-compose run ruby rake db:migrate
 # run test suite
 docker-compose run ruby rake spec
 ```
