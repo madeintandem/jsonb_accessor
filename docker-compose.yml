@@ -2,16 +2,18 @@ version: '3'
 
 services:
   ruby:
+    environment:
+      - DATABASE_HOST=postgres
     build:
       args:
         - RUBY_VERSION=${RUBY_VERSION:-2.7.2}
       context: .
     volumes:
       - '.:/usr/src/app'
-    links:
-      - database
+    depends_on:
+      - postgres
 
-  database:
+  postgres:
     image: postgres:12
     environment:
       - POSTGRES_HOST_AUTH_METHOD=trust

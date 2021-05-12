@@ -10,15 +10,15 @@ It also adds generic scopes for querying `jsonb` columns.
 
 ## Table of Contents
 
-* [Installation](#installation)
-* [Usage](#usage)
-* [Scopes](#scopes)
-* [Single-Table Inheritance](#single-table-inheritance)
-* [Dependencies](#dependencies)
-* [Validations](#validations)
-* [Upgrading](#upgrading)
-* [Development](#development)
-* [Contributing](#contributing)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Scopes](#scopes)
+- [Single-Table Inheritance](#single-table-inheritance)
+- [Dependencies](#dependencies)
+- [Validations](#validations)
+- [Upgrading](#upgrading)
+- [Development](#development)
+- [Contributing](#contributing)
 
 ## Installation
 
@@ -158,6 +158,7 @@ Product.all.jsonb_where(:data, reviewed_at: { before: Time.current }, p: { great
 
 Product.all.data_where(reviewed_at: { before: Time.current }, price: { greater_than: 5 })
 ```
+
 This scope makes use of the `jsonb_contains`, `jsonb_number_where`, and `jsonb_time_where` `scope`s.
 
 ### `jsonb_where_not`
@@ -219,14 +220,14 @@ Product.all.jsonb_number_where(:data, :price_in_cents, :greater_than, 300)
 
 It supports:
 
-* `>`
-* `>=`
-* `greater_than`
-* `greater_than_or_equal_to`
-* `<`
-* `<=`
-* `less_than`
-* `less_than_or_equal_to`
+- `>`
+- `>=`
+- `greater_than`
+- `greater_than_or_equal_to`
+- `<`
+- `<=`
+- `less_than`
+- `less_than_or_equal_to`
 
 and it is indifferent to strings/symbols.
 
@@ -259,9 +260,9 @@ Product.all.jsonb_time_where_not(:data, :reviewed_at, :before, 2.days.ago)
 ## Single-Table Inheritance
 
 One of the big issues with `ActiveRecord` single-table inheritance (STI)
-is sparse columns.  Essentially, as sub-types of the original table
+is sparse columns. Essentially, as sub-types of the original table
 diverge further from their parent more columns are left empty in a given
-table.  Postgres' `jsonb` type provides part of the solution in that
+table. Postgres' `jsonb` type provides part of the solution in that
 the values in an `jsonb` column does not impose a structure - different
 rows can have different values.
 
@@ -305,7 +306,7 @@ end
 ```
 
 From here any attributes specific to any sub-class can be stored in the
-`jsonb` column avoiding sparse data.  Indices can also be created on
+`jsonb` column avoiding sparse data. Indices can also be created on
 individual fields in an `jsonb` column.
 
 This approach was originally conceived by Joe Hirn in [this blog
@@ -326,11 +327,23 @@ See the [upgrade guide](UPGRADE_GUIDE.md).
 
 ## Development
 
+### On your local machine
+
 After checking out the repo, run `bin/setup` to install dependencies (make sure postgres is running first).
 
 Run `bin/console` for an interactive prompt that will allow you to experiment.
 
 `rake` will run Rubocop and the specs.
+
+### With Docker
+
+```
+# setup
+docker-compose build
+docker-compose run ruby rake db:create db:migrate
+# run test suite
+docker-compose run ruby rake spec
+```
 
 ## Contributing
 

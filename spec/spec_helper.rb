@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-$LOAD_PATH.unshift File.expand_path("../../lib", __FILE__)
+$LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 require "jsonb_accessor"
 require "pry"
 require "pry-nav"
@@ -47,7 +47,7 @@ RSpec.configure do |config|
   Kernel.srand config.seed
 
   config.before :suite do
-    dbconfig = YAML.load(File.open("db/config.yml"))
+    dbconfig = YAML.load(ERB.new(File.read(File.join("db", "config.yml"))).result)
     ActiveRecord::Base.establish_connection(dbconfig["test"])
   end
 

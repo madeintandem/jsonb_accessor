@@ -1,7 +1,6 @@
-# coding: utf-8
 # frozen_string_literal: true
 
-lib = File.expand_path("../lib", __FILE__)
+lib = File.expand_path("lib", __dir__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require "jsonb_accessor/version"
 
@@ -27,12 +26,12 @@ Gem::Specification.new do |spec|
   spec.add_dependency "pg", ">= 0.18.1"
 
   spec.add_development_dependency "appraisal", "~> 2.2.0"
-  spec.add_development_dependency "database_cleaner", "~> 1.6.0"
   spec.add_development_dependency "awesome_print"
+  spec.add_development_dependency "database_cleaner", "~> 1.6.0"
   spec.add_development_dependency "pry"
   spec.add_development_dependency "pry-doc"
   spec.add_development_dependency "pry-nav"
   spec.add_development_dependency "rake", ">= 12.3.3"
   spec.add_development_dependency "rspec", "~> 3.6.0"
-  spec.add_development_dependency "rubocop", "~> 0.48.1"
+  spec.add_development_dependency "rubocop", "~> 1"
 end
