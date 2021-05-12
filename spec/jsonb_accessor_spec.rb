@@ -151,6 +151,27 @@ RSpec.describe JsonbAccessor do
         expect(instance.options).to eq("f" => "bar")
       end
 
+      it "allows resetting data with store keys" do
+        instance.options = { "f" => "bar" }
+
+        expect(instance.foo).to eq("bar")
+        expect(instance.options).to eq("f" => "bar")
+      end
+
+      it "allows initializing with store keys" do
+        instance = klass.new({ "options" => { "f" => "bar" } })
+
+        expect(instance.foo).to eq("bar")
+        expect(instance.options).to eq("f" => "bar")
+      end
+
+      it "allows initializing with aliased keys" do
+        instance = klass.new({ "options" => { "foo" => "bar" } })
+
+        expect(instance.foo).to eq("bar")
+        expect(instance.options).to eq("f" => "bar")
+      end
+
       context "inheritance" do
         let(:subklass) do
           Class.new(klass) do

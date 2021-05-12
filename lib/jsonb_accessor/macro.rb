@@ -72,8 +72,8 @@ module JsonbAccessor
 
           # Overrides the jsonb attribute setter to make sure the jsonb fields are kept in sync.
           define_method("#{jsonb_attribute}=") do |given_value|
-            value = given_value || {}
             names_to_store_keys = self.class.public_send(store_key_mapping_method_name)
+            value = (given_value || {}).transform_keys { |key| names_to_store_keys.invert.fetch(key, key) }
 
             empty_store_key_attributes = names_to_store_keys.values.each_with_object({}) { |name, defaults| defaults[name] = nil }
             empty_named_attributes = names_to_store_keys.keys.each_with_object({}) { |name, defaults| defaults[name] = nil }
