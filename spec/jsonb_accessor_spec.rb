@@ -214,8 +214,8 @@ RSpec.describe JsonbAccessor do
       new_value = { "foo" => "bar" }
       instance.options = new_value
       subklass_instance.options = new_value
-      expect(instance.options).to eq("foo" => "bar", "bar" => nil, "b" => nil)
-      expect(subklass_instance.options).to eq("foo" => "bar", "bar" => nil, "b" => nil, "s" => nil)
+      expect(instance.options).to eq("foo" => "bar")
+      expect(subklass_instance.options).to eq("foo" => "bar")
     end
 
     it "clears the fields that are not set" do
@@ -234,17 +234,7 @@ RSpec.describe JsonbAccessor do
       expect(subklass_instance.foo).to eq("new foo")
     end
 
-    context "when store key is specified" do
-      it "maps the store key to the new value" do
-        new_value = { baz: "baz" }
-        instance.options = new_value
-        subklass_instance.options = new_value
-        expect(instance.baz).to eq("baz")
-        expect(instance.options).to eq("b" => "baz", "foo" => nil, "bar" => nil)
-        expect(subklass_instance.baz).to eq("baz")
-        expect(subklass_instance.options).to eq("b" => "baz", "foo" => nil, "bar" => nil, "s" => nil)
-      end
-
+    context "when store key is present" do
       it "clears the store key field" do
         new_value = { baz: "baz" }
         instance.options = new_value
@@ -254,9 +244,9 @@ RSpec.describe JsonbAccessor do
         subklass_instance.options = newer_value
 
         expect(instance.baz).to be_nil
-        expect(instance.options).to eq("foo" => "foo", "b" => nil, "bar" => nil)
+        expect(instance.options).to eq("foo" => "foo")
         expect(subklass_instance.baz).to be_nil
-        expect(subklass_instance.options).to eq("foo" => "foo", "b" => nil, "bar" => nil, "s" => nil)
+        expect(subklass_instance.options).to eq("foo" => "foo")
       end
     end
 

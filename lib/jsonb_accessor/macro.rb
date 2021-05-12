@@ -55,7 +55,7 @@ module JsonbAccessor
         # each time it is evaluated.
         all_defaults_mapping_proc =
           if all_defaults_mapping.present?
-            -> { all_defaults_mapping.transform_values { |value| value.respond_to?(:call) ? value.call : value }.to_h }
+            -> { all_defaults_mapping.transform_values { |value| value.respond_to?(:call) ? value.call : value }.to_h.compact }
           end
         attribute jsonb_attribute, :jsonb, default: all_defaults_mapping_proc if all_defaults_mapping_proc.present?
 
@@ -79,7 +79,7 @@ module JsonbAccessor
             empty_named_attributes = names_to_store_keys.keys.each_with_object({}) { |name, defaults| defaults[name] = nil }
 
             store_key_attributes = ::JsonbAccessor::QueryHelper.convert_keys_to_store_keys(value, names_to_store_keys)
-            write_attribute(jsonb_attribute, empty_store_key_attributes.merge(store_key_attributes))
+            write_attribute(jsonb_attribute, empty_store_key_attributes.merge(store_key_attributes).compact)
 
             empty_named_attributes.merge(value).each { |name, attribute_value| write_attribute(name, attribute_value) }
           end
