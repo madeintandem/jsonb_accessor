@@ -232,22 +232,27 @@ RSpec.describe JsonbAccessor do
       subklass_instance.options = new_value
       expect(instance.foo).to eq("new foo")
       expect(subklass_instance.foo).to eq("new foo")
+      expect(instance.options).to eq new_value.stringify_keys
+      expect(subklass_instance.options).to eq new_value.stringify_keys
     end
 
-    context "when store key is present" do
-      it "clears the store key field" do
-        new_value = { baz: "baz" }
-        instance.options = new_value
-        subklass_instance.options = new_value
-        newer_value = { foo: "foo" }
-        instance.options = newer_value
-        subklass_instance.options = newer_value
+    it "stores the data using store keys" do
+      new_value = { baz: "baz" }
+      instance.options = new_value
+      subklass_instance.options = new_value
+      expect(instance.options).to eq({ "b" => "baz" })
+      expect(subklass_instance.options).to eq({ "b" => "baz" })
+    end
 
-        expect(instance.baz).to be_nil
-        expect(instance.options).to eq("foo" => "foo")
-        expect(subklass_instance.baz).to be_nil
-        expect(subklass_instance.options).to eq("foo" => "foo")
-      end
+    it "it allows store keys to be used" do
+      new_value = { "b" => "b" }
+      instance.options = new_value
+      subklass_instance.options = new_value.merge(s: 22)
+      expect(instance.baz).to eq "b"
+      expect(subklass_instance.baz).to eq "b"
+      expect(subklass_instance.sub).to eq 22
+      expect(instance.options).to eq new_value
+      expect(subklass_instance.options).to eq new_value.merge("s" => 22)
     end
 
     context "when nil" do
