@@ -1,10 +1,10 @@
 # JSONb Accessor
 
-Created by &nbsp;&nbsp;&nbsp; [<img src="https://raw.githubusercontent.com/devmynd/jsonb_accessor/master/devmynd-logo.png" alt="DevMynd Logo" />](https://www.devmynd.com/)
+Created by &nbsp;&nbsp;&nbsp; [<img src="https://raw.githubusercontent.com/madeintandem/jsonb_accessor/master/tandem-logo.png" alt="Tandem Logo" />](https://www.madeintandem.com/)
 
-[![Gem Version](https://badge.fury.io/rb/jsonb_accessor.svg)](http://badge.fury.io/rb/jsonb_accessor) &nbsp;&nbsp;&nbsp;[![Build Status](https://travis-ci.org/devmynd/jsonb_accessor.svg)](https://travis-ci.org/devmynd/jsonb_accessor) <img src="https://raw.githubusercontent.com/devmynd/jsonb_accessor/master/json-bee.png" alt="JSONb Accessor Logo" align="right" />
+[![Gem Version](https://badge.fury.io/rb/jsonb_accessor.svg)](http://badge.fury.io/rb/jsonb_accessor) &nbsp;&nbsp;&nbsp;[![Build Status](https://travis-ci.org/madeintandem/jsonb_accessor.svg)](https://travis-ci.org/madeintandem/jsonb_accessor) <img src="https://raw.githubusercontent.com/madeintandem/jsonb_accessor/master/json-bee.png" alt="JSONb Accessor Logo" align="right" />
 
-Adds typed `jsonb` backed fields as first class citizens to your `ActiveRecord` models. This gem is similar in spirit to [HstoreAccessor](https://github.com/devmynd/hstore_accessor), but the `jsonb` column in PostgreSQL has a few distinct advantages, mostly around nested documents and support for collections.
+Adds typed `jsonb` backed fields as first class citizens to your `ActiveRecord` models. This gem is similar in spirit to [HstoreAccessor](https://github.com/madeintandem/hstore_accessor), but the `jsonb` column in PostgreSQL has a few distinct advantages, mostly around nested documents and support for collections.
 
 It also adds generic scopes for querying `jsonb` columns.
 
@@ -25,7 +25,7 @@ It also adds generic scopes for querying `jsonb` columns.
 Add this line to your application's `Gemfile`:
 
 ```ruby
-gem "jsonb_accessor", "~> 1.0.0"
+gem "jsonb_accessor", "~> 1"
 ```
 
 And then execute:
@@ -309,7 +309,7 @@ From here any attributes specific to any sub-class can be stored in the
 individual fields in an `jsonb` column.
 
 This approach was originally conceived by Joe Hirn in [this blog
-post](http://www.devmynd.com/blog/2013-3-single-table-inheritance-hstore-lovely-combination).
+post](https://madeintandem.com/blog/2013-3-single-table-inheritance-hstore-lovely-combination/).
 
 ## Validations
 
@@ -334,7 +334,7 @@ Run `bin/console` for an interactive prompt that will allow you to experiment.
 
 ## Contributing
 
-1. [Fork it](https://github.com/devmynd/jsonb_accessor/fork)
+1. [Fork it](https://github.com/madeintandem/jsonb_accessor/fork)
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Add tests and changes (run the tests with `rake`)
 4. Commit your changes (`git commit -am 'Add some feature'`)

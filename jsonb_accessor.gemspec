@@ -15,7 +15,7 @@ Gem::Specification.new do |spec|
   spec.description           = "Adds typed jsonb backed fields to your ActiveRecord models."
   spec.homepage              = "https://github.com/devmynd/jsonb_accessor"
   spec.license               = "MIT"
-  spec.required_ruby_version = "~> 2.0"
+  spec.required_ruby_version = ">= 2"
 
   spec.files                 = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) || f.match(/png\z/) }
   spec.bindir                = "exe"
@@ -27,14 +27,12 @@ Gem::Specification.new do |spec|
   spec.add_dependency "pg", ">= 0.18.1"
 
   spec.add_development_dependency "appraisal", "~> 2.2.0"
-  spec.add_development_dependency "bundler", "~> 2.1.4"
   spec.add_development_dependency "database_cleaner", "~> 1.6.0"
   spec.add_development_dependency "awesome_print"
   spec.add_development_dependency "pry"
   spec.add_development_dependency "pry-doc"
   spec.add_development_dependency "pry-nav"
-  spec.add_development_dependency "rake", "~> 10.0"
+  spec.add_development_dependency "rake", ">= 12.3.3"
   spec.add_development_dependency "rspec", "~> 3.6.0"
   spec.add_development_dependency "rubocop", "~> 0.48.1"
-  spec.add_development_dependency "standalone_migrations", "~> 5.2.0"
 end

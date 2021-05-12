@@ -4,22 +4,21 @@ services:
   ruby:
     build:
       args:
-        - "RUBY_VERSION=${RUBY_VERSION:-2.4.1}"
+        - RUBY_VERSION=${RUBY_VERSION:-2.7.2}
       context: .
     volumes:
-    - '.:/usr/src/app'
+      - '.:/usr/src/app'
     links:
       - database
 
   database:
     image: postgres:12
     environment:
-      - "POSTGRES_DB=jsonbaccessor"
-      - "POSTGRES_USER=jsonbaccessor"
-      - "POSTGRES_PASSWORD=secret"
-      - "PGDATA=/var/lib/postgresql/data/pgdata"                                                
+      - POSTGRES_HOST_AUTH_METHOD=trust
+      - POSTGRES_DB=jsonb_accessor
+      - PGDATA=/var/lib/postgresql/data/pgdata
     volumes:                                                                                    
-      - "pg_data:/var/lib/postgresql/data/pgdata"
+      - pg_data:/var/lib/postgresql/data/pgdata
 
 volumes:                                                                                        
   pg_data:

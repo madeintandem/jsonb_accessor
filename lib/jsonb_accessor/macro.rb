@@ -11,7 +11,11 @@ module JsonbAccessor
 
         # Defines virtual attributes for each jsonb field.
         field_types.each do |name, type|
-          attribute name, *type
+          next attribute name, type unless type.is_a?(Array)
+          next attribute name, *type unless type.last.is_a?(Hash)
+
+          *args, keyword_args = type
+          attribute name, *args, **keyword_args
         end
 
         store_key_mapping_method_name = "jsonb_store_key_mapping_for_#{jsonb_attribute}"
@@ -88,9 +92,11 @@ module JsonbAccessor
             jsonb_values = public_send(jsonb_attribute) || {}
             jsonb_values.each do |store_key, value|
               name = names_and_store_keys.key(store_key)
-              write_attribute(name, value) if name
+              next unless name
+
+              write_attribute(name, value)
+              clear_attribute_change(name) if persisted?
             end
-            clear_changes_information if persisted?
           end
         end
 

@@ -1,12 +1,8 @@
 default: &default
   adapter: postgresql
-  database: jsonbaccessor
-  host: 'database'
-  username: 'jsonbaccessor'
-  password: 'secret'
-
-development:
-  <<: *default
+  database: jsonb_accessor
+  host: database
+  user: postgres
 
 test:
   <<: *default
