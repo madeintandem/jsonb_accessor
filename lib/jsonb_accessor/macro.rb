@@ -71,17 +71,26 @@ module JsonbAccessor
           end
 
           # Overrides the jsonb attribute setter to make sure the jsonb fields are kept in sync.
-          define_method("#{jsonb_attribute}=") do |given_value|
-            value = given_value || {}
+          define_method("#{jsonb_attribute}=") do |value|
+            value ||= {}
             names_to_store_keys = self.class.public_send(store_key_mapping_method_name)
+            store_keys_to_names = names_to_store_keys.invert
 
-            empty_store_key_attributes = names_to_store_keys.values.each_with_object({}) { |name, defaults| defaults[name] = nil }
-            empty_named_attributes = names_to_store_keys.keys.each_with_object({}) { |name, defaults| defaults[name] = nil }
+            # this is the raw hash we want to save in the jsonb_attribute
+            value_with_store_keys = value.transform_keys do |k|
+              names_to_store_keys[k.to_s] || k
+            end
+            write_attribute(jsonb_attribute, value_with_store_keys)
 
-            store_key_attributes = ::JsonbAccessor::QueryHelper.convert_keys_to_store_keys(value, names_to_store_keys)
-            write_attribute(jsonb_attribute, empty_store_key_attributes.merge(store_key_attributes).compact)
+            # this maps attributes to values
+            value_with_named_keys = value.transform_keys do |k|
+              store_keys_to_names[k.to_s] || k
+            end
 
-            empty_named_attributes.merge(value).each { |name, attribute_value| write_attribute(name, attribute_value) }
+            empty_named_attributes = names_to_store_keys.transform_values { nil }
+            empty_named_attributes.merge(value_with_named_keys).each do |name, attribute_value|
+              write_attribute(name, attribute_value)
+            end
           end
         end
         include setters
