@@ -74,18 +74,13 @@ module JsonbAccessor
           define_method("#{jsonb_attribute}=") do |value|
             value ||= {}
             names_to_store_keys = self.class.public_send(store_key_mapping_method_name)
-            store_keys_to_names = names_to_store_keys.invert
 
             # this is the raw hash we want to save in the jsonb_attribute
-            value_with_store_keys = value.transform_keys do |k|
-              names_to_store_keys[k.to_s] || k
-            end
+            value_with_store_keys = ::JsonbAccessor::QueryHelper.convert_keys_to_store_keys(value, names_to_store_keys)
             write_attribute(jsonb_attribute, value_with_store_keys)
 
             # this maps attributes to values
-            value_with_named_keys = value.transform_keys do |k|
-              store_keys_to_names[k.to_s] || k
-            end
+            value_with_named_keys = ::JsonbAccessor::QueryHelper.convert_store_keys_to_keys(value, names_to_store_keys)
 
             empty_named_attributes = names_to_store_keys.transform_values { nil }
             empty_named_attributes.merge(value_with_named_keys).each do |name, attribute_value|
