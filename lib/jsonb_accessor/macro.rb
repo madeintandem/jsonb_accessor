@@ -104,30 +104,32 @@ module JsonbAccessor
           end
         end
 
-        # <jsonb_attribute>_where scope
-        scope("#{jsonb_attribute}_where", lambda do |attributes|
-          store_key_attributes = ::JsonbAccessor::QueryHelper.convert_keys_to_store_keys(attributes, all.model.public_send(store_key_mapping_method_name))
-          jsonb_where(jsonb_attribute, store_key_attributes)
-        end)
-
-        # <jsonb_attribute>_where_not scope
-        scope("#{jsonb_attribute}_where_not", lambda do |attributes|
-          store_key_attributes = ::JsonbAccessor::QueryHelper.convert_keys_to_store_keys(attributes, all.model.public_send(store_key_mapping_method_name))
-          jsonb_where_not(jsonb_attribute, store_key_attributes)
-        end)
-
-        # <jsonb_attribute>_order scope
-        scope("#{jsonb_attribute}_order", lambda do |*args|
-          ordering_options = args.extract_options!
-          order_by_defaults = args.each_with_object({}) { |attribute, config| config[attribute] = :asc }
-          store_key_mapping = all.model.public_send(store_key_mapping_method_name)
-
-          order_by_defaults.merge(ordering_options).reduce(all) do |query, (name, direction)|
-            key = store_key_mapping[name.to_s]
-            order_query = jsonb_order(jsonb_attribute, key, direction)
-            query.merge(order_query)
+        unless superclass.respond_to? store_key_mapping_method_name
+          # <jsonb_attribute>_where scope
+          define_singleton_method "#{jsonb_attribute}_where" do |attributes|
+            store_key_attributes = ::JsonbAccessor::QueryHelper.convert_keys_to_store_keys(attributes, all.model.public_send(store_key_mapping_method_name))
+            jsonb_where(jsonb_attribute, store_key_attributes)
           end
-        end)
+
+          # <jsonb_attribute>_where_not scope
+          define_singleton_method "#{jsonb_attribute}_where_not" do |attributes|
+            store_key_attributes = ::JsonbAccessor::QueryHelper.convert_keys_to_store_keys(attributes, all.model.public_send(store_key_mapping_method_name))
+            jsonb_where_not(jsonb_attribute, store_key_attributes)
+          end
+
+          # <jsonb_attribute>_order scope
+          define_singleton_method "#{jsonb_attribute}_order" do |*args|
+            ordering_options = args.extract_options!
+            order_by_defaults = args.each_with_object({}) { |attribute, config| config[attribute] = :asc }
+            store_key_mapping = all.model.public_send(store_key_mapping_method_name)
+
+            order_by_defaults.merge(ordering_options).reduce(all) do |query, (name, direction)|
+              key = store_key_mapping[name.to_s]
+              order_query = jsonb_order(jsonb_attribute, key, direction)
+              query.merge(order_query)
+            end
+          end
+        end
       end
     end
   end
