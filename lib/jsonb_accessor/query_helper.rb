@@ -42,9 +42,7 @@ module JsonbAccessor
 
     class << self
       def validate_column_name!(query, column_name)
-        if query.model.columns.none? { |column| column.name == column_name.to_s }
-          raise InvalidColumnName, "a column named `#{column_name}` does not exist on the `#{query.model.table_name}` table"
-        end
+        raise InvalidColumnName, "a column named `#{column_name}` does not exist on the `#{query.model.table_name}` table" if query.model.columns.none? { |column| column.name == column_name.to_s }
       end
 
       def validate_field_name!(query, column_name, field_name)
@@ -56,16 +54,19 @@ module JsonbAccessor
       end
 
       def validate_direction!(option)
-        if ORDER_DIRECTIONS.exclude?(option)
-          raise InvalidDirection, "`#{option}` is not a valid direction for ordering, only `asc` and `desc` are accepted"
+        raise InvalidDirection, "`#{option}` is not a valid direction for ordering, only `asc` and `desc` are accepted" if ORDER_DIRECTIONS.exclude?(option)
+      end
+
+      # Replaces all keys in `attributes` that have a defined store_key with the store_key
+      def convert_keys_to_store_keys(attributes, store_key_mapping)
+        attributes.stringify_keys.transform_keys do |key|
+          store_key_mapping[key] || key
         end
       end
 
-      def convert_keys_to_store_keys(attributes, store_key_mapping)
-        attributes.each_with_object({}) do |(name, value), new_attributes|
-          store_key = store_key_mapping[name.to_s]
-          new_attributes[store_key] = value
-        end
+      # Replaces all keys in `attributes` that have a defined store_key with the named key (alias)
+      def convert_store_keys_to_keys(attributes, store_key_mapping)
+        convert_keys_to_store_keys(attributes, store_key_mapping.invert)
       end
 
       def number_query_arguments?(arg)

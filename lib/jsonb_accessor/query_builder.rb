@@ -61,9 +61,7 @@ module JsonbAccessor
         excludes_attributes = {}
 
         attributes.each do |name, value|
-          if value.is_a?(Range)
-            raise JsonbAccessor::QueryHelper::NotSupported, "`jsonb_where_not` scope does not accept ranges as arguments. Given `#{value}` for `#{name}` field"
-          end
+          raise JsonbAccessor::QueryHelper::NotSupported, "`jsonb_where_not` scope does not accept ranges as arguments. Given `#{value}` for `#{name}` field" if value.is_a?(Range)
 
           if JsonbAccessor::QueryHelper.number_query_arguments?(value)
             value.each { |operator, query_value| query = query.jsonb_number_where_not(column_name, name, operator, query_value) }
@@ -81,7 +79,7 @@ module JsonbAccessor
         JsonbAccessor::QueryHelper.validate_column_name!(all, column_name)
         JsonbAccessor::QueryHelper.validate_field_name!(all, column_name, field_name)
         JsonbAccessor::QueryHelper.validate_direction!(direction)
-        order("(#{table_name}.#{column_name} -> '#{field_name}') #{direction}")
+        order(Arel.sql("(#{table_name}.#{column_name} -> '#{field_name}') #{direction}"))
       end)
     end
   end
