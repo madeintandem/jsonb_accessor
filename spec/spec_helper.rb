@@ -49,12 +49,12 @@ RSpec.configure do |config|
   config.before :suite do
     dbconfig = YAML.load(ERB.new(File.read(File.join("db", "config.yml"))).result)
     ActiveRecord::Base.establish_connection(dbconfig["test"])
-    ActiveRecord::Base.logger = Logger.new(STDOUT, level: :warn)
+    ActiveRecord::Base.logger = Logger.new($stdout, level: :warn)
   end
 
   config.before do
     DatabaseCleaner.clean_with(:truncation)
-    # treat warnings as error
+    # treat warnings as error for example when Rails warns that some method is being overridden.
     expect_any_instance_of(Logger).to_not receive(:warn)
   end
 end
