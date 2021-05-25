@@ -30,13 +30,13 @@ module JsonbAccessor
       scope(:jsonb_time_where, lambda do |column_name, field_name, given_operator, value|
         JsonbAccessor::QueryHelper.validate_column_name!(all, column_name)
         operator = JsonbAccessor::QueryHelper::TIME_OPERATORS_MAP.fetch(given_operator.to_s)
-        where("(#{table_name}.#{column_name} ->> ?)::timestamp #{operator} ?", field_name, value)
+        where("(#{table_name}.#{column_name} ->> ?)::timestamptz #{operator} ?", field_name, value)
       end)
 
       scope(:jsonb_time_where_not, lambda do |column_name, field_name, given_operator, value|
         JsonbAccessor::QueryHelper.validate_column_name!(all, column_name)
         operator = JsonbAccessor::QueryHelper::TIME_OPERATORS_MAP.fetch(given_operator.to_s)
-        where.not("(#{table_name}.#{column_name} ->> ?)::timestamp #{operator} ?", field_name, value)
+        where.not("(#{table_name}.#{column_name} ->> ?)::timestamptz #{operator} ?", field_name, value)
       end)
 
       scope(:jsonb_where, lambda do |column_name, attributes|
