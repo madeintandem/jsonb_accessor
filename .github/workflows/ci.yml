@@ -49,9 +49,6 @@ jobs:
           - gemfile: activerecord_6.1.0
             ruby: 2.6.1
 
-          - gemfile: activerecord_7.0.1
-            ruby: 2.6.1
-
           - gemfile: activerecord_5.0.0
             ruby: 2.7.2
 
@@ -88,6 +85,11 @@ jobs:
       run: |
         bundle config set gemfile "${GITHUB_WORKSPACE}/gemfiles/${{ matrix.gemfile }}.gemfile"
         bundle install --jobs 4 --retry 3
+
+    - name: Setup DB
+      run: |
+        bundle exec rake db:create db:schema:load
+
     - name: Run tests
       run: |
         bundle exec rake spec
