@@ -20,6 +20,7 @@ gemfile:
   - gemfiles/activerecord_5.0.0.gemfile
   - gemfiles/activerecord_5.1.0.gemfile
   - gemfiles/activerecord_6.1.0.gemfile
+  - gemfiles/activerecord_7.0.1.gemfile
 jobs:
   exclude:
     - rvm: 2.4.5
