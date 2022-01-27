@@ -70,7 +70,7 @@ module JsonbAccessor
               # Rails always saves time based on `default_timezone`. Since #as_json considers timezone, manual conversion is needed
               if attribute_value.acts_like?(:time)
                 default_timezone = ActiveRecord::Base.default_timezone
-                attribute_value = (default_timezone == :utc ? attribute_value.utc : attribute_value.in_time_zone).strftime("%FT%R:%S.%LZ")
+                attribute_value = (default_timezone == :utc ? attribute_value.utc : attribute_value.in_time_zone).strftime("%FT%R:%S.%L")
               end
 
               new_values = (public_send(jsonb_attribute) || {}).merge(store_key => attribute_value)

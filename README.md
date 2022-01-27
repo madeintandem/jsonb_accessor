@@ -87,6 +87,10 @@ product.title #=> "Foo"
 product.data #=> { "t" => "Foo" }
 ```
 
+## Datetime type
+
+The `datetime` attributes are saved as strings using the format `%FT%R:%S.%L`, and respect the `active_record.default_timezone` configuration. The also respect the `active_record.time_zone_aware_attributes` configuration.
+
 ## Scopes
 
 Jsonb Accessor provides several scopes to make it easier to query `jsonb` columns. `jsonb_contains`, `jsonb_number_where`, `jsonb_time_where`, and `jsonb_where` are available on all `ActiveRecord::Base` subclasses and don't require that you make use of the `jsonb_accessor` declaration.
