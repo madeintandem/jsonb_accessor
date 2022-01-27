@@ -1,0 +1,92 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: ['**']
+
+jobs:
+  tests:
+    services:
+      db:
+        image: postgres:9.4
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+          POSTGRES_DB: jsonb_accessor
+        ports: ['5432:5432']
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - gemfile: activerecord_5.0.0
+            ruby: 2.4.5
+
+          - gemfile: activerecord_5.1.0
+            ruby: 2.4.5
+
+          - gemfile: activerecord_5.0.0
+            ruby: 2.5.3
+
+          - gemfile: activerecord_5.1.0
+            ruby: 2.5.3
+
+          - gemfile: activerecord_6.1.0
+            ruby: 2.5.3
+
+          - gemfile: activerecord_5.0.0
+            ruby: 2.6.1
+
+          - gemfile: activerecord_5.1.0
+            ruby: 2.6.1
+
+          - gemfile: activerecord_6.1.0
+            ruby: 2.6.1
+
+          - gemfile: activerecord_5.0.0
+            ruby: 2.7.2
+
+          - gemfile: activerecord_5.1.0
+            ruby: 2.7.2
+
+          - gemfile: activerecord_6.1.0
+            ruby: 2.7.2
+
+          - gemfile: activerecord_7.0.1
+            ruby: 2.7.2
+
+          - gemfile: activerecord_6.1.0
+            ruby: 3.0.0
+
+          - gemfile: activerecord_7.0.1
+            ruby: 3.0.0
+
+          - gemfile: activerecord_7.0.1
+            ruby: 3.1.0
+
+    name: ${{ matrix.gemfile }}, ruby ${{ matrix.ruby }}
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby }}
+        bundler-cache: true
+
+    - name: Bundle install
+      run: |
+        bundle config set gemfile "${GITHUB_WORKSPACE}/gemfiles/${{ matrix.gemfile }}.gemfile"
+        bundle install --jobs 4 --retry 3
+
+    - name: Setup DB
+      run: |
+        bundle exec rake db:create db:schema:load
+
+    - name: Run tests
+      run: |
+        bundle exec rake spec

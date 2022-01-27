@@ -6,7 +6,7 @@ require "jsonb_accessor"
 require "rspec"
 require File.expand_path("../spec/spec_helper.rb", __dir__)
 
-dbconfig = YAML.load(File.open("db/config.yml"))
+dbconfig = YAML.safe_load(ERB.new(File.read(File.join("db", "config.yml"))).result, aliases: true)
 ActiveRecord::Base.establish_connection(dbconfig["development"])
 
 # rubocop:disable Lint/UselessAssignment
