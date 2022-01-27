@@ -58,3 +58,5 @@ Naming/VariableNumber:
   Enabled: false
 Gemspec/RequiredRubyVersion:
   Enabled: false
+Gemspec/RequireMFA:
+  Enabled: false
