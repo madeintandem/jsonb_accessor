@@ -37,9 +37,6 @@ jobs:
           - gemfile: activerecord_6.1.0
             ruby: 2.5.3
 
-          - gemfile: activerecord_7.0.1
-            ruby: 2.5.3
-
           - gemfile: activerecord_5.0.0
             ruby: 2.6.1
 
