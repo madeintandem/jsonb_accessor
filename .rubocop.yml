@@ -30,8 +30,6 @@ Metrics/PerceivedComplexity:
   Enabled: false
 Metrics/BlockLength:
   Enabled: false
-Security/YAMLLoad:
-  Enabled: false
 Style/ClassAndModuleChildren:
   Enabled: false
 Style/ClassVars:
@@ -59,4 +57,6 @@ Naming/BinaryOperatorParameterName:
 Naming/VariableNumber:
   Enabled: false
 Gemspec/RequiredRubyVersion:
+  Enabled: false
+Gemspec/RequireMFA:
   Enabled: false

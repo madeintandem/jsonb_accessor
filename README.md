@@ -2,7 +2,7 @@
 
 Created by &nbsp;&nbsp;&nbsp; [<img src="https://raw.githubusercontent.com/madeintandem/jsonb_accessor/master/tandem-logo.png" alt="Tandem Logo" />](https://www.madeintandem.com/)
 
-[![Gem Version](https://badge.fury.io/rb/jsonb_accessor.svg)](http://badge.fury.io/rb/jsonb_accessor) &nbsp;&nbsp;&nbsp;[![Build Status](https://travis-ci.org/madeintandem/jsonb_accessor.svg)](https://travis-ci.org/madeintandem/jsonb_accessor) <img src="https://raw.githubusercontent.com/madeintandem/jsonb_accessor/master/json-bee.png" alt="JSONb Accessor Logo" align="right" />
+[![Gem Version](https://badge.fury.io/rb/jsonb_accessor.svg)](http://badge.fury.io/rb/jsonb_accessor) &nbsp;&nbsp;&nbsp;![CI](https://github.com/madeintandem/jsonb_accessor/actions/workflows/ci.yml/badge.svg) <img src="https://raw.githubusercontent.com/madeintandem/jsonb_accessor/master/json-bee.png" alt="JSONb Accessor Logo" align="right" />
 
 Adds typed `jsonb` backed fields as first class citizens to your `ActiveRecord` models. This gem is similar in spirit to [HstoreAccessor](https://github.com/madeintandem/hstore_accessor), but the `jsonb` column in PostgreSQL has a few distinct advantages, mostly around nested documents and support for collections.
 
