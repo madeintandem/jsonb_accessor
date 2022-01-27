@@ -9,6 +9,10 @@ require "awesome_print"
 require "database_cleaner"
 require "yaml"
 
+dbconfig = YAML.load(ERB.new(File.read(File.join("db", "config.yml"))).result)
+ActiveRecord::Base.establish_connection(dbconfig["test"])
+ActiveRecord::Base.logger = Logger.new($stdout, level: :warn)
+
 class StaticProduct < ActiveRecord::Base
   self.table_name = "products"
   belongs_to :product_category
@@ -45,12 +49,6 @@ RSpec.configure do |config|
   config.profile_examples = 0
   config.order = :random
   Kernel.srand config.seed
-
-  config.before :suite do
-    dbconfig = YAML.load(ERB.new(File.read(File.join("db", "config.yml"))).result)
-    ActiveRecord::Base.establish_connection(dbconfig["test"])
-    ActiveRecord::Base.logger = Logger.new($stdout, level: :warn)
-  end
 
   config.before do
     DatabaseCleaner.clean_with(:truncation)
