@@ -5,6 +5,7 @@ rvm:
   - 2.6.1
   - 2.7.2
   - 3.0.0
+  - 3.1.0
 addons:
   postgresql: "9.4"
 before_install:
@@ -29,3 +30,9 @@ jobs:
       gemfile: gemfiles/activerecord_5.0.0.gemfile
     - rvm: 3.0.0
       gemfile: gemfiles/activerecord_5.1.0.gemfile
+    - rvm: 3.1.0
+      gemfile: gemfiles/activerecord_5.0.0.gemfile
+    - rvm: 3.1.0
+      gemfile: gemfiles/activerecord_5.1.0.gemfile
+    - rvm: 3.1.0
+      gemfile: gemfiles/activerecord_6.1.0.gemfile

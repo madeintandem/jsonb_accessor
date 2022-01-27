@@ -9,7 +9,7 @@ require "awesome_print"
 require "database_cleaner"
 require "yaml"
 
-dbconfig = YAML.load(ERB.new(File.read(File.join("db", "config.yml"))).result)
+dbconfig = YAML.safe_load(ERB.new(File.read(File.join("db", "config.yml"))).result, aliases: true)
 ActiveRecord::Base.establish_connection(dbconfig["test"])
 ActiveRecord::Base.logger = Logger.new($stdout, level: :warn)
 

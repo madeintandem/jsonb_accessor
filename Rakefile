@@ -19,7 +19,7 @@ root = File.expand_path __dir__
 db_dir = File.join(root, "db")
 DatabaseTasks.root = root
 DatabaseTasks.db_dir = db_dir
-DatabaseTasks.database_configuration = YAML.load(ERB.new(File.read(File.join(db_dir, "config.yml"))).result)
+DatabaseTasks.database_configuration = YAML.safe_load(ERB.new(File.read(File.join(db_dir, "config.yml"))).result, aliases: true)
 DatabaseTasks.migrations_paths = [File.join(db_dir, "migrate")]
 DatabaseTasks.env = "test"
 
