@@ -8,6 +8,7 @@ require "jsonb_accessor/version"
 require "jsonb_accessor/macro"
 require "jsonb_accessor/query_helper"
 require "jsonb_accessor/query_builder"
+require "jsonb_accessor/attribute_query_methods"
 
 module JsonbAccessor
   extend ActiveSupport::Concern
