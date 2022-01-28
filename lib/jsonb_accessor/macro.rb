@@ -84,6 +84,10 @@ module JsonbAccessor
 
             empty_named_attributes = names_to_store_keys.transform_values { nil }
             empty_named_attributes.merge(value_with_named_keys).each do |name, attribute_value|
+              # Undefined keys: There might be things in the JSON that haven't been defined using jsonb_accessor
+              # It should still be possible to save arbitrary data in the JSON
+              next unless has_attribute? name
+
               write_attribute(name, attribute_value)
             end
           end
