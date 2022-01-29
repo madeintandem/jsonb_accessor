@@ -586,4 +586,22 @@ RSpec.describe JsonbAccessor do
       end
     end
   end
+
+  describe "arbitrary data" do
+    let(:field) { "external" }
+    let(:some_value) { ["any", "value", { "really" => "actually" }] }
+
+    it "is possible to set arbitrary data" do
+      options = instance.options.merge(field => some_value)
+      instance.update!(options: options)
+      expect(instance.options[field]).to eq some_value
+
+      # make sure it doesn't get lost after normal use
+      instance.foo = "fooos"
+      instance.save!
+      instance.reload
+      expect(instance.foo).to eq "fooos"
+      expect(instance.options[field]).to eq some_value
+    end
+  end
 end
