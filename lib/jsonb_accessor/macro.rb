@@ -2,6 +2,7 @@
 
 module JsonbAccessor
   module Macro
+    include Helpers
     module ClassMethods
       def jsonb_accessor(jsonb_attribute, field_types)
         names_and_store_keys = field_types.each_with_object({}) do |(name, type), mapping|
@@ -69,8 +70,7 @@ module JsonbAccessor
               attribute_value = public_send(name)
               # Rails always saves time based on `default_timezone`. Since #as_json considers timezone, manual conversion is needed
               if attribute_value.acts_like?(:time)
-                default_timezone = ActiveRecord::Base.default_timezone
-                attribute_value = (default_timezone == :utc ? attribute_value.utc : attribute_value.in_time_zone).strftime("%F %R:%S.%L")
+                attribute_value = (active_record_default_timezone == :utc ? attribute_value.utc : attribute_value.in_time_zone).strftime("%F %R:%S.%L")
               end
 
               new_values = (public_send(jsonb_attribute) || {}).merge(store_key => attribute_value)
