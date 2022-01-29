@@ -561,4 +561,29 @@ RSpec.describe JsonbAccessor do
       end
     end
   end
+
+  context "datetime field" do
+    let(:klass) do
+      build_class(foo: :datetime)
+    end
+    let(:time_with_zone) do
+      Time.new(2022, 1, 1, 12, 5, 0, "-03:00")
+    end
+    it "saves in UTC" do
+      instance.foo = time_with_zone
+      expect(instance.options).to eq({ "foo" => time_with_zone.utc.strftime("%F %R:%S.%L") })
+    end
+
+    context "when default_timezone is local" do
+      around(:each) do |example|
+        ActiveRecord::Base.default_timezone = :local
+        example.run
+        ActiveRecord::Base.default_timezone = :utc
+      end
+      it "saves in local time" do
+        instance.foo = time_with_zone
+        expect(instance.options).to eq({ "foo" => time_with_zone.strftime("%F %R:%S.%L") })
+      end
+    end
+  end
 end
