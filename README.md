@@ -87,7 +87,6 @@ product.title #=> "Foo"
 product.data #=> { "t" => "Foo" }
 ```
 
-
 ## Scopes
 
 Jsonb Accessor provides several scopes to make it easier to query `jsonb` columns. `jsonb_contains`, `jsonb_number_where`, `jsonb_time_where`, and `jsonb_where` are available on all `ActiveRecord::Base` subclasses and don't require that you make use of the `jsonb_accessor` declaration.
