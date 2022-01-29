@@ -576,9 +576,14 @@ RSpec.describe JsonbAccessor do
 
     context "when default_timezone is local" do
       around(:each) do |example|
-        ActiveRecord::Base.default_timezone = :local
+        active_record_base = if ActiveRecord.respond_to? :default_timezone
+                               ActiveRecord
+                             else
+                               ActiveRecord::Base
+                             end
+        active_record_base.default_timezone = :local
         example.run
-        ActiveRecord::Base.default_timezone = :utc
+        active_record_base.default_timezone = :utc
       end
       it "saves in local time" do
         instance.foo = time_with_zone
