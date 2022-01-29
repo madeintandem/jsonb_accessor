@@ -582,7 +582,7 @@ RSpec.describe JsonbAccessor do
       end
       it "saves in local time" do
         instance.foo = time_with_zone
-        expect(instance.options).to eq({ "foo" => time_with_zone.strftime("%F %R:%S.%L") })
+        expect(instance.options).to eq({ "foo" => "2022-01-01 12:05:00.000" })
       end
     end
   end
