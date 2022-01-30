@@ -57,18 +57,6 @@ module JsonbAccessor
         raise InvalidDirection, "`#{option}` is not a valid direction for ordering, only `asc` and `desc` are accepted" if ORDER_DIRECTIONS.exclude?(option)
       end
 
-      # Replaces all keys in `attributes` that have a defined store_key with the store_key
-      def convert_keys_to_store_keys(attributes, store_key_mapping)
-        attributes.stringify_keys.transform_keys do |key|
-          store_key_mapping[key] || key
-        end
-      end
-
-      # Replaces all keys in `attributes` that have a defined store_key with the named key (alias)
-      def convert_store_keys_to_keys(attributes, store_key_mapping)
-        convert_keys_to_store_keys(attributes, store_key_mapping.invert)
-      end
-
       def number_query_arguments?(arg)
         arg.is_a?(Hash) && arg.keys.map(&:to_s).all? { |key| NUMBER_OPERATORS.include?(key) }
       end

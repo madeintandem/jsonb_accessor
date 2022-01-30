@@ -38,7 +38,7 @@ module JsonbAccessor
         end
 
         # Get store keys to default values mapping
-        store_keys_and_defaults = ::JsonbAccessor::QueryHelper.convert_keys_to_store_keys(names_and_defaults, public_send(store_key_mapping_method_name))
+        store_keys_and_defaults = ::JsonbAccessor::Helpers.convert_keys_to_store_keys(names_and_defaults, public_send(store_key_mapping_method_name))
 
         # Define jsonb_defaults_mapping_for_<jsonb_attribute>
         defaults_mapping_method_name = "jsonb_defaults_mapping_for_#{jsonb_attribute}"
@@ -83,11 +83,11 @@ module JsonbAccessor
             names_to_store_keys = self.class.public_send(store_key_mapping_method_name)
 
             # this is the raw hash we want to save in the jsonb_attribute
-            value_with_store_keys = ::JsonbAccessor::QueryHelper.convert_keys_to_store_keys(value, names_to_store_keys)
+            value_with_store_keys = ::JsonbAccessor::Helpers.convert_keys_to_store_keys(value, names_to_store_keys)
             write_attribute(jsonb_attribute, value_with_store_keys)
 
             # this maps attributes to values
-            value_with_named_keys = ::JsonbAccessor::QueryHelper.convert_store_keys_to_keys(value, names_to_store_keys)
+            value_with_named_keys = ::JsonbAccessor::Helpers.convert_store_keys_to_keys(value, names_to_store_keys)
 
             empty_named_attributes = names_to_store_keys.transform_values { nil }
             empty_named_attributes.merge(value_with_named_keys).each do |name, attribute_value|
