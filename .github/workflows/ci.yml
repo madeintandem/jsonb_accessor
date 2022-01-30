@@ -7,7 +7,21 @@ on:
     branches: ['**']
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 2.7.2
+        bundler-cache: true
+    - name: Rubocop
+      run: bundle exec rubocop
+
   tests:
+    needs: lint
     services:
       db:
         image: postgres:9.4
