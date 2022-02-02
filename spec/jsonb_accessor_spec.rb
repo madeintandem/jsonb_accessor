@@ -56,6 +56,14 @@ RSpec.describe JsonbAccessor do
     it "supports defaults" do
       expect(instance.bazzle).to eq(5)
     end
+
+    it "initializes without the jsonb_accessor field selected" do
+      instance.save!
+
+      expect do
+        Product.select(:id).first
+      end.not_to raise_error
+    end
   end
 
   context "getters" do

@@ -103,7 +103,7 @@ module JsonbAccessor
 
         # Makes sure new objects have the appropriate values in their jsonb fields.
         after_initialize do
-          next unless jsonb_attribute
+          next unless has_attribute? jsonb_attribute
 
           jsonb_values = public_send(jsonb_attribute) || {}
           jsonb_values.each do |store_key, value|
