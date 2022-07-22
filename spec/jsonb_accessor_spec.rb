@@ -279,7 +279,7 @@ RSpec.describe JsonbAccessor do
 
     it "does not write a normal Ruby attribute" do
       expect(instance.bang).to be_nil
-      instance.options = { bang: 'bang' }
+      instance.options = { bang: "bang" }
       expect(instance.bang).to be_nil
     end
   end
