@@ -8,6 +8,8 @@ RSpec.describe JsonbAccessor do
       self.table_name = "products"
       jsonb_accessor :options, jsonb_accessor_config
       instance_eval(&block) if block
+
+      attribute :bang, :string
     end
   end
 
@@ -273,6 +275,12 @@ RSpec.describe JsonbAccessor do
         expect(subklass_instance.bar).to be_nil
         expect(subklass_instance.sub).to be_nil
       end
+    end
+
+    it "does not write a normal Ruby attribute" do
+      expect(instance.bang).to be_nil
+      instance.options = { bang: "bang" }
+      expect(instance.bang).to be_nil
     end
   end
 
