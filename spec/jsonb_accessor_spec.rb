@@ -9,7 +9,7 @@ RSpec.describe JsonbAccessor do
       jsonb_accessor :options, jsonb_accessor_config
       instance_eval(&block) if block
 
-      attribute :bang
+      attribute :bang, :string
     end
   end
 
