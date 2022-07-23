@@ -1,6 +1,11 @@
 # Changelog
 ## [Unreleased]
 
+## [1.3.5] - 2022-07-23
+### Fixed
+
+- Bug fix: Attributes defined outside of jsonb_accessor are not written [#149](https://github.com/madeintandem/jsonb_accessor/pull/149)
+
 ## [1.3.4] - 2022-02-02
 ### Fixed
 
