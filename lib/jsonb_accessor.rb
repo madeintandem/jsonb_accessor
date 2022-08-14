@@ -18,5 +18,4 @@ end
 
 ActiveSupport.on_load(:active_record) do
   ActiveRecord::Base.include JsonbAccessor
-  ActiveRecord::Base.include JsonbAccessor::QueryBuilder
 end

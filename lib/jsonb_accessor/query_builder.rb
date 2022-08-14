@@ -4,6 +4,8 @@ module JsonbAccessor
   module QueryBuilder
     extend ActiveSupport::Concern
 
+    SUPPORTED_ADAPTERS = %i[postgresql postgis].freeze
+
     included do
       scope(:jsonb_contains, lambda do |column_name, attributes|
         JsonbAccessor::QueryHelper.validate_column_name!(all, column_name)

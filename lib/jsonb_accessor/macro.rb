@@ -4,6 +4,8 @@ module JsonbAccessor
   module Macro
     module ClassMethods
       def jsonb_accessor(jsonb_attribute, field_types)
+        ::JsonbAccessor::Helpers.include_query_builder_on_model(self)
+
         names_and_store_keys = field_types.each_with_object({}) do |(name, type), mapping|
           _type, options = Array(type)
           mapping[name.to_s] = (options.try(:delete, :store_key) || name).to_s

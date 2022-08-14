@@ -4,6 +4,15 @@ module JsonbAccessor
   module Helpers
     module_function
 
+    # Include the correct query_builder on the model
+    def include_query_builder_on_model(model)
+      connection = model.connection
+      adapter_type = connection.adapter_name.downcase.to_sym
+      return unless ::JsonbAccessor::QueryBuilder::SUPPORTED_ADAPTERS.include?(adapter_type)
+
+      model.include(::JsonbAccessor::QueryBuilder)
+    end
+
     def active_record_default_timezone
       ActiveRecord.try(:default_timezone) || ActiveRecord::Base.default_timezone
     end
