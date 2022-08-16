@@ -4,5 +4,10 @@ default: &default
   host: <%= ENV.fetch("DATABASE_HOST") { "127.0.0.1" } %>
   user: postgres
 
+development:
+  <<: *default
+  database: jsonb_accessor_development
+
 test:
   <<: *default
+  database: jsonb_accessor_test

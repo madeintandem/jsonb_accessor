@@ -7,3 +7,4 @@ gemspec
 
 # Travis CI requires in Gemfile
 gem "pg"
+gem "sqlite3", "~> 1.4"

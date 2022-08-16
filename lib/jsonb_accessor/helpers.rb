@@ -14,7 +14,7 @@ module JsonbAccessor
     def define_attribute_query_methods(model, store_key_mapping_method_name, json_attribute)
       return unless ::JsonbAccessor::AttributeQueryMethods::SUPPORTED_ADAPTERS.include?(adapter_type_for_model(model))
 
-      # ::JsonbAccessor::AttributeQueryMethods.new(model).define(store_key_mapping_method_name, json_attribute)
+      ::JsonbAccessor::AttributeQueryMethods.new(model).define(store_key_mapping_method_name, json_attribute)
     end
 
     def active_record_default_timezone

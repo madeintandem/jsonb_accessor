@@ -9,3 +9,4 @@
 /tmp/
 gemfiles/.bundle
 gemfiles/*.gemfile.lock
+db/*.db
