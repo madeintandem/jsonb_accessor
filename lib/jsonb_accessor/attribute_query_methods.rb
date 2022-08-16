@@ -2,6 +2,8 @@
 
 module JsonbAccessor
   class AttributeQueryMethods
+    SUPPORTED_ADAPTERS = %i[postgresql postgis].freeze
+
     def initialize(klass)
       @klass = klass
     end
