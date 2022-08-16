@@ -3,6 +3,8 @@
 require "spec_helper"
 
 RSpec.describe "SQLite support" do
+  return if ActiveRecord::VERSION::MAJOR < 6
+
   def build_class(jsonb_accessor_config, &block)
     Class.new(ActiveRecord::Base) do
       def self.name
