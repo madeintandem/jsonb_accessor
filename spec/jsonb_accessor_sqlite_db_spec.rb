@@ -3,7 +3,7 @@
 require "spec_helper"
 
 RSpec.describe "SQLite support" do
-  def build_class(**jsonb_accessor_config, &block)
+  def build_class(jsonb_accessor_config, &block)
     Class.new(ActiveRecord::Base) do
       def self.name
         "product"
