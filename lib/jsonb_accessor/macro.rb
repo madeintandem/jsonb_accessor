@@ -59,7 +59,10 @@ module JsonbAccessor
           if all_defaults_mapping.present?
             -> { all_defaults_mapping.transform_values { |value| value.respond_to?(:call) ? value.call : value }.to_h.compact }
           end
-        attribute jsonb_attribute, :jsonb, default: all_defaults_mapping_proc if all_defaults_mapping_proc.present?
+
+        # Postgres uses :jsonb, but SQLite uses :json
+        attribute_type = ::JsonbAccessor::Helpers.attribute_type_for_model(self)
+        attribute jsonb_attribute, attribute_type, default: all_defaults_mapping_proc if all_defaults_mapping_proc.present?
 
         # Setters are in a module to allow users to override them and still be able to use `super`.
         setters = Module.new do

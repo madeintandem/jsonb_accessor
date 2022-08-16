@@ -17,6 +17,10 @@ module JsonbAccessor
       ::JsonbAccessor::AttributeQueryMethods.new(model).define(store_key_mapping_method_name, json_attribute)
     end
 
+    def attribute_type_for_model(model)
+      %i[postgresql postgis].include?(adapter_type_for_model(model)) ? :jsonb : :json
+    end
+
     def active_record_default_timezone
       ActiveRecord.try(:default_timezone) || ActiveRecord::Base.default_timezone
     end
