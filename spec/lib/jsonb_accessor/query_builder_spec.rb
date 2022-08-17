@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe JsonbAccessor::QueryBuilder do
+RSpec.describe JsonbAccessor::Adapters::PostgresqlAdapter::QueryBuilder do
   describe "#jsonb_contains" do
     let(:title) { "title" }
     let!(:matching_record) { Product.create!(title: title) }

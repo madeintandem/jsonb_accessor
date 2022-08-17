@@ -4,23 +4,6 @@ module JsonbAccessor
   module Helpers
     module_function
 
-    # Include the correct query_builder on the model
-    def include_query_builder_on_model(model)
-      return unless ::JsonbAccessor::QueryBuilder::SUPPORTED_ADAPTERS.include?(adapter_type_for_model(model))
-
-      model.include(::JsonbAccessor::QueryBuilder)
-    end
-
-    def define_attribute_query_methods(model, store_key_mapping_method_name, json_attribute)
-      return unless ::JsonbAccessor::AttributeQueryMethods::SUPPORTED_ADAPTERS.include?(adapter_type_for_model(model))
-
-      ::JsonbAccessor::AttributeQueryMethods.new(model).define(store_key_mapping_method_name, json_attribute)
-    end
-
-    def attribute_type_for_model(model)
-      %i[postgresql postgis].include?(adapter_type_for_model(model)) ? :jsonb : :json
-    end
-
     def active_record_default_timezone
       ActiveRecord.try(:default_timezone) || ActiveRecord::Base.default_timezone
     end
@@ -37,7 +20,29 @@ module JsonbAccessor
       convert_keys_to_store_keys(attributes, store_key_mapping.invert)
     end
 
-    def adapter_type_for_model(model)
+    # Returns the store_key_mapping for the given attribute
+    def store_key_mapping_for_attribute(attribute)
+      "jsonb_store_key_mapping_for_#{attribute}"
+    end
+
+    def apply_json_accessor_adapter_to_model(model, attribute)
+      json_accessor_adapter_for_model(model).apply(model, attribute)
+    end
+
+    def attribute_type_for_model(model)
+      json_accessor_adapter_for_model(model)::ATTRIBUTE_TYPE
+    end
+
+    def json_accessor_adapter_for_model(model)
+      adapter_name = connection_adapter_from_model(model).capitalize
+      adapter_name = "::JsonbAccessor::Adapters::#{adapter_name}Adapter"
+
+      return adapter_name.constantize if const_defined?(adapter_name)
+
+      ::JsonbAccessor::Adapters::BaseAdapter
+    end
+
+    def connection_adapter_from_model(model)
       connection = model.connection
       connection.adapter_name.downcase.to_sym
     end

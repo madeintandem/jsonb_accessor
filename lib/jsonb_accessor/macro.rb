@@ -4,7 +4,7 @@ module JsonbAccessor
   module Macro
     module ClassMethods
       def jsonb_accessor(jsonb_attribute, field_types)
-        ::JsonbAccessor::Helpers.include_query_builder_on_model(self)
+        ::JsonbAccessor::Helpers.apply_json_accessor_adapter_to_model(self, jsonb_attribute)
 
         names_and_store_keys = field_types.each_with_object({}) do |(name, type), mapping|
           _type, options = Array(type)
@@ -20,7 +20,7 @@ module JsonbAccessor
           attribute name, *args, **keyword_args
         end
 
-        store_key_mapping_method_name = "jsonb_store_key_mapping_for_#{jsonb_attribute}"
+        store_key_mapping_method_name = ::JsonbAccessor::Helpers.store_key_mapping_for_attribute(jsonb_attribute)
         # Defines methods on the model class
         class_methods = Module.new do
           # Allows us to get a mapping of field names to store keys scoped to the column
@@ -118,8 +118,6 @@ module JsonbAccessor
             clear_attribute_change(name) if persisted?
           end
         end
-
-        ::JsonbAccessor::Helpers.define_attribute_query_methods(self, store_key_mapping_method_name, jsonb_attribute)
       end
     end
   end
