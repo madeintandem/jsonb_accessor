@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
-require "spec_helper"
-
-RSpec.describe JsonbAccessor::Adapters::PostgresqlAdapter::QueryBuilder do
+RSpec.shared_examples "a model with query methods" do
   describe "#jsonb_contains" do
     let(:title) { "title" }
     let!(:matching_record) { Product.create!(title: title) }

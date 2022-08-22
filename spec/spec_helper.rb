@@ -9,6 +9,9 @@ require "awesome_print"
 require "database_cleaner"
 require "yaml"
 
+require File.expand_path(File.join("examples", "query_examples"), __dir__)
+require File.expand_path(File.join("examples", "attribute_query_examples"), __dir__)
+
 dbconfig = YAML.safe_load(ERB.new(File.read(File.join("db", "config.yml"))).result, aliases: true)
 ActiveRecord::Base.establish_connection(dbconfig["test"])
 ActiveRecord::Base.logger = Logger.new($stdout, level: :warn)
@@ -25,6 +28,16 @@ end
 class ProductCategory < ActiveRecord::Base
   jsonb_accessor :options, title: :string
   has_many :products
+end
+
+def build_class(jsonb_accessor_config, &block)
+  Class.new(ActiveRecord::Base) do
+    self.table_name = "products"
+    jsonb_accessor :options, jsonb_accessor_config
+    instance_eval(&block) if block
+
+    attribute :bang, :string
+  end
 end
 
 RSpec::Matchers.define :attr_accessorize do |attribute_name|
