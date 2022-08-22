@@ -40,6 +40,10 @@ def build_class(jsonb_accessor_config, &block)
   end
 end
 
+def sqlite_database_path
+  File.expand_path(File.join("..", "db", "test.db"), __dir__)
+end
+
 RSpec::Matchers.define :attr_accessorize do |attribute_name|
   match do |actual|
     actual.respond_to?(attribute_name) && actual.respond_to?("#{attribute_name}=")
@@ -61,6 +65,7 @@ RSpec.configure do |config|
   config.default_formatter = "doc" if config.files_to_run.one?
   config.profile_examples = 0
   config.order = :random
+
   Kernel.srand config.seed
 
   config.before do
