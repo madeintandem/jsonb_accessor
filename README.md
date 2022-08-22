@@ -335,6 +335,8 @@ Run `bin/console` for an interactive prompt that will allow you to experiment.
 
 `rake` will run Rubocop and the specs.
 
+Run `bundle exec appraisal rspec` to run the specs against every supported ActiveRecord version.
+
 ### With Docker
 
 ```
