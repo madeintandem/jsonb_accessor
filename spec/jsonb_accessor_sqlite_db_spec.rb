@@ -11,7 +11,6 @@ RSpec.describe "SQLite support" do
         "product"
       end
 
-      root_dir = File.expand_path(__dir__)
       establish_connection adapter: "sqlite3", database: sqlite_database_path
       connection.create_table :products, force: true do |t|
         t.json :options
