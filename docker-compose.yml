@@ -6,7 +6,7 @@ services:
       - DATABASE_HOST=postgres
     build:
       args:
-        - RUBY_VERSION=${RUBY_VERSION:-2.7.2}
+        - RUBY_VERSION=${RUBY_VERSION:-3.0.4}
       context: .
     volumes:
       - '.:/usr/src/app'
@@ -20,10 +20,10 @@ services:
       - POSTGRES_HOST_AUTH_METHOD=trust
       - POSTGRES_DB=jsonb_accessor
       - PGDATA=/var/lib/postgresql/data/pgdata
-    volumes:                                                                                    
+    volumes:
       - pg_data:/var/lib/postgresql/data/pgdata
     ports:
       - 5432:5432
 
-volumes:                                                                                        
+volumes:
   pg_data:
