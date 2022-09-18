@@ -579,31 +579,35 @@ RSpec.describe JsonbAccessor do
   end
 
   context "datetime field" do
-    let(:klass) do
-      build_class(foo: :datetime)
-    end
-    let(:time_with_zone) do
-      Time.new(2022, 1, 1, 12, 5, 0, "-03:00")
-    end
+    let(:klass) { build_class(foo: :datetime) }
+    let(:time_with_zone) { Time.new(2022, 1, 1, 12, 5, 0, "-03:00") }
+    let(:now) { Time.zone.parse("2022-09-18 09:44:00") }
+
     it "saves in UTC" do
       instance.foo = time_with_zone
       expect(instance.options).to eq({ "foo" => "2022-01-01 15:05:00.000" })
     end
 
-    context "when default_timezone is local" do
-      around(:each) do |example|
-        active_record_base = if ActiveRecord.respond_to? :default_timezone
-                               ActiveRecord
-                             else
-                               ActiveRecord::Base
-                             end
-        active_record_base.default_timezone = :local
-        example.run
-        active_record_base.default_timezone = :utc
+    it "deserializes to time with zone", tz: "America/Los_Angeles" do
+      travel_to now do
+        # we are -7 hours from UTC
+        instance = klass.new({ options: { "foo" => "2022-09-18 16:44:00" } })
+        expect(instance.foo).to eq Time.new(2022, 9, 18, 9, 44, 0, "-07:00")
       end
+    end
+
+    context "when default_timezone is local", ar_default_tz: :local do
       it "saves in local time" do
         instance.foo = time_with_zone
         expect(instance.options).to eq({ "foo" => "2022-01-01 12:05:00.000" })
+      end
+
+      it "deserializes to time with zone", tz: "Europe/Berlin" do
+        travel_to now do
+          # we are +2 hours from UTC
+          instance = klass.new({ options: { "foo" => "2022-09-18 16:44:00" } })
+          expect(instance.foo).to eq Time.new(2022, 9, 18, 16, 44, 0, "+02:00")
+        end
       end
     end
   end
