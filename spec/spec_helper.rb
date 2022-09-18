@@ -10,8 +10,6 @@ require "database_cleaner"
 require "yaml"
 require "active_support/testing/time_helpers"
 
-include ActiveSupport::Testing::TimeHelpers
-
 dbconfig = YAML.safe_load(ERB.new(File.read(File.join("db", "config.yml"))).result, aliases: true)
 ActiveRecord::Base.establish_connection(dbconfig["test"])
 ActiveRecord::Base.logger = Logger.new($stdout, level: :warn)
@@ -37,6 +35,7 @@ RSpec::Matchers.define :attr_accessorize do |attribute_name|
 end
 
 RSpec.configure do |config|
+  config.include ActiveSupport::Testing::TimeHelpers
   config.expect_with :rspec do |expectations|
     expectations.include_chain_clauses_in_custom_matcher_descriptions = true
   end
