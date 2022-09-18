@@ -109,6 +109,16 @@ module JsonbAccessor
             name = names_and_store_keys.key(store_key)
             next unless name
 
+            value = if value.present? && self.class.type_for_attribute(name).type == :datetime
+                      if ::JsonbAccessor::Helpers.active_record_default_timezone == :utc
+                        Time.find_zone("UTC").parse(value).in_time_zone
+                      else
+                        Time.zone.parse(value)
+                      end
+                    else
+                      value
+                    end
+
             write_attribute(name, value)
             clear_attribute_change(name) if persisted?
           end
