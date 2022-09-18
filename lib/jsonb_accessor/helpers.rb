@@ -19,5 +19,19 @@ module JsonbAccessor
     def convert_store_keys_to_keys(attributes, store_key_mapping)
       convert_keys_to_store_keys(attributes, store_key_mapping.invert)
     end
+
+    def deserialize_value(value, attribute_type)
+      return value if value.blank?
+
+      if attribute_type == :datetime
+        if active_record_default_timezone == :utc
+          value = Time.find_zone("UTC").parse(value).in_time_zone
+        else
+          value = Time.zone.parse(value)
+        end
+      end
+
+      value
+    end
   end
 end
