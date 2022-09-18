@@ -24,11 +24,11 @@ module JsonbAccessor
       return value if value.blank?
 
       if attribute_type == :datetime
-        if active_record_default_timezone == :utc
-          value = Time.find_zone("UTC").parse(value).in_time_zone
-        else
-          value = Time.zone.parse(value)
-        end
+        value = if active_record_default_timezone == :utc
+                  Time.find_zone("UTC").parse(value).in_time_zone
+                else
+                  Time.zone.parse(value)
+                end
       end
 
       value
