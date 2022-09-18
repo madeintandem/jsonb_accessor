@@ -61,7 +61,6 @@ RSpec.configure do |config|
     active_record_base.default_timezone = old_default
   end
 
-
   config.filter_run :focus
   config.run_all_when_everything_filtered = true
   config.disable_monkey_patching!
