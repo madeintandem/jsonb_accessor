@@ -11,13 +11,13 @@ module JsonbAccessor
 
       # <jsonb_attribute>_where scope
       klass.define_singleton_method "#{jsonb_attribute}_where" do |attributes|
-        store_key_attributes = ::JsonbAccessor::Helpers.convert_keys_to_store_keys(attributes, all.model.public_send(store_key_mapping_method_name))
+        store_key_attributes = JsonbAccessor::Helpers.convert_keys_to_store_keys(attributes, all.model.public_send(store_key_mapping_method_name))
         jsonb_where(jsonb_attribute, store_key_attributes)
       end
 
       # <jsonb_attribute>_where_not scope
       klass.define_singleton_method "#{jsonb_attribute}_where_not" do |attributes|
-        store_key_attributes = ::JsonbAccessor::Helpers.convert_keys_to_store_keys(attributes, all.model.public_send(store_key_mapping_method_name))
+        store_key_attributes = JsonbAccessor::Helpers.convert_keys_to_store_keys(attributes, all.model.public_send(store_key_mapping_method_name))
         jsonb_where_not(jsonb_attribute, store_key_attributes)
       end
 
