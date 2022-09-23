@@ -38,7 +38,7 @@ module JsonbAccessor
         end
 
         # Get store keys to default values mapping
-        store_keys_and_defaults = ::JsonbAccessor::Helpers.convert_keys_to_store_keys(names_and_defaults, public_send(store_key_mapping_method_name))
+        store_keys_and_defaults = JsonbAccessor::Helpers.convert_keys_to_store_keys(names_and_defaults, public_send(store_key_mapping_method_name))
 
         # Define jsonb_defaults_mapping_for_<jsonb_attribute>
         defaults_mapping_method_name = "jsonb_defaults_mapping_for_#{jsonb_attribute}"
@@ -69,7 +69,7 @@ module JsonbAccessor
               attribute_value = public_send(name)
               # Rails always saves time based on `default_timezone`. Since #as_json considers timezone, manual conversion is needed
               if attribute_value.acts_like?(:time)
-                attribute_value = (::JsonbAccessor::Helpers.active_record_default_timezone == :utc ? attribute_value.utc : attribute_value.in_time_zone).strftime("%F %R:%S.%L")
+                attribute_value = (JsonbAccessor::Helpers.active_record_default_timezone == :utc ? attribute_value.utc : attribute_value.in_time_zone).strftime("%F %R:%S.%L")
               end
 
               new_values = (public_send(jsonb_attribute) || {}).merge(store_key => attribute_value)
@@ -83,11 +83,11 @@ module JsonbAccessor
             names_to_store_keys = self.class.public_send(store_key_mapping_method_name)
 
             # this is the raw hash we want to save in the jsonb_attribute
-            value_with_store_keys = ::JsonbAccessor::Helpers.convert_keys_to_store_keys(value, names_to_store_keys)
+            value_with_store_keys = JsonbAccessor::Helpers.convert_keys_to_store_keys(value, names_to_store_keys)
             write_attribute(jsonb_attribute, value_with_store_keys)
 
             # this maps attributes to values
-            value_with_named_keys = ::JsonbAccessor::Helpers.convert_store_keys_to_keys(value, names_to_store_keys)
+            value_with_named_keys = JsonbAccessor::Helpers.convert_store_keys_to_keys(value, names_to_store_keys)
 
             empty_named_attributes = names_to_store_keys.transform_values { nil }
             empty_named_attributes.merge(value_with_named_keys).each do |name, attribute_value|
@@ -109,12 +109,15 @@ module JsonbAccessor
             name = names_and_store_keys.key(store_key)
             next unless name
 
-            write_attribute(name, value)
+            write_attribute(
+              name,
+              JsonbAccessor::Helpers.deserialize_value(value, self.class.type_for_attribute(name).type)
+            )
             clear_attribute_change(name) if persisted?
           end
         end
 
-        ::JsonbAccessor::AttributeQueryMethods.new(self).define(store_key_mapping_method_name, jsonb_attribute)
+        JsonbAccessor::AttributeQueryMethods.new(self).define(store_key_mapping_method_name, jsonb_attribute)
       end
     end
   end
