@@ -1,6 +1,11 @@
 # Changelog
 ## [Unreleased]
 
+## [1.3.6] - 2022-09-23
+### Fixed
+
+- Bug fix: Datetime values were not properly deserialized [#155](https://github.com/madeintandem/jsonb_accessor/pull/155)
+
 ## [1.3.5] - 2022-07-23
 ### Fixed
 
