@@ -100,7 +100,7 @@ jobs:
 
     - name: Setup DB
       run: |
-        bundle exec rake db:create db:schema:load
+        bundle exec rake db:schema:load
 
     - name: Run tests
       run: |
