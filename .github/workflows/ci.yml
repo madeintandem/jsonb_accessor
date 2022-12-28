@@ -38,49 +38,49 @@ jobs:
       matrix:
         include:
           - gemfile: activerecord_5.0.0
-            ruby: 2.4.5
+            ruby: '2.4'
 
           - gemfile: activerecord_5.1.0
-            ruby: 2.4.5
+            ruby: '2.4'
 
           - gemfile: activerecord_5.0.0
-            ruby: 2.5.3
+            ruby: '2.5'
 
           - gemfile: activerecord_5.1.0
-            ruby: 2.5.3
+            ruby: '2.5'
 
           - gemfile: activerecord_6.1.0
-            ruby: 2.5.3
+            ruby: '2.5'
 
           - gemfile: activerecord_5.0.0
-            ruby: 2.6.1
+            ruby: '2.6'
 
           - gemfile: activerecord_5.1.0
-            ruby: 2.6.1
+            ruby: '2.6'
 
           - gemfile: activerecord_6.1.0
-            ruby: 2.6.1
+            ruby: '2.6'
 
           - gemfile: activerecord_5.0.0
-            ruby: 2.7.2
+            ruby: '2.7'
 
           - gemfile: activerecord_5.1.0
-            ruby: 2.7.2
+            ruby: '2.7'
 
           - gemfile: activerecord_6.1.0
-            ruby: 2.7.2
+            ruby: '2.7'
 
           - gemfile: activerecord_7.0.1
-            ruby: 2.7.2
+            ruby: '2.7'
 
           - gemfile: activerecord_6.1.0
-            ruby: 3.0.0
+            ruby: '3.0'
 
           - gemfile: activerecord_7.0.1
-            ruby: 3.0.0
+            ruby: '3.0'
 
           - gemfile: activerecord_7.0.1
-            ruby: 3.1.0
+            ruby: '3.1'
 
     name: ${{ matrix.gemfile }}, ruby ${{ matrix.ruby }}
 
