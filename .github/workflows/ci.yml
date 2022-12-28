@@ -97,11 +97,20 @@ jobs:
           - gemfile: activerecord_6.1.0
             ruby: '3.0'
 
+          - gemfile: activerecord_6.1.0
+            ruby: '3.1'
+
+          - gemfile: activerecord_6.1.0
+            ruby: '3.2'
+
           - gemfile: activerecord_7.0.1
             ruby: '3.0'
 
           - gemfile: activerecord_7.0.1
             ruby: '3.1'
+
+          - gemfile: activerecord_7.0.1
+            ruby: '3.2'
 
     name: ${{ matrix.gemfile }}, ruby ${{ matrix.ruby }}
 
