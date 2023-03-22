@@ -33,11 +33,11 @@ Gem::Specification.new do |spec|
   end
 
   spec.add_development_dependency "appraisal", "~> 2.2.0"
-  spec.add_development_dependency "awesome_print"
+  spec.add_development_dependency "awesome_print", "~> 1.9.2"
   spec.add_development_dependency "database_cleaner", "~> 1.6.0"
-  spec.add_development_dependency "pry"
-  spec.add_development_dependency "pry-doc"
-  spec.add_development_dependency "pry-nav"
+  spec.add_development_dependency "pry", "~> 0.14.2"
+  spec.add_development_dependency "pry-doc", "~> 1.4.0"
+  spec.add_development_dependency "pry-nav", "~> 1.0.0"
   spec.add_development_dependency "psych", "~> 3"
   spec.add_development_dependency "rake", ">= 12.3.3"
   spec.add_development_dependency "rspec", "~> 3.6.0"

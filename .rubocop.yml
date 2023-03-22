@@ -1,6 +1,6 @@
 AllCops:
   NewCops: enable
-  TargetRubyVersion: 2.7.2
+  TargetRubyVersion: 3.0.5
   SuggestExtensions: false
   Exclude:
     - "db/**/*"
