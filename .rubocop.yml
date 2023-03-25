@@ -60,3 +60,5 @@ Gemspec/RequiredRubyVersion:
   Enabled: false
 Gemspec/RequireMFA:
   Enabled: false
+Gemspec/DevelopmentDependencies:
+  EnforcedStyle: gemspec
