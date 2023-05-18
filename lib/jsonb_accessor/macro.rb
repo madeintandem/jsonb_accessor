@@ -66,7 +66,9 @@ module JsonbAccessor
             define_method("#{name}=") do |value|
               super(value)
 
-              attribute_value = public_send(name)
+              # If enum was defined, take the value from the enum and not what comes out directly from the getter
+              attribute_value = defined_enums[name].present? ? defined_enums[name][value] : public_send(name)
+
               # Rails always saves time based on `default_timezone`. Since #as_json considers timezone, manual conversion is needed
               if attribute_value.acts_like?(:time)
                 attribute_value = (JsonbAccessor::Helpers.active_record_default_timezone == :utc ? attribute_value.utc : attribute_value.in_time_zone).strftime("%F %R:%S.%L")
