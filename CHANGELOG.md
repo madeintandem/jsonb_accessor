@@ -1,6 +1,11 @@
 # Changelog
 ## [Unreleased]
 
+## [1.3.8] - 2023-05-29
+### Fixes
+
+- Support for ActiveRecord::Enum. [#163](https://github.com/madeintandem/jsonb_accessor/pull/163)
+
 ## [1.3.7] - 2022-12-29
 
 - jruby support. jsonb_accessor now depends on `activerecord-jdbcpostgresql-adapter` instead of `pg` when the RUBY_PLATFORM is java. [#157](https://github.com/madeintandem/jsonb_accessor/pull/157)
