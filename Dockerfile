@@ -1,12 +1,12 @@
-ARG RUBY_VERSION=latest
-FROM ruby:${RUBY_VERSION}
+ARG RUBY_VERSION
+ARG RUBY_PLATFORM
+FROM ${RUBY_PLATFORM}:${RUBY_VERSION}
+
+RUN apt-get update && apt-get install -y --no-install-recommends git
 
 WORKDIR /usr/src/app
 
-RUN mkdir -p lib/jsonb_accessor
-COPY lib/jsonb_accessor/version.rb ./lib/jsonb_accessor/
-COPY *.gemspec Gemfile* ./
-
-RUN bundle install
-
-COPY . .
+COPY lib/jsonb_accessor/version.rb ./lib/jsonb_accessor/version.rb
+COPY jsonb_accessor.gemspec Gemfile ./
+# RUN bundle install
+COPY . ./
