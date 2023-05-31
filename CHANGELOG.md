@@ -1,6 +1,14 @@
 # Changelog
 ## [Unreleased]
 
+## [1.3.10] - 2023-05-30
+### No changes
+A new release was necessary to fix the corrupted 1.3.9 Java release on RubyGems.
+
+## [1.3.9] - 2023-05-30
+### No changes
+A new release was necessary to fix the corrupted 1.3.8 Java release on RubyGems.
+
 ## [1.3.8] - 2023-05-29
 ### Fixes
 
