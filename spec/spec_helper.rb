@@ -6,7 +6,7 @@ require "pry"
 require "pry-nav"
 require "pry-doc"
 require "awesome_print"
-require "database_cleaner"
+require "database_cleaner-active_record"
 require "yaml"
 require "active_support/testing/time_helpers"
 

@@ -8,5 +8,5 @@ WORKDIR /usr/src/app
 
 COPY lib/jsonb_accessor/version.rb ./lib/jsonb_accessor/version.rb
 COPY jsonb_accessor.gemspec Gemfile ./
-# RUN bundle install
+RUN bundle install
 COPY . ./
