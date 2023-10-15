@@ -17,15 +17,15 @@ Gem::Specification.new do |spec|
   spec.description           = "Adds typed jsonb backed fields to your ActiveRecord models."
   spec.homepage              = "https://github.com/devmynd/jsonb_accessor"
   spec.license               = "MIT"
-  spec.required_ruby_version = ">= 2"
+  spec.required_ruby_version = ">= 3"
 
   spec.files                 = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) || f.match(/png\z/) }
   spec.bindir                = "exe"
   spec.executables           = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths         = ["lib"]
 
-  spec.add_dependency "activerecord", ">= 5.0"
-  spec.add_dependency "activesupport", ">= 5.0"
+  spec.add_dependency "activerecord", ">= 6.1"
+  spec.add_dependency "activesupport", ">= 6.1"
   if is_java
     spec.add_dependency "activerecord-jdbcpostgresql-adapter", ">= 50.0"
   else
