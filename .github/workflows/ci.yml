@@ -66,9 +66,6 @@ jobs:
           - gemfile: activerecord_7.0
             ruby: 'jruby-9.4'
 
-          - gemfile: activerecord_7.1
-            ruby: 'jruby-9.4'
-
     name: ${{ matrix.gemfile }}, ruby ${{ matrix.ruby }}
 
     steps:
