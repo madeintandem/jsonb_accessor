@@ -68,6 +68,8 @@ jobs:
 
     name: ${{ matrix.gemfile }}, ruby ${{ matrix.ruby }}
 
+    env:
+      BUNDLE_GEMFILE: ${{ github.workspace }}/gemfiles/${{ matrix.gemfile }}.gemfile
     steps:
     - uses: actions/checkout@v3
 
@@ -79,8 +81,7 @@ jobs:
 
     - name: Bundle install
       run: |
-        bundle config set gemfile "${GITHUB_WORKSPACE}/gemfiles/${{ matrix.gemfile }}.gemfile"
-        bundle install --jobs 4 --retry 3
+        bundle install
 
     - name: Setup DB
       run: |
