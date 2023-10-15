@@ -24,7 +24,7 @@ jobs:
     needs: lint
     services:
       db:
-        image: postgres:9.4
+        image: postgres
         env:
           POSTGRES_HOST_AUTH_METHOD: trust
           POSTGRES_DB: jsonb_accessor
