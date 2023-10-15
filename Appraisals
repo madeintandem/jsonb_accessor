@@ -23,3 +23,7 @@ end
 appraise "activerecord-7.0.8" do
   gem "activerecord", "~> 7.0.8"
 end
+
+appraise "activerecord-7.1" do
+  gem "activerecord", "~> 7.1"
+end

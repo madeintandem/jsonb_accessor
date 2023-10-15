@@ -7,7 +7,7 @@ require "rspec"
 require File.expand_path("../spec/spec_helper.rb", __dir__)
 
 dbconfig = YAML.safe_load(ERB.new(File.read(File.join("db", "config.yml"))).result, aliases: true)
-ActiveRecord::Base.establish_connection(dbconfig["development"])
+ActiveRecord::Base.establish_connection(dbconfig["test"])
 
 # rubocop:disable Lint/UselessAssignment
 x = Product.new
