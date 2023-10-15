@@ -2,7 +2,7 @@ default: &default
   adapter: postgresql
   database: jsonb_accessor
   host: <%= ENV.fetch("DATABASE_HOST") { "127.0.0.1" } %>
-  user: postgres
+  username: <%= ENV.fetch("DATABASE_USER") { "postgres" } %>
 
 test:
   <<: *default

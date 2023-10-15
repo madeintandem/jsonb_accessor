@@ -19,7 +19,8 @@ RSpec.describe JsonbAccessor do
       bar: :integer,
       ban: :integer,
       baz: [:integer, { array: true }],
-      bazzle: [:integer, { default: 5 }]
+      bazzle: [:integer, { default: 5 }],
+      dates: [:datetime, { array: true }]
     ) do
       enum ban: { foo: 1, bar: 2 }
     end
@@ -56,6 +57,17 @@ RSpec.describe JsonbAccessor do
     it "supports arrays" do
       instance.baz = %w[1 2 3]
       expect(instance.baz).to eq([1, 2, 3])
+    end
+
+    it "supports array of date" do
+      # Write
+      instance.dates = [Date.new(2017, 1, 1), Date.new(2017, 1, 2)]
+      expect { instance.save! }.to_not raise_error
+      # Read
+      instance.reload
+
+      expect(instance.dates).to be_kind_of Array
+      expect(instance.dates.first).to be_kind_of Time
     end
 
     it "supports defaults" do
