@@ -21,7 +21,7 @@ RSpec.describe JsonbAccessor do
       baz: [:integer, { array: true }],
       bazzle: [:integer, { default: 5 }]
     ) do
-      enum ban: { foo: 1, bar: 2 }
+      enum ban: { foo: 1, bar: 2 } if JsonbAccessor.enum_support?
     end
   end
   let(:instance) { klass.new }
@@ -62,10 +62,12 @@ RSpec.describe JsonbAccessor do
       expect(instance.bazzle).to eq(5)
     end
 
-    it "supports enums" do
-      instance.ban = :foo
-      expect(instance.ban).to eq("foo")
-      expect(instance.options["ban"]).to eq(1)
+    if JsonbAccessor.enum_support?
+      it "supports enums" do
+        instance.ban = :foo
+        expect(instance.ban).to eq("foo")
+        expect(instance.options["ban"]).to eq(1)
+      end
     end
 
     it "initializes without the jsonb_accessor field selected" do
