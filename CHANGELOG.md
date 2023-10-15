@@ -1,6 +1,17 @@
 # Changelog
 ## [Unreleased]
 
+## [1.4] - 2023-10-15
+### Breaking change
+- `jsonb_accessor` dropped support for Ruby 2 and Rails versions lower than 6.1. Support for ActiveRecord::Enum was also
+dropped because ActiveRecord 7.1 now requires each enum field to be backed by a database column. Enums will still work
+when using AR versions lower than 7.1. This is a limitation of Rails, not of this gem.
+
+### Fixed
+
+- Bug fix: An array of datetimes previously caused an error. https://github.com/madeintandem/jsonb_accessor/pull/169. Thanks @bekicot.
+- Rails 7.1 is officially supported and tested against.
+
 ## [1.3.10] - 2023-05-30
 ### No changes
 A new release was necessary to fix the corrupted 1.3.9 Java release on RubyGems.
