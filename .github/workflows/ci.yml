@@ -36,79 +36,22 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - gemfile: activerecord_5.0.0
-            ruby: '2.4'
-
-          - gemfile: activerecord_5.1.0
-            ruby: '2.4'
-
-          - gemfile: activerecord_5.2.0
-            ruby: '2.4'
-
-          - gemfile: activerecord_5.0.0
-            ruby: '2.5'
-
-          - gemfile: activerecord_5.1.0
-            ruby: '2.5'
-
-          - gemfile: activerecord_5.2.0
-            ruby: '2.5'
-
-          - gemfile: activerecord_6.0.0
-            ruby: '2.5'
-
-          - gemfile: activerecord_6.1.0
-            ruby: '2.5'
-
-          - gemfile: activerecord_5.0.0
-            ruby: '2.6'
-
-          - gemfile: activerecord_5.1.0
-            ruby: '2.6'
-
-          - gemfile: activerecord_5.2.0
-            ruby: '2.6'
-
-          - gemfile: activerecord_6.0.0
-            ruby: '2.6'
-
-          - gemfile: activerecord_6.1.0
-            ruby: '2.6'
-
-          - gemfile: activerecord_5.0.0
-            ruby: '2.7'
-
-          - gemfile: activerecord_5.1.0
-            ruby: '2.7'
-
-          - gemfile: activerecord_5.2.0
-            ruby: '2.7'
-
-          - gemfile: activerecord_6.0.0
-            ruby: '2.7'
-
-          - gemfile: activerecord_6.1.0
-            ruby: '2.7'
-
-          - gemfile: activerecord_7.0.8
-            ruby: '2.7'
-
-          - gemfile: activerecord_6.1.0
+          - gemfile: activerecord_6.1
             ruby: '3.0'
 
-          - gemfile: activerecord_6.1.0
+          - gemfile: activerecord_6.1
             ruby: '3.1'
 
-          - gemfile: activerecord_6.1.0
+          - gemfile: activerecord_6.1
             ruby: '3.2'
 
-          - gemfile: activerecord_7.0.8
+          - gemfile: activerecord_7.0
             ruby: '3.0'
 
-          - gemfile: activerecord_7.0.8
+          - gemfile: activerecord_7.0
             ruby: '3.1'
 
-          - gemfile: activerecord_7.0.8
+          - gemfile: activerecord_7.0
             ruby: '3.2'
 
           - gemfile: activerecord_7.1
@@ -120,24 +63,13 @@ jobs:
           - gemfile: activerecord_7.1
             ruby: '3.2'
 
-          - gemfile: activerecord_5.1.0
-            ruby: 'jruby-9.3'
-
-          - gemfile: activerecord_5.2.0
-            ruby: 'jruby-9.3'
-
-          - gemfile: activerecord_6.0.0
-            ruby: 'jruby-9.3'
-
-          - gemfile: activerecord_6.1.0
-            ruby: 'jruby-9.3'
-
-          # waiting for https://github.com/jruby/activerecord-jdbc-adapter/issues/1125 to be addressed
-          # - gemfile: activerecord_7.0.1
-          #   ruby: 'jruby-9.4'
+          - gemfile: activerecord_7.0
+            ruby: 'jruby-9.4'
 
     name: ${{ matrix.gemfile }}, ruby ${{ matrix.ruby }}
 
+    env:
+      BUNDLE_GEMFILE: ${{ github.workspace }}/gemfiles/${{ matrix.gemfile }}.gemfile
     steps:
     - uses: actions/checkout@v3
 
@@ -149,8 +81,7 @@ jobs:
 
     - name: Bundle install
       run: |
-        bundle config set gemfile "${GITHUB_WORKSPACE}/gemfiles/${{ matrix.gemfile }}.gemfile"
-        bundle install --jobs 4 --retry 3
+        bundle install
 
     - name: Setup DB
       run: |
