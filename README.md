@@ -8,6 +8,13 @@ Adds typed `jsonb` backed fields as first class citizens to your `ActiveRecord` 
 
 It also adds generic scopes for querying `jsonb` columns.
 
+## ⚠️ Status of this gem
+
+Hi, [I](https://github.com/haffla) have taken over this gem a while back as sole maintainer from the original creators who have abandoned this gem. 
+This gem is in maintance mode now. No active development. Bug reports will be reviewed and worked on promptly.
+
+I am also happy to review PRs with new features. Please open an issue before and let's discuss it.
+
 ## Table of Contents
 
 - [Installation](#installation)
