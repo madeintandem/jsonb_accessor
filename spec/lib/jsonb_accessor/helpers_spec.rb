@@ -22,4 +22,36 @@ RSpec.describe JsonbAccessor::Helpers do
       expect(subject.convert_store_keys_to_keys(attributes, store_key_mapping)).to eq(expected)
     end
   end
+
+  describe ".define_attribute_name" do
+    let(:json_attribute) { :options }
+    let(:name) { :foo }
+    let(:prefix) { :pref }
+    let(:suffix) { :suff }
+    let(:expected) { "#{prefix}_#{name}_#{suffix}" }
+
+    it "returns attribute name with prefix and suffix" do
+      expect(subject.define_attribute_name(json_attribute, name, prefix, suffix)).to eq(expected)
+    end
+
+    context "when affixes is true class" do
+      let(:prefix) { true }
+      let(:suffix) { true }
+      let(:expected) { "#{json_attribute}_#{name}_#{json_attribute}" }
+
+      it "returns attribute name with json_attribute prefix and suffix" do
+        expect(subject.define_attribute_name(json_attribute, name, prefix, suffix)).to eq(expected)
+      end
+    end
+
+    context "when affixes is nil" do
+      let(:prefix) { nil }
+      let(:suffix) { nil }
+      let(:expected) { name.to_s }
+
+      it "returns attribute name without prefix and suffix" do
+        expect(subject.define_attribute_name(json_attribute, name, prefix, suffix)).to eq(expected)
+      end
+    end
+  end
 end
