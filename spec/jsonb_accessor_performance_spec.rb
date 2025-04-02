@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "spec_helper"
+require "benchmark"
 
 RSpec.describe "Jsonb Accessor Performace" do
   context "initializing objects from the database" do
