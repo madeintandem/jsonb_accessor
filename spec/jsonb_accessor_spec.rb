@@ -347,6 +347,194 @@ RSpec.describe JsonbAccessor do
     end
   end
 
+  context "prefixes" do
+    let(:klass) do
+      build_class(foo: [:string, { default: "bar", prefix: :a }])
+    end
+
+    it "creates accessor attribute with the given prefix" do
+      expect(instance.a_foo).to eq("bar")
+      expect(instance.options).to eq("foo" => "bar")
+    end
+
+    context "when prefix is true" do
+      let(:klass) do
+        build_class(foo: [:string, { default: "bar", prefix: true }])
+      end
+
+      it "creates accessor attribute with the json_attribute name" do
+        expect(instance.options_foo).to eq("bar")
+        expect(instance.options).to eq("foo" => "bar")
+      end
+    end
+
+    context "inheritance" do
+      let(:subklass) do
+        Class.new(klass) do
+          jsonb_accessor :options, bar: [:integer, { default: 2 }]
+        end
+      end
+      let(:subklass_instance) { subklass.new }
+
+      it "includes default values from the parent in the jsonb hash" do
+        expect(subklass_instance.a_foo).to eq("bar")
+        expect(subklass_instance.bar).to eq(2)
+        expect(subklass_instance.options).to eq("foo" => "bar", "bar" => 2)
+      end
+    end
+
+    context "inheritance with prefix" do
+      let(:subklass) do
+        Class.new(klass) do
+          jsonb_accessor :options, bar: [:integer, { default: 2, prefix: :b }]
+        end
+      end
+
+      let(:subklass_instance) { subklass.new }
+
+      it "includes default values from the parent in the jsonb hash" do
+        expect(subklass_instance.a_foo).to eq("bar")
+        expect(subklass_instance.b_bar).to eq(2)
+        expect(subklass_instance.options).to eq("foo" => "bar", "bar" => 2)
+      end
+    end
+
+    context "with store keys" do
+      let(:klass) do
+        build_class(foo: [:string, { default: "bar", store_key: :g, prefix: :a }])
+      end
+
+      it "creates accessor attribute with the given prefix and with the given store key" do
+        expect(instance.a_foo).to eq("bar")
+        expect(instance.options).to eq("g" => "bar")
+      end
+
+      context "inheritance" do
+        let(:subklass) do
+          Class.new(klass) do
+            jsonb_accessor :options, bar: [:integer, { default: 2, store_key: :h }]
+          end
+        end
+        let(:subklass_instance) { subklass.new }
+
+        it "includes default values from the parent in the jsonb hash with the correct store keys" do
+          expect(subklass_instance.a_foo).to eq("bar")
+          expect(subklass_instance.bar).to eq(2)
+          expect(subklass_instance.options).to eq("g" => "bar", "h" => 2)
+        end
+      end
+
+      context "inheritance with prefix" do
+        let(:subklass) do
+          Class.new(klass) do
+            jsonb_accessor :options, bar: [:integer, { default: 2, store_key: :i, prefix: :b }]
+          end
+        end
+        let(:subklass_instance) { subklass.new }
+
+        it "includes default values from the parent in the jsonb hash with the correct store keys" do
+          expect(subklass_instance.a_foo).to eq("bar")
+          expect(subklass_instance.b_bar).to eq(2)
+          expect(subklass_instance.options).to eq("g" => "bar", "i" => 2)
+        end
+      end
+    end
+  end
+
+  context "suffixes" do
+    let(:klass) do
+      build_class(foo: [:string, { default: "bar", suffix: :a }])
+    end
+
+    it "creates accessor attribute with the given suffix" do
+      expect(instance.foo_a).to eq("bar")
+      expect(instance.options).to eq("foo" => "bar")
+    end
+
+    context "when suffix is true" do
+      let(:klass) do
+        build_class(foo: [:string, { default: "bar", suffix: true }])
+      end
+
+      it "creates accessor attribute with the json_attribute name" do
+        expect(instance.foo_options).to eq("bar")
+        expect(instance.options).to eq("foo" => "bar")
+      end
+    end
+
+    context "inheritance" do
+      let(:subklass) do
+        Class.new(klass) do
+          jsonb_accessor :options, bar: [:integer, { default: 2 }]
+        end
+      end
+      let(:subklass_instance) { subklass.new }
+
+      it "includes default values from the parent in the jsonb hash" do
+        expect(subklass_instance.foo_a).to eq("bar")
+        expect(subklass_instance.bar).to eq(2)
+        expect(subklass_instance.options).to eq("foo" => "bar", "bar" => 2)
+      end
+    end
+
+    context "inheritance with suffix" do
+      let(:subklass) do
+        Class.new(klass) do
+          jsonb_accessor :options, bar: [:integer, { default: 2, suffix: :b }]
+        end
+      end
+
+      let(:subklass_instance) { subklass.new }
+
+      it "includes default values from the parent in the jsonb hash" do
+        expect(subklass_instance.foo_a).to eq("bar")
+        expect(subklass_instance.bar_b).to eq(2)
+        expect(subklass_instance.options).to eq("foo" => "bar", "bar" => 2)
+      end
+    end
+
+    context "with store keys" do
+      let(:klass) do
+        build_class(foo: [:string, { default: "bar", store_key: :g, suffix: :a }])
+      end
+
+      it "creates accessor attribute with the given suffix and with the given store key" do
+        expect(instance.foo_a).to eq("bar")
+        expect(instance.options).to eq("g" => "bar")
+      end
+
+      context "inheritance" do
+        let(:subklass) do
+          Class.new(klass) do
+            jsonb_accessor :options, bar: [:integer, { default: 2, store_key: :h }]
+          end
+        end
+        let(:subklass_instance) { subklass.new }
+
+        it "includes default values from the parent in the jsonb hash with the correct store keys" do
+          expect(subklass_instance.foo_a).to eq("bar")
+          expect(subklass_instance.bar).to eq(2)
+          expect(subklass_instance.options).to eq("g" => "bar", "h" => 2)
+        end
+      end
+
+      context "inheritance with suffix" do
+        let(:subklass) do
+          Class.new(klass) do
+            jsonb_accessor :options, bar: [:integer, { default: 2, store_key: :i, suffix: :b }]
+          end
+        end
+        let(:subklass_instance) { subklass.new }
+
+        it "includes default values from the parent in the jsonb hash with the correct store keys" do
+          expect(subklass_instance.foo_a).to eq("bar")
+          expect(subklass_instance.bar_b).to eq(2)
+          expect(subklass_instance.options).to eq("g" => "bar", "i" => 2)
+        end
+      end
+    end
+  end
+
   describe "#<jsonb_attribute>_where" do
     let(:klass) do
       build_class(
