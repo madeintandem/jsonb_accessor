@@ -328,23 +328,11 @@ Because this gem promotes attributes nested into the JSON column to first level 
 
 ## Development
 
-### On your local machine
-
 After checking out the repo, run `bin/setup` to install dependencies (make sure postgres is running first).
 
 Run `bin/console` for an interactive prompt that will allow you to experiment.
 
 `rake` will run Rubocop and the specs.
-
-### With Docker
-
-```
-# setup
-docker-compose build
-docker-compose run ruby rake db:migrate
-# run test suite
-docker-compose run ruby rake spec
-```
 
 ## Contributing
 
