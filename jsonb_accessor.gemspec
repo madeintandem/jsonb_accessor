@@ -15,7 +15,7 @@ Gem::Specification.new do |spec|
 
   spec.summary               = "Adds typed jsonb backed fields to your ActiveRecord models."
   spec.description           = "Adds typed jsonb backed fields to your ActiveRecord models."
-  spec.homepage              = "https://github.com/devmynd/jsonb_accessor"
+  spec.homepage              = "https://github.com/madeintandem/jsonb_accessor"
   spec.license               = "MIT"
   spec.required_ruby_version = ">= 3"
 
