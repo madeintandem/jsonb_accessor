@@ -322,9 +322,13 @@ Because this gem promotes attributes nested into the JSON column to first level 
 
 ## Dependencies
 
-- Ruby > 3. Lower versions are not tested.
-- ActiveRecord >= 6.1
-- Postgres >= 9.4 (in order to use the [jsonb column type](http://www.postgresql.org/docs/9.4/static/datatype-json.html)).
+We actively test the following in CI, older versions may work but are not supported:
+
+- Ruby >= 3.2 or JRuby 9.4
+- Rails >= 6.1
+- PostgreSQL >= 13
+
+JRuby isn't fully covered in the CI matrix due to errors, contributions to improve support are welcome!
 
 ## Development
 
