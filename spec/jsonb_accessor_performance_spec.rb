@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "benchmark"
 require "spec_helper"
 
 RSpec.describe "Jsonb Accessor Performace" do

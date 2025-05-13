@@ -8,12 +8,9 @@ Adds typed `jsonb` backed fields as first class citizens to your `ActiveRecord` 
 
 It also adds generic scopes for querying `jsonb` columns.
 
-## ⚠️ Status of this gem
+## ⚠️ Status
 
-Hi, [I](https://github.com/haffla) have taken over this gem a while back as sole maintainer from the original creators who had abandoned it. 
-This gem is in maintance mode now. No active development. Bug reports will be reviewed and worked on promptly. I will also make sure that the
-gem will keep working with new Ruby/Rails versions. But I don't have time to constantly improve the gem and add new features, let alone
-take care of feature requests. I am happy though to accept PRs that add new features or improve things. Please open an issue before and let's discuss it.
+This gem is in maintenance mode and no active development of new features is planned. The major focus is to keep it working with new Ruby/Rails versions and fix any bugs reported. Any PRs for feature requests or enhancements will be reviewed and merged -- so contributions are encouraged!
 
 ## Table of Contents
 
@@ -345,33 +342,21 @@ Because this gem promotes attributes nested into the JSON column to first level 
 
 ## Dependencies
 
-- Ruby > 3. Lower versions are not tested.
-- ActiveRecord >= 6.1
-- Postgres >= 9.4 (in order to use the [jsonb column type](http://www.postgresql.org/docs/9.4/static/datatype-json.html)).
+We actively test the following in CI, older versions may work but are not supported:
 
-## Upgrading
+- Ruby >= 3.2 or JRuby 9.4
+- Rails >= 6.1
+- PostgreSQL >= 13
 
-See the [upgrade guide](UPGRADE_GUIDE.md).
+JRuby isn't fully covered in the CI matrix due to errors, contributions to improve support are welcome!
 
 ## Development
-
-### On your local machine
 
 After checking out the repo, run `bin/setup` to install dependencies (make sure postgres is running first).
 
 Run `bin/console` for an interactive prompt that will allow you to experiment.
 
 `rake` will run Rubocop and the specs.
-
-### With Docker
-
-```
-# setup
-docker-compose build
-docker-compose run ruby rake db:migrate
-# run test suite
-docker-compose run ruby rake spec
-```
 
 ## Contributing
 
