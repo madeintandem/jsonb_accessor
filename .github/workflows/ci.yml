@@ -12,7 +12,7 @@ jobs:
     steps:
     - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-    - uses: ruby/setup-ruby@e34163cd15f4bb403dcd72d98e295997e6a55798 # v1.238.0
+    - uses: ruby/setup-ruby@a4effe49ee8ee5b8b5091268c473a4628afb5651 # v1.245.0
       with:
         ruby-version: "3.4"
         bundler-cache: true
@@ -51,7 +51,7 @@ jobs:
     - if:  matrix.activerecord == '6.1' # see https://github.com/rails/rails/pull/54264#issuecomment-2596149819
       run: echo "gem 'concurrent-ruby', '< 1.3.5'" > Gemfile.local
 
-    - uses: ruby/setup-ruby@e34163cd15f4bb403dcd72d98e295997e6a55798 # v1.238.0
+    - uses: ruby/setup-ruby@a4effe49ee8ee5b8b5091268c473a4628afb5651 # v1.245.0
       with:
         ruby-version: ${{ matrix.ruby }}
         bundler-cache: true
