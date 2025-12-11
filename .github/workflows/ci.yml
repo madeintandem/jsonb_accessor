@@ -25,16 +25,25 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby:         ["ruby-3.2", "ruby-3.3", "ruby-3.4", "jruby-9.4"]
-        activerecord: ["6.1", "7.0", "7.1", "7.2", "8.0"]
-        postgresql:   ["13", "14", "15", "16", "17"]
+        ruby:         ["ruby-3.2", "ruby-3.3", "ruby-3.4", "jruby-9.4", "jruby-10.0"]
+        activerecord: ["6.1", "7.0", "7.1", "7.2", "8.0", "8.1"]
+        postgresql:   ["13", "14", "15", "16", "17", "18"]
         exclude:
           # fails due to "ArgumentError: when initializing an Active Record adapter with a config hash, that should be the only argument" in db:schema:load
           - ruby: "jruby-9.4"
             activerecord: "7.2"
           - ruby: "jruby-9.4"
             activerecord: "8.0"
-    name: ${{ matrix.ruby }}, activerecord-${{ matrix.activerecord }}, postgresql-${{ matrix.postgresql }}
+          # fails due to "Because activerecord >= 8.0.0.beta1 depends on Ruby >= 3.2.0 and Gemfile depends on activerecord ~> 8.1, Ruby >= 3.2.0 is required. So, because current Ruby version is = 3.1.7, version solving has failed."
+          - ruby: "jruby-9.4"
+            activerecord: "8.1"
+          # https://github.com/jruby/activerecord-jdbc-adapter/issues/1173
+          - ruby: "jruby-10.0"
+            activerecord: "8.0"
+          # https://github.com/jruby/activerecord-jdbc-adapter/issues/1184
+          - ruby: "jruby-10.0"
+            activerecord: "8.1"
+    name: "Active Record ${{ matrix.activerecord }} with PostgreSQL ${{ matrix.postgresql }} on ${{ matrix.ruby }}"
     services:
       db:
         image: postgres:${{ matrix.postgresql }}
