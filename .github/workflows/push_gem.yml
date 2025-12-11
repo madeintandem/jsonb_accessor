@@ -26,7 +26,7 @@ jobs:
         with:
           egress-policy: audit
 
-      - uses: actions/checkout@cbb722410c2e876e24abbe8de2cc27693e501dcb # v4.2.2
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - if: matrix.ruby == 'jruby-9.4' # cribbed from https://github.com/ruby/psych/blob/v5.2.4/.github/workflows/push_gem.yml
         run: |
