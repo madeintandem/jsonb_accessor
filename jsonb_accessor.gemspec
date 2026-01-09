@@ -33,12 +33,14 @@ Gem::Specification.new do |spec|
   end
 
   spec.add_development_dependency "awesome_print"
-  spec.add_development_dependency "database_cleaner-active_record", "~> 2.1"
+  spec.add_development_dependency "benchmark" # for Ruby 4.0
+  spec.add_development_dependency "database_cleaner-active_record", ">= 2.1"
+  spec.add_development_dependency "ostruct"   # for Ruby 4.0
   spec.add_development_dependency "pry"
   spec.add_development_dependency "pry-doc"
   spec.add_development_dependency "pry-nav"
-  spec.add_development_dependency "psych", "~> 3"
+  spec.add_development_dependency "psych", ">= 3"
   spec.add_development_dependency "rake", ">= 12.3.3"
-  spec.add_development_dependency "rspec", "~> 3.6.0"
-  spec.add_development_dependency "rubocop", "~> 1"
+  spec.add_development_dependency "rspec", ">= 3.6.0"
+  spec.add_development_dependency "rubocop", ">= 1.0"
 end

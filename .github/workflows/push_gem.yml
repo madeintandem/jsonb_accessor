@@ -22,11 +22,11 @@ jobs:
         ruby: ["ruby-3.4", "jruby-9.4"]
 
     steps:
-      - uses: step-security/harden-runner@0634a2670c59f64b4a01f0f96f84700a4088b9f0 # v2.12.0
+      - uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
         with:
           egress-policy: audit
 
-      - uses: actions/checkout@cbb722410c2e876e24abbe8de2cc27693e501dcb # v4.2.2
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - if: matrix.ruby == 'jruby-9.4' # cribbed from https://github.com/ruby/psych/blob/v5.2.4/.github/workflows/push_gem.yml
         run: |
@@ -35,9 +35,9 @@ jobs:
           gem install ruby-maven rake-compiler --no-document
           rake compile
 
-      - uses: ruby/setup-ruby@eaecf785f6a34567a6d97f686bbb7bccc1ac1e5c # v1.237.0
+      - uses: ruby/setup-ruby@4c24fa5ec04b2e79eb40571b1cee2a0d2b705771 # v1.278.0
         with:
           bundler-cache: true
           ruby-version: ${{ matrix.ruby }}
 
-      - uses: rubygems/release-gem@a25424ba2ba8b387abc8ef40807c2c85b96cbe32 # v1.1.1
+      - uses: rubygems/release-gem@1c162a739e8b4cb21a676e97b087e8268d8fc40b # v1.1.2

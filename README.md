@@ -342,13 +342,13 @@ Because this gem promotes attributes nested into the JSON column to first level 
 
 ## Dependencies
 
-We actively test the following in CI, older versions may work but are not supported:
+We actively test the following in CI, older versions may work but are **not** supported:
 
-- Ruby >= 3.2 or JRuby 9.4
+- Ruby >= 3.2 or JRuby >= 9.4
 - Rails >= 6.1
 - PostgreSQL >= 13
 
-JRuby isn't fully covered in the CI matrix due to errors, contributions to improve support are welcome!
+JRuby isn't fully supported due to errors, see the CI matrix -- contributions to improve support are welcome!
 
 ## Development
 
