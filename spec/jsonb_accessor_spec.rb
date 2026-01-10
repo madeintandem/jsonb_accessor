@@ -6,7 +6,7 @@ RSpec.describe JsonbAccessor do
   def build_class(jsonb_accessor_config, &block)
     Class.new(ActiveRecord::Base) do
       self.table_name = "products"
-      jsonb_accessor :options, jsonb_accessor_config
+      jsonb_accessor :options, **jsonb_accessor_config
       instance_eval(&block) if block
 
       attribute :bang, :string
@@ -437,6 +437,34 @@ RSpec.describe JsonbAccessor do
           expect(subklass_instance.b_bar).to eq(2)
           expect(subklass_instance.options).to eq("g" => "bar", "i" => 2)
         end
+      end
+    end
+
+    context "with global prefix option" do
+      let(:klass) do
+        Class.new(ActiveRecord::Base) do
+          self.table_name = "products"
+          jsonb_accessor :options, { prefix: :opt }, foo: [:string, { default: "bar" }], baz: :integer
+        end
+      end
+
+      it "applies prefix to all fields" do
+        expect(instance.opt_foo).to eq("bar")
+        expect(instance).to respond_to(:opt_baz)
+        expect(instance).to respond_to(:opt_baz=)
+        expect(instance.options).to eq("foo" => "bar")
+      end
+
+      it "allows individual fields to override the global prefix" do
+        klass_with_override = Class.new(ActiveRecord::Base) do
+          self.table_name = "products"
+          jsonb_accessor :options, { prefix: :opt }, foo: [:string, { default: "bar" }], bar: [:integer, { prefix: :custom }]
+        end
+        instance_override = klass_with_override.new
+
+        expect(instance_override.opt_foo).to eq("bar")
+        expect(instance_override).to respond_to(:custom_bar)
+        expect(instance_override).to respond_to(:custom_bar=)
       end
     end
   end

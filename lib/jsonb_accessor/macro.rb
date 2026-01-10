@@ -3,17 +3,17 @@
 module JsonbAccessor
   module Macro
     module ClassMethods
-      def jsonb_accessor(jsonb_attribute, field_types)
+      def jsonb_accessor(jsonb_attribute, options = {}, **field_types)
         names_and_store_keys = field_types.each_with_object({}) do |(name, type), mapping|
-          _type, options = Array(type)
-          mapping[name.to_s] = (options.try(:delete, :store_key) || name).to_s
+          _type, field_options = Array(type)
+          mapping[name.to_s] = (field_options.try(:delete, :store_key) || name).to_s
         end
 
         # Get field names to attribute names
         names_and_attribute_names = field_types.each_with_object({}) do |(name, type), mapping|
-          _type, options = Array(type)
-          prefix = options.try(:delete, :prefix)
-          suffix = options.try(:delete, :suffix)
+          _type, field_options = Array(type)
+          prefix = field_options.try(:delete, :prefix) || options[:prefix]
+          suffix = field_options.try(:delete, :suffix) || options[:suffix]
           mapping[name.to_s] = JsonbAccessor::Helpers.define_attribute_name(jsonb_attribute, name, prefix, suffix)
         end
 
@@ -48,8 +48,8 @@ module JsonbAccessor
 
         # Get field names to default values mapping
         names_and_defaults = field_types.each_with_object({}) do |(name, type), mapping|
-          _type, options = Array(type)
-          field_default = options.try(:delete, :default)
+          _type, field_options = Array(type)
+          field_default = field_options.try(:delete, :default)
           mapping[name.to_s] = field_default unless field_default.nil?
         end
 
