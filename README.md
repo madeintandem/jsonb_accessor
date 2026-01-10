@@ -91,6 +91,58 @@ product.title #=> "Foo"
 product.data #=> { "t" => "Foo" }
 ```
 
+You can also pass in a `prefix` or `suffix` option.
+
+```ruby
+class Product < ActiveRecord::Base
+  jsonb_accessor :data,
+    title: [:string, prefix: :data],
+    external_id: [:integer, suffix: :attr]
+end
+```
+
+This allows you to use `data_title` and `external_id_attr` for your getters and setters, but use `title` and `external_id` as the key in the `jsonb`.
+Also, you can pass `true` as a value for `prefix` or `suffix` to use the json_accessor name.
+
+```ruby
+product = Product.new(data_title: "Foo", external_id_attr: 12314122)
+product.data_title #=> "Foo"
+product.external_id_attr #=> 12314122
+product.data #=> { "title" => "Foo", "external_id" => 12314122 }
+```
+
+### Global Options
+
+You can apply options to all fields by passing an options hash as the second parameter:
+
+```ruby
+class Product < ActiveRecord::Base
+  jsonb_accessor :data, { prefix: true },
+    title: :string,
+    external_id: :integer,
+    price: :decimal
+end
+```
+
+This applies the `prefix` to all fields. You can still override it for individual fields:
+
+```ruby
+class Product < ActiveRecord::Base
+  jsonb_accessor :data, { prefix: :product },
+    title: :string,
+    external_id: [:integer, prefix: :custom],
+    price: :decimal
+end
+
+product = Product.new(product_title: "Widget", custom_external_id: 123, product_price: 19.99)
+product.product_title #=> "Widget"
+product.custom_external_id #=> 123
+product.product_price #=> 19.99
+product.data #=> { "title" => "Widget", "external_id" => 123, "price" => 19.99 }
+```
+
+Global options currently support `:prefix` and `:suffix`.
+
 ## Scopes
 
 Jsonb Accessor provides several scopes to make it easier to query `jsonb` columns. `jsonb_contains`, `jsonb_number_where`, `jsonb_time_where`, and `jsonb_where` are available on all `ActiveRecord::Base` subclasses and don't require that you make use of the `jsonb_accessor` declaration.

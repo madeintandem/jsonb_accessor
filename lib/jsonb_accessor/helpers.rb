@@ -42,5 +42,28 @@ module JsonbAccessor
         Time.zone.parse(datetime)
       end
     end
+
+    def define_attribute_name(json_attribute, name, prefix, suffix)
+      accessor_prefix =
+        case prefix
+        when String, Symbol
+          "#{prefix}_"
+        when TrueClass
+          "#{json_attribute}_"
+        else
+          ""
+        end
+      accessor_suffix =
+        case suffix
+        when String, Symbol
+          "_#{suffix}"
+        when TrueClass
+          "_#{json_attribute}"
+        else
+          ""
+        end
+
+      "#{accessor_prefix}#{name}#{accessor_suffix}"
+    end
   end
 end
