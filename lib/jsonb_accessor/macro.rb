@@ -3,28 +3,26 @@
 module JsonbAccessor
   module Macro
     module ClassMethods
-      def jsonb_accessor(jsonb_attribute, options = {}, **field_types)
-        names_and_store_keys = field_types.each_with_object({}) do |(name, type), mapping|
-          _type, field_options = Array(type)
-          mapping[name.to_s] = (field_options.try(:delete, :store_key) || name).to_s
-        end
+      def jsonb_accessor(jsonb_attribute, global_options = {}, **definitions)
+        names_and_store_keys = {}
+        names_and_defaults = {}
+        names_and_attribute_names = {}
 
-        # Get field names to attribute names
-        names_and_attribute_names = field_types.each_with_object({}) do |(name, type), mapping|
-          _type, field_options = Array(type)
-          prefix = field_options.try(:delete, :prefix) || options[:prefix]
-          suffix = field_options.try(:delete, :suffix) || options[:suffix]
-          mapping[name.to_s] = JsonbAccessor::Helpers.define_attribute_name(jsonb_attribute, name, prefix, suffix)
-        end
+        definitions.each do |name, value|
+          args = Array(value)
+          options = args.last.is_a?(Hash) ? args.pop : {}
 
-        # Defines virtual attributes for each jsonb field.
-        field_types.each do |name, type|
-          attribute_name = names_and_attribute_names[name.to_s]
-          next attribute attribute_name, type unless type.is_a?(Array)
-          next attribute attribute_name, *type unless type.last.is_a?(Hash)
+          # Determine store keys and default values for each field
+          names_and_store_keys[name.to_s] = (options.delete(:store_key) || name).to_s
+          names_and_defaults[name.to_s] = options.delete(:default) unless options[:default].nil?
 
-          *args, keyword_args = type
-          attribute attribute_name, *args, **keyword_args
+          prefix = options.delete(:prefix) || global_options[:prefix]
+          suffix = options.delete(:suffix) || global_options[:suffix]
+          attribute_name = JsonbAccessor::Helpers.define_attribute_name(jsonb_attribute, name, prefix, suffix)
+
+          # Define virtual attributes for each field
+          names_and_attribute_names[name.to_s] = attribute_name
+          attribute attribute_name, *args, **options
         end
 
         store_key_mapping_method_name = "jsonb_store_key_mapping_for_#{jsonb_attribute}"
@@ -45,13 +43,6 @@ module JsonbAccessor
         end
         # We extend with class methods here so we can use the results of methods it defines to define more useful methods later
         extend class_methods
-
-        # Get field names to default values mapping
-        names_and_defaults = field_types.each_with_object({}) do |(name, type), mapping|
-          _type, field_options = Array(type)
-          field_default = field_options.try(:delete, :default)
-          mapping[name.to_s] = field_default unless field_default.nil?
-        end
 
         # Get store keys to default values mapping
         store_keys_and_defaults = JsonbAccessor::Helpers.convert_keys_to_store_keys(names_and_defaults, public_send(store_key_mapping_method_name))
