@@ -1,6 +1,9 @@
 # Changelog
 ## [Unreleased]
 
+### Added
+- Support for `prefix` and `suffix` options to customize attribute accessor names while preserving original keys in the JSONB column. [#173](https://github.com/madeintandem/jsonb_accessor/issues/173)
+
 ## [1.4] - 2023-10-15
 ### Breaking change
 - `jsonb_accessor` dropped support for Ruby 2 and Rails versions lower than 6.1. Support for ActiveRecord::Enum was also
