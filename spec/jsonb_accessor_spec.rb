@@ -6,7 +6,7 @@ RSpec.describe JsonbAccessor do
   def build_class(jsonb_accessor_config, &block)
     Class.new(ActiveRecord::Base) do
       self.table_name = "products"
-      jsonb_accessor :options, jsonb_accessor_config
+      jsonb_accessor :options, **jsonb_accessor_config
       instance_eval(&block) if block
 
       attribute :bang, :string
@@ -344,6 +344,222 @@ RSpec.describe JsonbAccessor do
       expect(instance).to_not be_bar_changed
 
       expect(klass.new(options: {})).to_not be_foo_changed
+    end
+  end
+
+  context "prefixes" do
+    let(:klass) do
+      build_class(foo: [:string, { default: "bar", prefix: :a }])
+    end
+
+    it "creates accessor attribute with the given prefix" do
+      expect(instance.a_foo).to eq("bar")
+      expect(instance.options).to eq("foo" => "bar")
+    end
+
+    context "when prefix is true" do
+      let(:klass) do
+        build_class(foo: [:string, { default: "bar", prefix: true }])
+      end
+
+      it "creates accessor attribute with the json_attribute name" do
+        expect(instance.options_foo).to eq("bar")
+        expect(instance.options).to eq("foo" => "bar")
+      end
+    end
+
+    context "inheritance" do
+      let(:subklass) do
+        Class.new(klass) do
+          jsonb_accessor :options, bar: [:integer, { default: 2 }]
+        end
+      end
+      let(:subklass_instance) { subklass.new }
+
+      it "includes default values from the parent in the jsonb hash" do
+        expect(subklass_instance.a_foo).to eq("bar")
+        expect(subklass_instance.bar).to eq(2)
+        expect(subklass_instance.options).to eq("foo" => "bar", "bar" => 2)
+      end
+    end
+
+    context "inheritance with prefix" do
+      let(:subklass) do
+        Class.new(klass) do
+          jsonb_accessor :options, bar: [:integer, { default: 2, prefix: :b }]
+        end
+      end
+
+      let(:subklass_instance) { subklass.new }
+
+      it "includes default values from the parent in the jsonb hash" do
+        expect(subklass_instance.a_foo).to eq("bar")
+        expect(subklass_instance.b_bar).to eq(2)
+        expect(subklass_instance.options).to eq("foo" => "bar", "bar" => 2)
+      end
+    end
+
+    context "with store keys" do
+      let(:klass) do
+        build_class(foo: [:string, { default: "bar", store_key: :g, prefix: :a }])
+      end
+
+      it "creates accessor attribute with the given prefix and with the given store key" do
+        expect(instance.a_foo).to eq("bar")
+        expect(instance.options).to eq("g" => "bar")
+      end
+
+      context "inheritance" do
+        let(:subklass) do
+          Class.new(klass) do
+            jsonb_accessor :options, bar: [:integer, { default: 2, store_key: :h }]
+          end
+        end
+        let(:subklass_instance) { subklass.new }
+
+        it "includes default values from the parent in the jsonb hash with the correct store keys" do
+          expect(subklass_instance.a_foo).to eq("bar")
+          expect(subklass_instance.bar).to eq(2)
+          expect(subklass_instance.options).to eq("g" => "bar", "h" => 2)
+        end
+      end
+
+      context "inheritance with prefix" do
+        let(:subklass) do
+          Class.new(klass) do
+            jsonb_accessor :options, bar: [:integer, { default: 2, store_key: :i, prefix: :b }]
+          end
+        end
+        let(:subklass_instance) { subklass.new }
+
+        it "includes default values from the parent in the jsonb hash with the correct store keys" do
+          expect(subklass_instance.a_foo).to eq("bar")
+          expect(subklass_instance.b_bar).to eq(2)
+          expect(subklass_instance.options).to eq("g" => "bar", "i" => 2)
+        end
+      end
+    end
+
+    context "with global prefix option" do
+      let(:klass) do
+        Class.new(ActiveRecord::Base) do
+          self.table_name = "products"
+          jsonb_accessor :options, { prefix: :opt }, foo: [:string, { default: "bar" }], baz: :integer
+        end
+      end
+
+      it "applies prefix to all fields" do
+        expect(instance.opt_foo).to eq("bar")
+        expect(instance).to respond_to(:opt_baz)
+        expect(instance).to respond_to(:opt_baz=)
+        expect(instance.options).to eq("foo" => "bar")
+      end
+
+      it "allows individual fields to override the global prefix" do
+        klass_with_override = Class.new(ActiveRecord::Base) do
+          self.table_name = "products"
+          jsonb_accessor :options, { prefix: :opt }, foo: [:string, { default: "bar" }], bar: [:integer, { prefix: :custom }]
+        end
+        instance_override = klass_with_override.new
+
+        expect(instance_override.opt_foo).to eq("bar")
+        expect(instance_override).to respond_to(:custom_bar)
+        expect(instance_override).to respond_to(:custom_bar=)
+      end
+    end
+  end
+
+  context "suffixes" do
+    let(:klass) do
+      build_class(foo: [:string, { default: "bar", suffix: :a }])
+    end
+
+    it "creates accessor attribute with the given suffix" do
+      expect(instance.foo_a).to eq("bar")
+      expect(instance.options).to eq("foo" => "bar")
+    end
+
+    context "when suffix is true" do
+      let(:klass) do
+        build_class(foo: [:string, { default: "bar", suffix: true }])
+      end
+
+      it "creates accessor attribute with the json_attribute name" do
+        expect(instance.foo_options).to eq("bar")
+        expect(instance.options).to eq("foo" => "bar")
+      end
+    end
+
+    context "inheritance" do
+      let(:subklass) do
+        Class.new(klass) do
+          jsonb_accessor :options, bar: [:integer, { default: 2 }]
+        end
+      end
+      let(:subklass_instance) { subklass.new }
+
+      it "includes default values from the parent in the jsonb hash" do
+        expect(subklass_instance.foo_a).to eq("bar")
+        expect(subklass_instance.bar).to eq(2)
+        expect(subklass_instance.options).to eq("foo" => "bar", "bar" => 2)
+      end
+    end
+
+    context "inheritance with suffix" do
+      let(:subklass) do
+        Class.new(klass) do
+          jsonb_accessor :options, bar: [:integer, { default: 2, suffix: :b }]
+        end
+      end
+
+      let(:subklass_instance) { subklass.new }
+
+      it "includes default values from the parent in the jsonb hash" do
+        expect(subklass_instance.foo_a).to eq("bar")
+        expect(subklass_instance.bar_b).to eq(2)
+        expect(subklass_instance.options).to eq("foo" => "bar", "bar" => 2)
+      end
+    end
+
+    context "with store keys" do
+      let(:klass) do
+        build_class(foo: [:string, { default: "bar", store_key: :g, suffix: :a }])
+      end
+
+      it "creates accessor attribute with the given suffix and with the given store key" do
+        expect(instance.foo_a).to eq("bar")
+        expect(instance.options).to eq("g" => "bar")
+      end
+
+      context "inheritance" do
+        let(:subklass) do
+          Class.new(klass) do
+            jsonb_accessor :options, bar: [:integer, { default: 2, store_key: :h }]
+          end
+        end
+        let(:subklass_instance) { subklass.new }
+
+        it "includes default values from the parent in the jsonb hash with the correct store keys" do
+          expect(subklass_instance.foo_a).to eq("bar")
+          expect(subklass_instance.bar).to eq(2)
+          expect(subklass_instance.options).to eq("g" => "bar", "h" => 2)
+        end
+      end
+
+      context "inheritance with suffix" do
+        let(:subklass) do
+          Class.new(klass) do
+            jsonb_accessor :options, bar: [:integer, { default: 2, store_key: :i, suffix: :b }]
+          end
+        end
+        let(:subklass_instance) { subklass.new }
+
+        it "includes default values from the parent in the jsonb hash with the correct store keys" do
+          expect(subklass_instance.foo_a).to eq("bar")
+          expect(subklass_instance.bar_b).to eq(2)
+          expect(subklass_instance.options).to eq("g" => "bar", "i" => 2)
+        end
+      end
     end
   end
 
