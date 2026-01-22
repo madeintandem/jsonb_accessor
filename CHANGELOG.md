@@ -1,6 +1,7 @@
 # Changelog
 ## [Unreleased]
 
+## [1.4.1] - 2026-01-22
 ### Added
 - Support for `prefix` and `suffix` options to customize attribute accessor names while preserving original keys in the JSONB column. [#173](https://github.com/madeintandem/jsonb_accessor/issues/173)
 
