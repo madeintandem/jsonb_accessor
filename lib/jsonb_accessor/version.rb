@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module JsonbAccessor
-  VERSION = "1.4"
+  VERSION = "1.4.1"
 
   def self.enum_support?
     # From AR 7.1 on, enums require a database column.
