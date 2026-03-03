@@ -144,6 +144,29 @@ RSpec.describe JsonbAccessor do
       expect(klass.new.baz).to eq(2)
     end
 
+    context "persisted records with sparse jsonb data" do
+      let(:klass) do
+        build_class(
+          title: :string,
+          score: [:integer, { default: 0 }],
+          tags: [:string, { array: true, default: %w[a b] }]
+        )
+      end
+
+      it "returns defaults for fields not present in the jsonb column" do
+        # Save a record with only 'title' set — score and tags are not in the jsonb hash
+        record = klass.create!
+        klass.connection.execute(
+          "UPDATE products SET options = '{\"title\": \"hello\"}' WHERE id = #{record.id}"
+        )
+
+        loaded = klass.find(record.id)
+        expect(loaded.title).to eq("hello")
+        expect(loaded.score).to eq(0)
+        expect(loaded.tags).to eq(%w[a b])
+      end
+    end
+
     context "false as a default" do
       let(:klass) do
         build_class(foo: [:boolean, { default: false }])
