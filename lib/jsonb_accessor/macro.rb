@@ -73,7 +73,7 @@ module JsonbAccessor
             attribute_name = names_and_attribute_names[name]
 
             define_method("#{attribute_name}=") do |value|
-              super(value)
+              write_attribute(attribute_name, value)
 
               # If enum was defined, take the value from the enum and not what comes out directly from the getter
               attribute_value = defined_enums[attribute_name].present? ? defined_enums[attribute_name][value] : public_send(attribute_name)
