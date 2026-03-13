@@ -24,7 +24,7 @@ module JsonbAccessor
       # <jsonb_attribute>_order scope
       klass.define_singleton_method "#{jsonb_attribute}_order" do |*args|
         ordering_options = args.extract_options!
-        order_by_defaults = args.each_with_object({}) { |attribute, config| config[attribute] = :asc }
+        order_by_defaults = args.to_h { |attribute| [attribute, :asc] }
         store_key_mapping = all.model.public_send(store_key_mapping_method_name)
 
         order_by_defaults.merge(ordering_options).reduce(all) do |query, (name, direction)|

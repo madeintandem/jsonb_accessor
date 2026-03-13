@@ -14,7 +14,7 @@ module JsonbAccessor
 
           # Determine store keys and default values for each field
           names_and_store_keys[name.to_s] = (options.delete(:store_key) || name).to_s
-          names_and_defaults[name.to_s] = options.delete(:default) unless options[:default].nil?
+          names_and_defaults[name.to_s] = options[:default] unless options[:default].nil?
 
           prefix = options.delete(:prefix) || global_options[:prefix]
           suffix = options.delete(:suffix) || global_options[:suffix]

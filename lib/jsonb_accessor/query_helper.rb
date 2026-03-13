@@ -3,10 +3,10 @@
 module JsonbAccessor
   module QueryHelper
     # Errors
-    InvalidColumnName = Class.new(StandardError)
-    InvalidFieldName = Class.new(StandardError)
-    InvalidDirection = Class.new(StandardError)
-    NotSupported = Class.new(StandardError)
+    class InvalidColumnName < StandardError; end
+    class InvalidFieldName < StandardError; end
+    class InvalidDirection < StandardError; end
+    class NotSupported < StandardError; end
 
     # Constants
     GREATER_THAN = ">"
