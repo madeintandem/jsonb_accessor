@@ -1,6 +1,7 @@
 # Changelog
 ## [Unreleased]
 
+## [1.4.2] - 2026-03-20
 ### Fixed
 - Bug fix: Persisted records with sparse JSONB data returned `nil` instead of declared defaults for fields absent from the column. This regression was introduced in 1.4.1 during the `prefix`/`suffix` refactor, where `options.delete(:default)` mutated the options hash before passing it to `attribute`, stripping the default from the virtual attribute definition.
 
