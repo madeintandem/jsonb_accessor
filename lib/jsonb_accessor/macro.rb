@@ -4,6 +4,10 @@ module JsonbAccessor
   module Macro
     module ClassMethods
       def jsonb_accessor(jsonb_attribute, global_options = {}, **definitions)
+        # Backward compatibility: support the old positional hash syntax where definitions
+        # are passed as a plain hash (jsonb_accessor :col, { foo: :string })
+        definitions = global_options if global_options.present? && definitions.blank?
+
         names_and_store_keys = {}
         names_and_defaults = {}
         names_and_attribute_names = {}
@@ -14,7 +18,7 @@ module JsonbAccessor
 
           # Determine store keys and default values for each field
           names_and_store_keys[name.to_s] = (options.delete(:store_key) || name).to_s
-          names_and_defaults[name.to_s] = options.delete(:default) unless options[:default].nil?
+          names_and_defaults[name.to_s] = options[:default] unless options[:default].nil?
 
           prefix = options.delete(:prefix) || global_options[:prefix]
           suffix = options.delete(:suffix) || global_options[:suffix]

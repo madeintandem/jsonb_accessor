@@ -14,6 +14,7 @@ dbconfig = YAML.safe_load(ERB.new(File.read(File.join("db", "config.yml"))).resu
 ActiveRecord::Base.establish_connection(dbconfig["test"])
 ActiveRecord::Base.logger = Logger.new($stdout, level: :warn)
 
+# rubocop:disable Style/OneClassPerFile
 class StaticProduct < ActiveRecord::Base
   self.table_name = "products"
   belongs_to :product_category
@@ -27,6 +28,7 @@ class ProductCategory < ActiveRecord::Base
   jsonb_accessor :options, title: :string
   has_many :products
 end
+# rubocop:enable Style/OneClassPerFile
 
 RSpec::Matchers.define :attr_accessorize do |attribute_name|
   match do |actual|

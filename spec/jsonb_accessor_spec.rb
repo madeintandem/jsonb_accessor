@@ -89,6 +89,35 @@ RSpec.describe JsonbAccessor do
         Product.select(:id).first
       end.not_to raise_error
     end
+
+    context "with positional hash syntax" do
+      let(:legacy_klass) do
+        Class.new(ActiveRecord::Base) do
+          self.table_name = "products"
+          # Old-style positional hash syntax
+          jsonb_accessor :options, { foo: :string, bar: [:integer, { default: 42 }] }
+        end
+      end
+
+      it "defines getters and setters" do
+        instance = legacy_klass.new
+        expect(instance).to respond_to(:foo)
+        expect(instance).to respond_to(:foo=)
+        expect(instance).to respond_to(:bar)
+        expect(instance).to respond_to(:bar=)
+      end
+
+      it "respects defaults" do
+        instance = legacy_klass.new
+        expect(instance.bar).to eq(42)
+      end
+
+      it "syncs values to the jsonb column" do
+        instance = legacy_klass.new
+        instance.foo = "hello"
+        expect(instance.options["foo"]).to eq("hello")
+      end
+    end
   end
 
   context "getters" do
@@ -142,6 +171,29 @@ RSpec.describe JsonbAccessor do
 
       # Make sure the default proc is evaluated each time an instance is created
       expect(klass.new.baz).to eq(2)
+    end
+
+    context "persisted records with sparse jsonb data" do
+      let(:klass) do
+        build_class(
+          title: :string,
+          score: [:integer, { default: 0 }],
+          tags: [:string, { array: true, default: %w[a b] }]
+        )
+      end
+
+      it "returns defaults for fields not present in the jsonb column" do
+        # Save a record with only 'title' set — score and tags are not in the jsonb hash
+        record = klass.create!
+        klass.connection.execute(
+          "UPDATE products SET options = '{\"title\": \"hello\"}' WHERE id = #{record.id}"
+        )
+
+        loaded = klass.find(record.id)
+        expect(loaded.title).to eq("hello")
+        expect(loaded.score).to eq(0)
+        expect(loaded.tags).to eq(%w[a b])
+      end
     end
 
     context "false as a default" do
