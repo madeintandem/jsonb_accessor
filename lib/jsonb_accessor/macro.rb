@@ -4,6 +4,10 @@ module JsonbAccessor
   module Macro
     module ClassMethods
       def jsonb_accessor(jsonb_attribute, global_options = {}, **definitions)
+        # Backward compatibility: support the old positional hash syntax where definitions
+        # are passed as a plain hash (jsonb_accessor :col, { foo: :string })
+        definitions = global_options if global_options.present? && definitions.blank?
+
         names_and_store_keys = {}
         names_and_defaults = {}
         names_and_attribute_names = {}
@@ -73,7 +77,7 @@ module JsonbAccessor
             attribute_name = names_and_attribute_names[name]
 
             define_method("#{attribute_name}=") do |value|
-              write_attribute(attribute_name, value)
+              super(value)
 
               # If enum was defined, take the value from the enum and not what comes out directly from the getter
               attribute_value = defined_enums[attribute_name].present? ? defined_enums[attribute_name][value] : public_send(attribute_name)

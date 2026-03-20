@@ -89,6 +89,35 @@ RSpec.describe JsonbAccessor do
         Product.select(:id).first
       end.not_to raise_error
     end
+
+    context "with positional hash syntax" do
+      let(:legacy_klass) do
+        Class.new(ActiveRecord::Base) do
+          self.table_name = "products"
+          # Old-style positional hash syntax
+          jsonb_accessor :options, { foo: :string, bar: [:integer, { default: 42 }] }
+        end
+      end
+
+      it "defines getters and setters" do
+        instance = legacy_klass.new
+        expect(instance).to respond_to(:foo)
+        expect(instance).to respond_to(:foo=)
+        expect(instance).to respond_to(:bar)
+        expect(instance).to respond_to(:bar=)
+      end
+
+      it "respects defaults" do
+        instance = legacy_klass.new
+        expect(instance.bar).to eq(42)
+      end
+
+      it "syncs values to the jsonb column" do
+        instance = legacy_klass.new
+        instance.foo = "hello"
+        expect(instance.options["foo"]).to eq("hello")
+      end
+    end
   end
 
   context "getters" do

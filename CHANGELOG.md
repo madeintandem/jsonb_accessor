@@ -4,6 +4,9 @@
 ### Fixed
 - Bug fix: Persisted records with sparse JSONB data returned `nil` instead of declared defaults for fields absent from the column. This regression was introduced in 1.4.1 during the `prefix`/`suffix` refactor, where `options.delete(:default)` mutated the options hash before passing it to `attribute`, stripping the default from the virtual attribute definition.
 
+### Changed
+- Documented the backward-compatible positional hash syntax in `jsonb_accessor`, where definitions are passed as a plain hash (jsonb_accessor :col, { foo: :string })
+
 ## [1.4.1] - 2026-01-22
 ### Added
 - Support for `prefix` and `suffix` options to customize attribute accessor names while preserving original keys in the JSONB column. [#173](https://github.com/madeintandem/jsonb_accessor/issues/173)
