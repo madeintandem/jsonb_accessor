@@ -35,7 +35,7 @@ jobs:
           gem install ruby-maven rake-compiler --no-document
           rake compile
 
-      - uses: ruby/setup-ruby@319994f95fa847cf3fb3cd3dbe89f6dcde9f178f # v1.295.0
+      - uses: ruby/setup-ruby@7372622e62b60b3cb750dcd2b9e32c247ffec26a # v1.302.0
         with:
           bundler-cache: true
           ruby-version: ${{ matrix.ruby }}
