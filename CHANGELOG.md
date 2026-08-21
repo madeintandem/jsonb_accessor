@@ -1,5 +1,7 @@
 # Changelog
 ## [Unreleased]
+### Fixed
+- Bug fix: `jsonb_accessor` no longer mutates the field definitions it is given. It popped the options hash off `[:string, { array: true }]` and deleted keys from that hash in place, so declaring the accessor destroyed a definition the caller kept in a constant, and a frozen definition raised `FrozenError`. 1.4.2 fixed one consequence of this (defaults being stripped) without removing the mutation.
 
 ## [1.4.2] - 2026-03-20
 ### Fixed

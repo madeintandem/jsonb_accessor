@@ -13,8 +13,8 @@ module JsonbAccessor
         names_and_attribute_names = {}
 
         definitions.each do |name, value|
-          args = Array(value)
-          options = args.last.is_a?(Hash) ? args.pop : {}
+          args = Array(value).dup
+          options = args.last.is_a?(Hash) ? args.pop.dup : {}
 
           # Determine store keys and default values for each field
           names_and_store_keys[name.to_s] = (options.delete(:store_key) || name).to_s
