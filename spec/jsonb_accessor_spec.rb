@@ -118,6 +118,23 @@ RSpec.describe JsonbAccessor do
         expect(instance.options["foo"]).to eq("hello")
       end
     end
+
+    context "with definitions the caller keeps" do
+      it "does not mutate them" do
+        definitions = { foo: [:string, { array: true, default: [], store_key: :f }] }
+        original = Marshal.load(Marshal.dump(definitions))
+
+        build_class(definitions)
+
+        expect(definitions).to eq(original)
+      end
+
+      it "accepts frozen definitions" do
+        definitions = { foo: [:string, { array: true, default: [].freeze }.freeze].freeze }.freeze
+
+        expect { build_class(definitions) }.to_not raise_error
+      end
+    end
   end
 
   context "getters" do
