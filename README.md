@@ -143,6 +143,44 @@ product.data #=> { "title" => "Widget", "external_id" => 123, "price" => 19.99 }
 
 Global options currently support `:prefix` and `:suffix`.
 
+### One Call Per Column
+
+Call `jsonb_accessor` only once per column per class. A second call on the same
+column in the same class replaces the field definitions from the first call
+rather than adding to them.
+
+```ruby
+class Product < ActiveRecord::Base
+  jsonb_accessor :data, title: [:string, { default: "untitled" }]
+  jsonb_accessor :data, price: [:decimal, { default: 0 }]
+end
+
+Product.new.data #=> { "price" => 0 }
+```
+
+The `title` field is missing from the column default, because the second call
+replaced the first one. This is quiet: `product.title` still returns
+`"untitled"`, since each field also gets a regular ActiveRecord attribute that
+keeps its own default.
+
+Declare every field for a column in a single call instead:
+
+```ruby
+class Product < ActiveRecord::Base
+  jsonb_accessor :data,
+    title: [:string, { default: "untitled" }],
+    price: [:decimal, { default: 0 }]
+end
+
+Product.new.data #=> { "title" => "untitled", "price" => 0 }
+```
+
+If the fields come from more than one place, such as a concern or an extension
+module, build them into one hash and pass that hash to a single call.
+
+Calls on a parent class and a child class do combine. See
+[Single-Table Inheritance](#single-table-inheritance).
+
 ## Scopes
 
 Jsonb Accessor provides several scopes to make it easier to query `jsonb` columns. `jsonb_contains`, `jsonb_number_where`, `jsonb_time_where`, and `jsonb_where` are available on all `ActiveRecord::Base` subclasses and don't require that you make use of the `jsonb_accessor` declaration.
