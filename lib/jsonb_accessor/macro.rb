@@ -122,6 +122,18 @@ module JsonbAccessor
           next unless has_attribute? jsonb_attribute
 
           jsonb_values = public_send(jsonb_attribute) || {}
+
+          # Loaded records only carry the keys that were stored, so fill in the missing defaults to match new
+          # records. The change is cleared so that loading alone never dirties the record or writes to the database.
+          if persisted? && jsonb_values.is_a?(Hash)
+            missing_defaults = self.class.public_send(defaults_mapping_method_name).except(*jsonb_values.keys)
+            if missing_defaults.any?
+              jsonb_values = jsonb_values.merge(missing_defaults.transform_values { |value| value.respond_to?(:call) ? value.call : value }.compact)
+              write_attribute(jsonb_attribute, jsonb_values)
+              clear_attribute_change(jsonb_attribute)
+            end
+          end
+
           jsonb_values.each do |store_key, value|
             name = names_and_store_keys.key(store_key)
             attribute_name = names_and_attribute_names[name]

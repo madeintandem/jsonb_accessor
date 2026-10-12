@@ -1,5 +1,7 @@
 # Changelog
 ## [Unreleased]
+### Fixed
+- Bug fix: The jsonb attribute of a persisted record now includes declared defaults for fields missing from the column (including when the column is `NULL`), matching new records. Loading does not mark the record as changed; the defaults are written along with the next change to the column.
 
 ## [1.4.2] - 2026-03-20
 ### Fixed
