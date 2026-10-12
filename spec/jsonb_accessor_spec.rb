@@ -194,6 +194,83 @@ RSpec.describe JsonbAccessor do
         expect(loaded.score).to eq(0)
         expect(loaded.tags).to eq(%w[a b])
       end
+
+      def load_with_options(sql_value)
+        id = klass.connection.select_value("INSERT INTO products (options) VALUES (#{sql_value}) RETURNING id")
+        klass.find(id)
+      end
+
+      it "includes defaults for fields missing from the jsonb column in the jsonb hash" do
+        loaded = load_with_options(%q('{"title": "hello", "score": 7}'))
+        expect(loaded.options).to eq("title" => "hello", "score" => 7, "tags" => %w[a b])
+        expect(loaded.score).to eq(7)
+      end
+
+      it "includes defaults in the jsonb hash when the column is empty" do
+        expect(load_with_options("'{}'").options).to eq("score" => 0, "tags" => %w[a b])
+      end
+
+      it "includes defaults in the jsonb hash when the column is NULL" do
+        expect(load_with_options("NULL").options).to eq("score" => 0, "tags" => %w[a b])
+      end
+
+      it "does not dirty the record or write the defaults on load" do
+        loaded = load_with_options("NULL")
+        expect(loaded).to_not be_changed
+        loaded.save!
+        expect(klass.connection.select_value("SELECT options FROM products WHERE id = #{loaded.id}")).to be_nil
+      end
+
+      it "persists the defaults along with the next change to the jsonb column" do
+        loaded = load_with_options("NULL")
+        loaded.update!(title: "hello")
+        expect(klass.find(loaded.id).options).to eq("title" => "hello", "score" => 0, "tags" => %w[a b])
+      end
+
+      it "keeps values stored in the jsonb column, including null and empty values" do
+        loaded = load_with_options(%q('{"score": null, "tags": []}'))
+        expect(loaded.options).to eq("score" => nil, "tags" => [])
+        expect(loaded.score).to be_nil
+        expect(loaded.tags).to eq([])
+      end
+
+      context "with store keys and proc defaults" do
+        let(:klass) do
+          counter = 0
+          build_class(
+            kind: [:string, { default: "single", store_key: :type }],
+            seq: [:integer, { default: -> { counter += 1 } }]
+          )
+        end
+
+        it "uses the store key and keeps the jsonb hash in sync with the attributes" do
+          loaded = load_with_options("'{}'")
+          expect(loaded.options).to eq("type" => "single", "seq" => loaded.seq)
+          expect(loaded.kind).to eq("single")
+        end
+      end
+
+      context "inheritance" do
+        let(:subklass) do
+          Class.new(klass) do
+            jsonb_accessor :options, rating: [:integer, { default: 3, store_key: :r }]
+          end
+        end
+
+        it "includes defaults from both the parent and the subclass" do
+          id = klass.connection.select_value("INSERT INTO products (options) VALUES ('{}') RETURNING id")
+          expect(subklass.find(id).options).to eq("score" => 0, "tags" => %w[a b], "r" => 3)
+        end
+      end
+    end
+
+    context "persisted records without defaults" do
+      let(:klass) { build_class(title: :string) }
+
+      it "leaves a NULL jsonb column as nil" do
+        id = klass.connection.select_value("INSERT INTO products (options) VALUES (NULL) RETURNING id")
+        expect(klass.find(id).options).to be_nil
+      end
     end
 
     context "false as a default" do
